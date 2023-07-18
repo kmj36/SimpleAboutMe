@@ -1,0 +1,24 @@
+version: '3.1'
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    container_name: ${CONTAINER_NAME}
+    ports:
+      - ${DBPORT}:3306 # HOST:CONTAINER
+    environment:
+      MYSQL_DATABASE: ${DBNAME}
+      MYSQL_ROOT_USER: ${DBUSER}
+      MYSQL_ROOT_PASSWORD: ${DBPASSWORD}
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./intropageDB/initdb.d:/docker-entrypoint-initdb.d/
+  adminer:
+    image: adminer
+    restart: "no"
+    container_name: ${CONTAINER_NAME}_adminer
+    ports:
+      - ${ADMINERPORT}:8080 # HOST:CONTAINER

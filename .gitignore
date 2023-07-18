@@ -1,0 +1,6 @@
+.vscode/
+Mysql.md
+*.pyc
+migrations/
+.env
+DB_volume_sync/
