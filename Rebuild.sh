@@ -1,5 +1,13 @@
 echo "[Starting introPage build script...]"
 
+echo "[Clearing __pycache__...]"
+sudo rm -r django_app/API/__pycache__
+sudo rm -r django_app/API/migrations/__pycache__
+sudo rm -r django_app/django_app/__pycache__
+
+echo "[Clearing docker container...]"
+sudo docker-compose down
+
 echo "[packages install...]"
 sudo apt-get update
 sudo apt-get install docker-compose python3 python3-pip libmysqlclient-dev -y

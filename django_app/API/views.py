@@ -27,14 +27,13 @@ class CategoryListAPI(APIView):
 
 class PostListAPI(APIView):
     def get(self, request):
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-    
-class PostDetailAPI(APIView):
-    def get(self, request, postid):
-        post = Post.objects.get(postid=postid)
-        serializer = PostSerializer(post)
+        page = request.GET.get('page')
+        if page:
+            post = Post.objects.get(postid=page)
+            serializer = PostSerializer(post)
+        else:
+            posts = Post.objects.all()
+            serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
 class CommentListAPI(APIView):

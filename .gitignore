@@ -4,6 +4,9 @@
 ### vscode ###
 .vscode/
 
+### SQL ###
+*.sql
+
 ### Django ###
 *.log
 *.pot
