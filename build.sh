@@ -6,6 +6,9 @@ sudo apt-get install docker-compose python3 python3-pip libmysqlclient-dev -y
 pip3 install django
 pip3 install python-dotenv
 pip3 install mysqlclient
+pip3 install djangorestframework
+pip3 install markdown
+pip3 install django-filter
 
 echo "[Docker-compose build...]"
 sudo docker-compose up -d
