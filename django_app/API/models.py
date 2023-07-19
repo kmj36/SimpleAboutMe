@@ -25,7 +25,7 @@ class Post(models.Model): # Post 테이블 정의, 1:N 관계
     postid = models.AutoField(primary_key=True)
     userid = models.ForeignKey(User, on_delete=models.CASCADE)
     categoryid = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
-    tagid = models.ManyToManyField(Tag, null=True, blank=True)
+    tagid = models.ManyToManyField(Tag, blank=True)
     title = models.CharField(max_length=100)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
