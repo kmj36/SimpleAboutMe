@@ -20,9 +20,13 @@ from API.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', Home.as_view()),
+    path('api/', APIRoot.as_view()),
     path('api/user/', UserListAPI.as_view()),
+    path('api/user/<str:userid>/', UserDetailAPI.as_view()),
     path('api/tag/', TagListAPI.as_view()),
     path('api/category/', CategoryListAPI.as_view()),
     path('api/post/', PostListAPI.as_view()),
+    path('api/post/<int:postid>/', PostDetailAPI.as_view()),
     path('api/comment/', CommentListAPI.as_view()),
 ]
