@@ -93,9 +93,23 @@ class UserDetailAPI(APIView): # 유저 디테일 API
 
 class TagListAPI(APIView):
     def get(self, request, format=None): # 태그 리스트 가져오기
-        tags = Tag.objects.all()
+        try:
+            tags = Tag.objects.all()
+        except:
+            return Response({'message': '리스트를 가져오는데 실패했습니다.'})
+        
+        if tags.count() == 0:
+            return Response({'message': '리스트가 비어 있습니다.'})
+
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
+    def post(self, request, format=None): # 테그 생성하기
+        serializer = TagSerializer(data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+        
+        serializer.save()
+        return Response({'message': '태그가 생성되었습니다.'})
 
 class CategoryListAPI(APIView):
     def get(self, request, format=None): # 카테고리 리스트 가져오기
