@@ -8,13 +8,13 @@ from .models import User, Tag, Category, Post, Comment
 from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 
-class Home(APIView):
-    def get(self, request, format=None):
+class Home(APIView): # Home
+    def get(self, request, format=None): # Home
         return Response({
                 'v1' : '/api/',
             })
 
-class APIRoot(APIView):
+class APIRoot(APIView): # API Root
     def get(self, request, format=None): # API Root
         return Response({
             'user': '/api/user/',
@@ -91,7 +91,7 @@ class UserDetailAPI(APIView): # 유저 디테일 API
         user.delete()
         return Response({'message': '회원정보가 삭제되었습니다.'})
 
-class TagListAPI(APIView):
+class TagListAPI(APIView): # 태그 리스트 API
     def get(self, request, format=None): # 태그 리스트 가져오기
         try:
             tags = Tag.objects.all()
@@ -111,25 +111,55 @@ class TagListAPI(APIView):
         serializer.save()
         return Response({'message': '태그가 생성되었습니다.'})
 
-class CategoryListAPI(APIView):
+class TagDetailAPI(APIView): # 태그 디테일 API
+    def get(self, request, tagid, format=None): # 태그 정보 가져오기
+        try:
+            tag = Tag.objects.get(tagid=tagid)
+        except:
+            return Response({'message': '존재하지 않는 태그입니다.'})
+        
+        serializer = TagSerializer(tag)
+        return Response(serializer.data)
+    def put(self, request, tagid, format=None): # 태그 정보 수정하기
+        try:
+            tag = Tag.objects.get(tagid=tagid)
+        except:
+            return Response({'message': '존재하지 않는 태그입니다.'})
+        
+        serializer = TagSerializer(tag, data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+        
+        serializer.save()
+        return Response({'message': '태그가 수정되었습니다.'})
+    def delete(self, request, tagid, format=None): # 태그 정보 삭제하기
+        try:
+            tag = Tag.objects.get(tagid=tagid)
+        except:
+            return Response({'message': '존재하지 않는 태그입니다.'})
+        
+        tag.delete()
+        return Response({'message': '태그가 삭제되었습니다.'})
+
+class CategoryListAPI(APIView): # 카테고리 리스트 API
     def get(self, request, format=None): # 카테고리 리스트 가져오기
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
-class PostListAPI(APIView):
+class PostListAPI(APIView): # 포스트 리스트 API
     def get(self, request, format=None): # 포스트 리스트 가져오기
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
     
-class PostDetailAPI(APIView):
-    def get(self, request, postid, format=None):
+class PostDetailAPI(APIView): # 포스트 디테일 API
+    def get(self, request, postid, format=None): # 포스트 정보 가져오기
         post = Post.objects.get(postid=postid)
         serializer = PostSerializer(post)
         return Response(serializer.data)
 
-class CommentListAPI(APIView):
+class CommentListAPI(APIView): # 댓글 리스트 API
     def get(self, request, format=None): # 댓글 리스트 가져오기
         comments = Comment.objects.all()
         serializer = CommentSerializer(comments, many=True)

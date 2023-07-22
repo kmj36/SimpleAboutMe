@@ -6,6 +6,7 @@ class User(models.Model): # User 테이블 정의, 1:N 관계
     password = models.CharField(max_length=30)
     nickname = models.CharField(max_length=50)
     email = models.EmailField(max_length=254)
+    created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.userid
 
