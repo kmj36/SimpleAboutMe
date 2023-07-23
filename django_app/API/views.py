@@ -28,17 +28,20 @@ class UserListAPI(APIView): # 유저 리스트 API
     def get(self, request, format=None): # 유저 리스트 가져오기
         try:
             users = User.objects.all()
+            if request.query_params != {}:
+                nickname = request.query_params.get('nickname')
+                email = request.query_params.get('email')
+                created_at = request.query_params.get('created_at')
 
-            nickname = request.query_params.get('nickname')
-            email = request.query_params.get('email')
-            created_at = request.query_params.get('created_at')
-
-            if nickname != None:
-                users = users.filter(nickname=nickname)
-            if email != None:
-                users = users.filter(email=email)
-            if created_at != None:
-                users = users.filter(created_at__startswith=created_at)
+                if nickname != None:
+                    users = users.filter(nickname=nickname)
+                if email != None:
+                    users = users.filter(email=email)
+                if created_at != None:
+                    users = users.filter(created_at__startswith=created_at)
+            
+            if request.query_params.get('getall') == None:
+                users = users[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
         
@@ -105,14 +108,17 @@ class TagListAPI(APIView): # 태그 리스트 API
     def get(self, request, format=None): # 태그 리스트 가져오기
         try:
             tags = Tag.objects.all()
+            if request.query_params != {}:
+                tagname = request.query_params.get('tagname')
+                created_at = request.query_params.get('created_at')
 
-            tagname = request.query_params.get('tagname')
-            created_at = request.query_params.get('created_at')
+                if tagname != None:
+                    tags = tags.filter(tagname=tagname)
+                if created_at != None:
+                    tags = tags.filter(created_at__startswith=created_at)
 
-            if tagname != None:
-                tags = tags.filter(tagname=tagname)
-            if created_at != None:
-                tags = tags.filter(created_at__startswith=created_at)
+            if request.query_params.get('getall') == None:
+                tags = tags[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
         
@@ -163,14 +169,17 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
     def get(self, request, format=None): # 카테고리 리스트 가져오기
         try:
             categories = Category.objects.all()
+            if request.query_params != {}:
+                categoryname = request.query_params.get('categoryname')
+                created_at = request.query_params.get('created_at')
 
-            categoryname = request.query_params.get('categoryname')
-            created_at = request.query_params.get('created_at')
-
-            if categoryname != None:
-                categories = categories.filter(categoryname=categoryname)
-            if created_at != None:
-                categories = categories.filter(created_at__startswith=created_at)
+                if categoryname != None:
+                    categories = categories.filter(categoryname=categoryname)
+                if created_at != None:
+                    categories = categories.filter(created_at__startswith=created_at)
+            
+            if request.query_params.get('getall') == None:
+                categories = categories[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
         
