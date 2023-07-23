@@ -1,10 +1,9 @@
-from django.shortcuts import render
-
 # Create your views here.
-from django.shortcuts import render
+#from django.shortcuts import render
 from rest_framework.response import Response
-from django.http import HttpResponse
+#from django.http import HttpResponse
 from .models import User, Tag, Category, Post, Comment
+#from django.db.models import Q
 from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 
@@ -29,6 +28,17 @@ class UserListAPI(APIView): # 유저 리스트 API
     def get(self, request, format=None): # 유저 리스트 가져오기
         try:
             users = User.objects.all()
+
+            nickname = request.query_params.get('nickname')
+            email = request.query_params.get('email')
+            created_at = request.query_params.get('created_at')
+
+            if nickname != None:
+                users = users.filter(nickname=nickname)
+            if email != None:
+                users = users.filter(email=email)
+            if created_at != None:
+                users = users.filter(created_at__startswith=created_at)
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
         
@@ -95,6 +105,14 @@ class TagListAPI(APIView): # 태그 리스트 API
     def get(self, request, format=None): # 태그 리스트 가져오기
         try:
             tags = Tag.objects.all()
+
+            tagname = request.query_params.get('tagname')
+            created_at = request.query_params.get('created_at')
+
+            if tagname != None:
+                tags = tags.filter(tagname=tagname)
+            if created_at != None:
+                tags = tags.filter(created_at__startswith=created_at)
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
         
@@ -103,7 +121,7 @@ class TagListAPI(APIView): # 태그 리스트 API
 
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
-    def post(self, request, format=None): # 테그 생성하기
+    def post(self, request, format=None): # 태그 생성하기
         serializer = TagSerializer(data=request.data)
         if serializer.is_valid() == False:
             return Response(serializer.errors)
@@ -143,9 +161,61 @@ class TagDetailAPI(APIView): # 태그 디테일 API
 
 class CategoryListAPI(APIView): # 카테고리 리스트 API
     def get(self, request, format=None): # 카테고리 리스트 가져오기
-        categories = Category.objects.all()
+        try:
+            categories = Category.objects.all()
+
+            categoryname = request.query_params.get('categoryname')
+            created_at = request.query_params.get('created_at')
+
+            if categoryname != None:
+                categories = categories.filter(categoryname=categoryname)
+            if created_at != None:
+                categories = categories.filter(created_at__startswith=created_at)
+        except:
+            return Response({'message': '리스트를 가져오는데 실패했습니다.'})
+        
+        if categories.count() == 0:
+            return Response({'message': '리스트가 비어 있습니다.'})
+        
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
+    def post(self, request, format=None): # 카테고리 생성하기
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+        
+        serializer.save()
+        return Response({'message': '카테고리가 생성되었습니다.'})
+    
+class CategoryDetailAPI(APIView): # 카테고리 디테일 API
+    def get(self, request, categoryid, format=None): # 카테고리 정보 가져오기
+        try:
+            category = Category.objects.get(categoryid=categoryid)
+        except:
+            return Response({'message': '존재하지 않는 카테고리입니다.'})
+        
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
+    def put(self, request, categoryid, format=None): # 카테고리 정보 수정하기
+        try:
+            category = Category.objects.get(categoryid=categoryid)
+        except:
+            return Response({'message': '존재하지 않는 카테고리입니다.'})
+        
+        serializer = CategorySerializer(category, data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+        
+        serializer.save()
+        return Response({'message': '카테고리가 수정되었습니다.'})
+    def delete(self, request, categoryid, format=None): # 카테고리 정보 삭제하기
+        try:
+            category = Category.objects.get(categoryid=categoryid)
+        except:
+            return Response({'message': '존재하지 않는 카테고리입니다.'})
+        
+        category.delete()
+        return Response({'message': '카테고리가 삭제되었습니다.'})
 
 class PostListAPI(APIView): # 포스트 리스트 API
     def get(self, request, format=None): # 포스트 리스트 가져오기
