@@ -1,8 +1,10 @@
+source .env
+
 echo "[Starting introPage build script...]"
 
 echo "[packages install...]"
 sudo apt-get update
-sudo apt-get install docker-compose python3 python3-pip libmysqlclient-dev -y
+sudo apt-get install docker docker-compose python3 python3-pip libmysqlclient-dev -y
 pip3 install django
 pip3 install python-dotenv
 pip3 install mysqlclient
@@ -22,7 +24,7 @@ cd django_app
 python3 manage.py makemigrations
 python3 manage.py migrate
 echo "[Please create superuser.]"
-python3 manage.py createsuperuser
+python3 manage.py createsuperuser2 --noinput --username $DJANGOADMINID --email $DJANGOADMINEMAIL --password $DJANGOADMINPASSWORD
 echo "[django_app build is done.]"
 python3 manage.py runserver
 
