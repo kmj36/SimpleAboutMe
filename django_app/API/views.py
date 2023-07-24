@@ -7,6 +7,10 @@ from .models import User, Tag, Category, Post, Comment
 from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 
+# todolist
+# - 서버 과부하 방지 리스트 API 모두 가져오기 부분 수정해서 getall 및 관리자 비밀번호 있을때만 전체 가져오도록 수정
+# - API 사이트 접속 후 데이터 변조 시도 방지 관리자 비밀번호 추가
+
 class Home(APIView): # Home
     def get(self, request, format=None): # Home
         return Response({
@@ -34,9 +38,33 @@ class UserListAPI(APIView): # 유저 리스트 API
                 created_at = request.query_params.get('created_at')
 
                 if nickname != None:
-                    users = users.filter(nickname=nickname)
+                    if nickname.find('*') != -1:
+                        if nickname[0] == '*' and nickname[-1] == '*':
+                            nickname = nickname[1:-1]
+                            users = users.filter(nickname__contains=nickname)
+                        if nickname[0] == '*':
+                            nickname = nickname[1:]
+                            users = users.filter(nickname__endswith=nickname)
+                        if nickname[-1] == '*':
+                            nickname = nickname[:-1]
+                            users = users.filter(nickname__startswith=nickname)       
+                    else:
+                        users = users.filter(nickname=nickname)
+                        
                 if email != None:
-                    users = users.filter(email=email)
+                    if email.find('*') != -1:
+                        if email[0] == '*' and email[-1] == '*':
+                            email = email[1:-1]
+                            users = users.filter(email__contains=email)
+                        if email[0] == '*':
+                            email = email[1:]
+                            users = users.filter(email__endswith=email)
+                        if email[-1] == '*':
+                            email = email[:-1]
+                            users = users.filter(email__startswith=email)       
+                    else:
+                        users = users.filter(email=email)
+                        
                 if created_at != None:
                     users = users.filter(created_at__startswith=created_at)
             
@@ -113,7 +141,19 @@ class TagListAPI(APIView): # 태그 리스트 API
                 created_at = request.query_params.get('created_at')
 
                 if tagname != None:
-                    tags = tags.filter(tagname=tagname)
+                    if tagname.find('*') != -1:
+                        if tagname[0] == '*' and tagname[-1] == '*':
+                            tagname = tagname[1:-1]
+                            tags = tags.filter(tagname__contains=tagname)
+                        if tagname[0] == '*':
+                            tagname = tagname[1:]
+                            tags = tags.filter(tagname__endswith=tagname)
+                        if tagname[-1] == '*':
+                            tagname = tagname[:-1]
+                            tags = tags.filter(tagname__startswith=tagname)       
+                    else:
+                        tags = tags.filter(tagname=tagname)
+                    
                 if created_at != None:
                     tags = tags.filter(created_at__startswith=created_at)
 
@@ -174,7 +214,19 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
                 created_at = request.query_params.get('created_at')
 
                 if categoryname != None:
-                    categories = categories.filter(categoryname=categoryname)
+                    if categoryname.find('*') != -1:
+                        if categoryname[0] == '*' and categoryname[-1] == '*':
+                            categoryname = categoryname[1:-1]
+                            categories = categories.filter(categoryname__contains=categoryname)
+                        if categoryname[0] == '*':
+                            categoryname = categoryname[1:]
+                            categories = categories.filter(categoryname__endswith=categoryname)
+                        if categoryname[-1] == '*':
+                            categoryname = categoryname[:-1]
+                            categories = categories.filter(categoryname__startswith=categoryname)       
+                    else:
+                        categories = categories.filter(categoryname=categoryname)
+                    
                 if created_at != None:
                     categories = categories.filter(created_at__startswith=created_at)
             
@@ -228,18 +280,176 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API
 
 class PostListAPI(APIView): # 포스트 리스트 API
     def get(self, request, format=None): # 포스트 리스트 가져오기
-        posts = Post.objects.all()
+        try:
+            posts = Post.objects.all()
+            if request.query_params != {}:
+                userid = request.query_params.get('userid')
+                categoryid = request.query_params.get('categoryid')
+                title = request.query_params.get('title')
+                content = request.query_params.get('content')
+                created_at = request.query_params.get('created_at')
+
+                if userid != None:
+                    posts = posts.filter(userid=userid)
+                if categoryid != None:
+                    categoryid = Category.objects.get(categoryid=categoryid)
+                    
+                if title != None:
+                    if title.find('*') != -1:
+                        if title[0] == '*' and title[-1] == '*':
+                            title = title[1:-1]
+                            posts = posts.filter(title__contains=title)
+                        if title[0] == '*':
+                            title = title[1:]
+                            posts = posts.filter(title__endswith=title)
+                        if title[-1] == '*':
+                            title = title[:-1]
+                            posts = posts.filter(title__startswith=title)       
+                    else:
+                        posts = posts.filter(title=title)
+                        
+                if content != None:
+                    if content.find('*') != -1:
+                        if content[0] == '*' and content[-1] == '*':
+                            content = content[1:-1]
+                            posts = posts.filter(content__contains=content)
+                        if content[0] == '*':
+                            content = content[1:]
+                            posts = posts.filter(content__endswith=content)
+                        if content[-1] == '*':
+                            content = content[:-1]
+                            posts = posts.filter(content__startswith=content)       
+                    else:
+                        posts = posts.filter(content=content)
+                    
+                if created_at != None:
+                    posts = posts.filter(created_at__startswith=created_at)
+            
+            if request.query_params.get('getall') == None:
+                posts = posts[:10]
+        except:
+            return Response({'message': '리스트를 가져오는데 실패했습니다.'})
+        
+        if posts.count() == 0:
+            return Response({'message': '리스트가 비어 있습니다.'})
+
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
     
+    def post(self, request, format=None): # 포스트 생성하기
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+        
+        serializer.save()
+        return Response({'message': '포스트가 생성되었습니다.'})
+    
 class PostDetailAPI(APIView): # 포스트 디테일 API
     def get(self, request, postid, format=None): # 포스트 정보 가져오기
-        post = Post.objects.get(postid=postid)
+        try:
+            post = Post.objects.get(postid=postid)
+        except:
+            return Response({'message': '존재하지 않는 포스트입니다.'})
+        
         serializer = PostSerializer(post)
         return Response(serializer.data)
+    def put(self, request, postid, format=None): # 포스트 정보 수정하기
+        try:
+            post = Post.objects.get(postid=postid)
+        except:
+            return Response({'message': '존재하지 않는 포스트입니다.'})
+        
+        serializer = PostSerializer(post, data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+        
+        serializer.save()
+        return Response({'message': '포스트가 수정되었습니다.'})
+    def delete(self, request, postid, format=None): # 포스트 정보 삭제하기
+        try:
+            post = Post.objects.get(postid=postid)
+        except:
+            return Response({'message': '존재하지 않는 포스트입니다.'})
+        
+        post.delete()
+        return Response({'message': '포스트가 삭제되었습니다.'})
 
 class CommentListAPI(APIView): # 댓글 리스트 API
     def get(self, request, format=None): # 댓글 리스트 가져오기
-        comments = Comment.objects.all()
-        serializer = CommentSerializer(comments, many=True)
+        try:
+            Comments = Comment.objects.all()
+            if request.query_params != {}:
+                userid = request.query_params.get('userid')
+                postid = request.query_params.get('postid')
+                content = request.query_params.get('content')
+                creted_at = request.query_params.get('created_at')
+                
+                if userid != None:
+                    Comments = Comments.filter(userid=userid)
+                if postid != None:
+                    Comments = Comments.filter(postid=postid)
+                    
+                if content != None:
+                    if content.find('*') != -1:
+                        if content[0] == '*' and content[-1] == '*':
+                            content = content[1:-1]
+                            Comments = Comments.filter(content__contains=content)
+                        if content[0] == '*':
+                            content = content[1:]
+                            Comments = Comments.filter(content__endswith=content)
+                        if content[-1] == '*':
+                            content = content[:-1]
+                            Comments = Comments.filter(content__startswith=content)       
+                    else:
+                        Comments = Comments.filter(content=content)
+                    
+                if creted_at != None:
+                    Comments = Comments.filter(creted_at__startswith=creted_at)
+                    
+            if request.query_params.get('getall') == None:
+                Comments = Comments[:10]
+        except:
+            return Response({'message': '리스트를 가져오는데 실패했습니다.'})
+        
+        if Comments.count() == 0:
+            return Response({'message': '리스트가 비어 있습니다.'})
+        
+        serializer = CommentSerializer(Comments, many=True)
         return Response(serializer.data)
+    def post(self, request, format=None): # 댓글 생성하기
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+        
+        serializer.save()
+        return Response({'message': '댓글이 생성되었습니다.'})
+    
+class CommentDetailAPI(APIView): # 댓글 디테일 API
+    def get(self, request, commentid, format=None): # 댓글 정보 가져오기
+        try:
+            comment = Comment.objects.get(commentid=commentid)
+        except:
+            return Response({'message': '존재하지 않는 댓글입니다.'})
+        
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
+    def put(self, request, commentid, format=None):
+        try:
+            Comment = Comment.objects.get(commentid=commentid)
+        except:
+            return Response({'message': '존재하지 않는 댓글입니다.'})
+
+        serializer = CommentSerializer(Comment, data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors)
+
+        serializer.save()
+        return Response({'message': '댓글이 수정되었습니다.'})
+    def delete(self, request, commentid, format=None):
+        try:
+            Comment = Comment.objects.get(commentid=commentid)
+        except:
+            return Response({'message': '존재하지 않는 댓글입니다.'})
+        
+        Comment.delete()
+        return Response({'message': '댓글이 삭제되었습니다.'})
