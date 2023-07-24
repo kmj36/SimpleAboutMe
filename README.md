@@ -23,7 +23,12 @@ Django를 이용하여 API를 구축하고, MySQL을 데이터베이스로 사�
 - ... 추가 예정
 
 ## 설치 및 실행
-1. .env 파일을 생성해 아래와 같은 환경변수에 값을 입력합니다.
+1. 이 저장소를 클론합니다.
+
+   ```shell
+   git clone https://github.com/kmj36/P_intropage_v1.git
+
+2. .env 파일을 생성해 아래와 같은 환경변수에 값을 입력합니다.
    ```env
    CONTAINER_NAME=[컨테이너명]
    DBNAME=[DB명]
@@ -32,16 +37,13 @@ Django를 이용하여 API를 구축하고, MySQL을 데이터베이스로 사�
    DBHOST=[IP]
    DBPORT=[PORT]
    ADMINERPORT=[PORT]
+   DJANGOADMINID=[관리자페이지초기ID]
+   DJANGOADMINEMAIL=[관리자페이지초기EMAIL]
+   DJANGOADMINPASSWORD=[관리자페이지초기PASSWORD]
 
-3. 이 저장소를 클론합니다.
 
+3. build.sh 를 실행하면 자동으로 설치를 시작합나다.
    ```shell
-   git clone https://github.com/kmj36/P_intropage_v1.git
-
-4. docker-compose를 이용해 DB를 초기화합니다.
-   DB를 관리하기 위해 자동으로 Adminer를 생성합니다.
-
-   ```shell
-   docker-compose up -d
+   ./build.sh
 
 3. ... 추가 예정
