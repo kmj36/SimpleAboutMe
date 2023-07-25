@@ -7,6 +7,8 @@ class User(models.Model): # User 테이블 정의, 1:N 관계
     nickname = models.CharField(max_length=50)
     email = models.EmailField(max_length=254, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    listlogin_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.userid
 
@@ -32,6 +34,8 @@ class Post(models.Model): # Post 테이블 정의, 1:N 관계
     title = models.CharField(max_length=100)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    published_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.title
 
@@ -41,5 +45,6 @@ class Comment(models.Model): # Comment 테이블 정의, 1:N 관계
     postid = models.ForeignKey(Post, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.content

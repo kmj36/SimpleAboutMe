@@ -8,23 +8,33 @@ from .serializers import UserSerializer, TagSerializer, CategorySerializer, Post
 from rest_framework.views import APIView
 
 # json count default: 10
-# - API 사이트 접속 후 데이터 변조 시도 방지 관리자 비밀번호 추가
-
-class Home(APIView): # Home
-    def get(self, request, format=None): # Home
-        return Response({
-                'v1' : '/api/',
-            })
 
 class APIRoot(APIView): # API Root
     def get(self, request, format=None): # API Root
         return Response({
-            'user': '/api/user/',
-            'tag': '/api/tag/',
-            'category': '/api/category/',
-            'post': '/api/post/',
-            'postDetail': '/api/post/[postid]/',
-            'comment': '/api/comment/',
+            'message': 'All direct api access needed admin jwt token but frontend request is not needed.',
+            'v1': {
+                'user': {
+                    'list': '/user/',
+                    'detail': '/user/<str:userid>/',
+                },
+                'tag': {
+                    'list': '/tag/',
+                    'detail': '/tag/<int:tagid>/',
+                },
+                'category': {
+                    'list': '/category/',
+                    'detail': '/category/<int:categoryid>/',
+                },
+                'post': {
+                    'list': '/post/',
+                    'detail': '/post/<int:postid>/',
+                },
+                'comment': {
+                    'list': '/comment/',
+                    'detail': '/comment/<int:commentid>/',
+                },
+            },
         })
 
 class UserListAPI(APIView): # 유저 리스트 API
