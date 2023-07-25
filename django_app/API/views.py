@@ -7,8 +7,7 @@ from .models import User, Tag, Category, Post, Comment
 from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 
-# todolist
-# - 서버 과부하 방지 리스트 API 모두 가져오기 부분 수정해서 getall 및 관리자 비밀번호 있을때만 전체 가져오도록 수정
+# json count default: 10
 # - API 사이트 접속 후 데이터 변조 시도 방지 관리자 비밀번호 추가
 
 class Home(APIView): # Home
@@ -32,7 +31,7 @@ class UserListAPI(APIView): # 유저 리스트 API
     def get(self, request, format=None): # 유저 리스트 가져오기
         try:
             users = User.objects.all()
-            if request.query_params != {}:
+            if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 nickname = request.query_params.get('nickname')
                 email = request.query_params.get('email')
                 created_at = request.query_params.get('created_at')
@@ -67,8 +66,8 @@ class UserListAPI(APIView): # 유저 리스트 API
                         
                 if created_at != None:
                     users = users.filter(created_at__startswith=created_at)
-            
-            if request.query_params.get('getall') == None:
+
+            elif request.query_params.get('getall') == None:
                 users = users[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
@@ -136,7 +135,7 @@ class TagListAPI(APIView): # 태그 리스트 API
     def get(self, request, format=None): # 태그 리스트 가져오기
         try:
             tags = Tag.objects.all()
-            if request.query_params != {}:
+            if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 tagname = request.query_params.get('tagname')
                 created_at = request.query_params.get('created_at')
 
@@ -157,7 +156,7 @@ class TagListAPI(APIView): # 태그 리스트 API
                 if created_at != None:
                     tags = tags.filter(created_at__startswith=created_at)
 
-            if request.query_params.get('getall') == None:
+            elif request.query_params.get('getall') == None:
                 tags = tags[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
@@ -209,7 +208,7 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
     def get(self, request, format=None): # 카테고리 리스트 가져오기
         try:
             categories = Category.objects.all()
-            if request.query_params != {}:
+            if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 categoryname = request.query_params.get('categoryname')
                 created_at = request.query_params.get('created_at')
 
@@ -230,7 +229,7 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
                 if created_at != None:
                     categories = categories.filter(created_at__startswith=created_at)
             
-            if request.query_params.get('getall') == None:
+            elif request.query_params.get('getall') == None:
                 categories = categories[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
@@ -282,7 +281,7 @@ class PostListAPI(APIView): # 포스트 리스트 API
     def get(self, request, format=None): # 포스트 리스트 가져오기
         try:
             posts = Post.objects.all()
-            if request.query_params != {}:
+            if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 userid = request.query_params.get('userid')
                 categoryid = request.query_params.get('categoryid')
                 title = request.query_params.get('title')
@@ -325,7 +324,7 @@ class PostListAPI(APIView): # 포스트 리스트 API
                 if created_at != None:
                     posts = posts.filter(created_at__startswith=created_at)
             
-            if request.query_params.get('getall') == None:
+            elif request.query_params.get('getall') == None:
                 posts = posts[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
@@ -378,7 +377,7 @@ class CommentListAPI(APIView): # 댓글 리스트 API
     def get(self, request, format=None): # 댓글 리스트 가져오기
         try:
             Comments = Comment.objects.all()
-            if request.query_params != {}:
+            if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 userid = request.query_params.get('userid')
                 postid = request.query_params.get('postid')
                 content = request.query_params.get('content')
@@ -406,7 +405,7 @@ class CommentListAPI(APIView): # 댓글 리스트 API
                 if creted_at != None:
                     Comments = Comments.filter(creted_at__startswith=creted_at)
                     
-            if request.query_params.get('getall') == None:
+            elif request.query_params.get('getall') == None:
                 Comments = Comments[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
