@@ -15,14 +15,18 @@ class User(models.Model): # User 테이블 정의, 1:N 관계
 class Tag(models.Model): # Tag 테이블 정의, N:M 관계
     tagid = models.AutoField(primary_key=True)
     tagname = models.CharField(max_length=50)
+    madebyuserid = models.ForeignKey(User)
     created_at = models.DateTimeField(auto_now_add=True)
+    lastupdated_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.tagname
 
 class Category(models.Model): # Category 테이블 정의, 1:N 관계
     categoryid = models.AutoField(primary_key=True)
     categoryname = models.CharField(max_length=50)
+    madebyuserid = models.ForeignKey(User)
     created_at = models.DateTimeField(auto_now_add=True)
+    lastupdated_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.categoryname
 

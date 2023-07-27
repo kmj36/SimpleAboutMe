@@ -368,6 +368,15 @@ class PostDetailAPI(APIView): # 포스트 디테일 API
         except:
             return Response({'message': '존재하지 않는 포스트입니다.'})
         
+        try:
+            checkpassword = request.data['checkpassword']
+            user = User.objects.get(userid=request.data['userid'])
+        except:
+            return Response({'message': '포스트를 수정하려면 비밀번호를 입력해주세요.'})
+        
+        if user.password != checkpassword:
+            return Response({'message': '비밀번호가 일치하지 않습니다.'})
+        
         serializer = PostSerializer(post, data=request.data)
         if serializer.is_valid() == False:
             return Response(serializer.errors)
@@ -379,6 +388,15 @@ class PostDetailAPI(APIView): # 포스트 디테일 API
             post = Post.objects.get(postid=postid)
         except:
             return Response({'message': '존재하지 않는 포스트입니다.'})
+        
+        try:
+            checkpassword = request.data['checkpassword']
+            user = User.objects.get(userid=request.data['userid'])
+        except:
+            return Response({'message': '포스트를 삭제하려면 비밀번호를 입력해주세요.'})
+        
+        if user.password != checkpassword:
+            return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
         post.delete()
         return Response({'message': '포스트가 삭제되었습니다.'})
@@ -447,6 +465,15 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API
             Comment = Comment.objects.get(commentid=commentid)
         except:
             return Response({'message': '존재하지 않는 댓글입니다.'})
+        
+        try:
+            checkpassword = request.data['checkpassword']
+            user = User.objects.get(userid=request.data['userid'])
+        except:
+            return Response({'message': '댓글을 수정하려면 비밀번호를 입력해주세요.'})
+
+        if user.password != checkpassword:
+            return Response({'message': '비밀번호가 일치하지 않습니다.'})
 
         serializer = CommentSerializer(Comment, data=request.data)
         if serializer.is_valid() == False:
@@ -459,6 +486,15 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API
             Comment = Comment.objects.get(commentid=commentid)
         except:
             return Response({'message': '존재하지 않는 댓글입니다.'})
+        
+        try:
+            checkpassword = request.data['checkpassword']
+            user = User.objects.get(userid=request.data['userid'])
+        except:
+            return Response({'message': '댓글을 삭제하려면 비밀번호를 입력해주세요.'})
+        
+        if user.password != checkpassword:
+            return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
         Comment.delete()
         return Response({'message': '댓글이 삭제되었습니다.'})
