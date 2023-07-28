@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from .models import User, Tag, Category, Post, Comment
 #from django.db.models import Q
 from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer
+from rest_framework import status
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
 
 # json count default: 10
@@ -36,6 +38,31 @@ class APIRoot(APIView): # API Root
                 },
             },
         })
+
+class RegisterAPI(APIView): # 회원가입 API
+    def post(self, request, format=None): # 회원가입
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid() == False:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = serializer.save()
+        token = TokenObtainPairSerializer().get_token(user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+        res = Response({
+            'message': '회원가입이 완료되었습니다.',
+            'user': serializer.data,
+            'token' : {
+                'refresh': refresh_token,
+                'access': access_token,
+                }
+            },
+            status=status.HTTP_201_CREATED
+        )
+        res.set_cookie('refresh_token', refresh_token, httponly=True)
+        res.set_cookie('access_token', access_token, httponly=True)
+        return res
+    
 
 class UserListAPI(APIView): # 유저 리스트 API
     def get(self, request, format=None): # 유저 리스트 가져오기

@@ -5,6 +5,7 @@ from API.views import *
 
 urlpatterns = [
     path('', APIRoot.as_view()),
+    path('register/', RegisterAPI.as_view()),
     path('user/', UserListAPI.as_view()),
     path('user/<str:userid>/', UserDetailAPI.as_view()),
     path('tag/', TagListAPI.as_view()),
