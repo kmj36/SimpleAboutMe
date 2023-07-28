@@ -18,7 +18,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, userid, password, nickname, email):
+    def create_superuser(self, userid=None, password=None, nickname=None, email=None):
         superuser = self.create_user(
             userid=userid,
             password=password,
@@ -26,6 +26,7 @@ class UserManager(BaseUserManager):
             email=email,
         )
         superuser.is_admin = True
+        superuser.is_staff = True
         superuser.is_active = True
         superuser.save(using=self._db)
         return superuser
@@ -40,6 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin): # User 테이블 정의, 1:N 관
     last_login = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
 

@@ -4,7 +4,8 @@ from rest_framework.response import Response
 #from django.http import HttpResponse
 from .models import User, Tag, Category, Post, Comment
 #from django.db.models import Q
-from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer
+from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer, RegisterSerializer
+from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
@@ -41,28 +42,54 @@ class APIRoot(APIView): # API Root
 
 class RegisterAPI(APIView): # 회원가입 API
     def post(self, request, format=None): # 회원가입
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid() == False:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        user = serializer.save()
-        token = TokenObtainPairSerializer().get_token(user)
-        refresh_token = str(token)
-        access_token = str(token.access_token)
-        res = Response({
-            'message': '회원가입이 완료되었습니다.',
-            'user': serializer.data,
-            'token' : {
-                'refresh': refresh_token,
-                'access': access_token,
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token = TokenObtainPairSerializer().get_token(user)
+            refresh_token = str(token)
+            access_token = str(token.access_token)
+            res = Response({
+                "user" : serializer.data,
+                "message" : "회원가입에 성공했습니다.",
+                "token": {
+                    "refresh": refresh_token,
+                    "access": access_token,
                 }
-            },
-            status=status.HTTP_201_CREATED
-        )
-        res.set_cookie('refresh_token', refresh_token, httponly=True)
-        res.set_cookie('access_token', access_token, httponly=True)
-        return res
-    
+            })
+            res.set_cookie('refresh_token', refresh_token, httponly=True)   
+            res.set_cookie('access_token', access_token, httponly=True) 
+            return res
+        return Response(serializer.errors)
+
+class AuthAPI(APIView): # 로그인 API
+    def post(self, request, format=None): # 로그인
+        try:
+            userid = request.data['userid']
+            password = request.data['password']
+        except:
+            return Response({'message': '아이디와 비밀번호를 입력해주세요.'})
+        
+        user = authenticate(userid=userid, password=password)
+        
+        if user is not None:
+            serializer = UserSerializer(user)
+            token = TokenObtainPairSerializer().get_token(user)
+            refresh_token = str(token)
+            access_token = str(token.access_token)
+            res = Response({
+                "user" : serializer.data,
+                "message" : "로그인에 성공했습니다.",
+                "token" : {
+                    "access": access_token,
+                    "refresh": refresh_token,
+                    },
+                },
+            status=status.HTTP_200_OK)
+            res.set_cookie('refresh_token', refresh_token, httponly=True)
+            res.set_cookie('access_token', access_token, httponly=True)
+            return res
+        return Response({'message': '아이디와 비밀번호가 일치하지 않습니다.'})
+            
 
 class UserListAPI(APIView): # 유저 리스트 API
     def get(self, request, format=None): # 유저 리스트 가져오기
