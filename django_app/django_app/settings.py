@@ -50,7 +50,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'API.User'
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
+        'django.contrib.auth.backends.ModelBackend',
 )
 
 REST_FRAMEWORK = {

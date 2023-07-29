@@ -33,7 +33,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin): # User 테이블 정의, 1:N 관계
     userid = models.CharField(max_length=20, primary_key=True)
-    password = models.CharField(max_length=30)
+    password = models.CharField(max_length=128)
     nickname = models.CharField(max_length=50)
     email = models.EmailField(max_length=254, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)

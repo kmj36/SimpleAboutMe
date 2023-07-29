@@ -40,36 +40,17 @@ class APIRoot(APIView): # API Root
             },
         })
 
-class RegisterAPI(APIView): # 회원가입 API
-    def post(self, request, format=None): # 회원가입
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            token = TokenObtainPairSerializer().get_token(user)
-            refresh_token = str(token)
-            access_token = str(token.access_token)
-            res = Response({
-                "user" : serializer.data,
-                "message" : "회원가입에 성공했습니다.",
-                "token": {
-                    "refresh": refresh_token,
-                    "access": access_token,
-                }
-            })
-            res.set_cookie('refresh_token', refresh_token, httponly=True)   
-            res.set_cookie('access_token', access_token, httponly=True) 
-            return res
-        return Response(serializer.errors)
-
 class AuthAPI(APIView): # 로그인 API
     def post(self, request, format=None): # 로그인
         try:
             userid = request.data['userid']
+            email = request.data['email']
+            nickname = request.data['nickname']
             password = request.data['password']
         except:
             return Response({'message': '아이디와 비밀번호를 입력해주세요.'})
         
-        user = authenticate(userid=userid, password=password)
+        user = authenticate(userid=userid, email=email, nickname=nickname, password=password)
         
         if user is not None:
             serializer = UserSerializer(user)
@@ -142,12 +123,24 @@ class UserListAPI(APIView): # 유저 리스트 API
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
     def post(self, request, format=None): # 유저 생성하기
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid() == False:
-            return Response(serializer.errors)
-        
-        serializer.save()
-        return Response({'message': '회원가입이 완료되었습니다.'})
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token = TokenObtainPairSerializer().get_token(user)
+            refresh_token = str(token)
+            access_token = str(token.access_token)
+            res = Response({
+                "user" : serializer.data,
+                "message" : "회원가입에 성공했습니다.",
+                "token": {
+                    "refresh": refresh_token,
+                    "access": access_token,
+                }
+            })
+            res.set_cookie('refresh_token', refresh_token, httponly=True)   
+            res.set_cookie('access_token', access_token, httponly=True) 
+            return res
+        return Response(serializer.errors)
     
 class UserDetailAPI(APIView): # 유저 디테일 API
     def get(self, request, userid, format=None): # 유저 정보 가져오기

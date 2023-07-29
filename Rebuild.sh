@@ -4,8 +4,8 @@ echo "[Clearing __pycache__...]"
 sudo rm -r django_app/API/__pycache__
 sudo rm -r django_app/API/migrations/__pycache__
 sudo rm -r django_app/django_app/__pycache__
-sudo rm -r django_app/django_app/management/__pycache__
-sudo rm -r django_app/django_app/management/commands/__pycache__
+sudo rm -r django_app/API/management/__pycache__
+sudo rm -r django_app/API/management/commands/__pycache__
 
 echo "[Clearing docker container...]"
 sudo docker-compose down
