@@ -11,14 +11,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         userid = validated_data.get('userid')
-        email = validated_data.get('email')
         nickname = validated_data.get('nickname')
+        email = validated_data.get('email')
         password = validated_data.get('password')
         
         user = User.objects.create_user(
             userid=userid,
-            email=email,
             nickname=nickname,
+            email=email,
             password=password
         )
         user.set_password(password)
