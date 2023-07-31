@@ -177,7 +177,7 @@ class UserListAPI(APIView): # 유저 리스트 API
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
     
-class UserDetailAPI(APIView): # 유저 디테일 API
+class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 userid 정보만 접근 가능
     permission_classes = [IsAuthenticated]
     def get(self, request, userid, format=None): # 유저 정보 가져오기
         try:
@@ -235,7 +235,7 @@ class UserDetailAPI(APIView): # 유저 디테일 API
         user.delete()
         return Response({'message': '회원정보가 삭제되었습니다.'})
 
-class TagListAPI(APIView): # 태그 리스트 API
+class TagListAPI(APIView): # 태그 리스트 API, 
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, format=None): # 태그 리스트 가져오기
         try:
@@ -271,16 +271,17 @@ class TagListAPI(APIView): # 태그 리스트 API
 
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
-    def post(self, request, format=None): # 태그 생성하기
+    def post(self, request, format=None): # 태그 생성하기, 누가 태그를 생성했는지 기록
         serializer = TagSerializer(data=request.data)
         if serializer.is_valid() == False:
             return Response(serializer.errors)
         
+        serializer.validated_data['madeby'] = request.user.userid
         serializer.save()
         return Response({'message': '태그가 생성되었습니다.'})
 
-class TagDetailAPI(APIView): # 태그 디테일 API
-    permission_classes = [IsAuthenticated]
+class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그만 수정, 삭제 가능
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, tagid, format=None): # 태그 정보 가져오기
         try:
             tag = Tag.objects.get(tagid=tagid)
@@ -292,6 +293,8 @@ class TagDetailAPI(APIView): # 태그 디테일 API
     def put(self, request, tagid, format=None): # 태그 정보 수정하기
         try:
             tag = Tag.objects.get(tagid=tagid)
+            if request.user.userid != tag.madeby:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 태그입니다.'})
         
@@ -304,6 +307,8 @@ class TagDetailAPI(APIView): # 태그 디테일 API
     def delete(self, request, tagid, format=None): # 태그 정보 삭제하기
         try:
             tag = Tag.objects.get(tagid=tagid)
+            if request.user.userid != tag.madeby:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 태그입니다.'})
         
@@ -346,16 +351,17 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
         
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
-    def post(self, request, format=None): # 카테고리 생성하기
+    def post(self, request, format=None): # 카테고리 생성하기, 누가 카테고리를 생성했는지 기록
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid() == False:
             return Response(serializer.errors)
         
+        serializer.validated_data['madeby'] = request.user.userid
         serializer.save()
         return Response({'message': '카테고리가 생성되었습니다.'})
     
-class CategoryDetailAPI(APIView): # 카테고리 디테일 API
-    permission_classes = [IsAuthenticated]
+class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성한 카테고리만 수정, 삭제 가능
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, categoryid, format=None): # 카테고리 정보 가져오기
         try:
             category = Category.objects.get(categoryid=categoryid)
@@ -367,6 +373,8 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API
     def put(self, request, categoryid, format=None): # 카테고리 정보 수정하기
         try:
             category = Category.objects.get(categoryid=categoryid)
+            if request.user.userid != category.madeby:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 카테고리입니다.'})
         
@@ -379,6 +387,8 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API
     def delete(self, request, categoryid, format=None): # 카테고리 정보 삭제하기
         try:
             category = Category.objects.get(categoryid=categoryid)
+            if request.user.userid != category.madeby:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 카테고리입니다.'})
         
@@ -452,8 +462,8 @@ class PostListAPI(APIView): # 포스트 리스트 API
         serializer.save()
         return Response({'message': '포스트가 생성되었습니다.'})
     
-class PostDetailAPI(APIView): # 포스트 디테일 API
-    permission_classes = [IsAuthenticated]
+class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포스트만 수정, 삭제 가능
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, postid, format=None): # 포스트 정보 가져오기
         try:
             post = Post.objects.get(postid=postid)
@@ -465,6 +475,8 @@ class PostDetailAPI(APIView): # 포스트 디테일 API
     def put(self, request, postid, format=None): # 포스트 정보 수정하기
         try:
             post = Post.objects.get(postid=postid)
+            if request.user.userid != post.userid:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 포스트입니다.'})
         
@@ -486,6 +498,8 @@ class PostDetailAPI(APIView): # 포스트 디테일 API
     def delete(self, request, postid, format=None): # 포스트 정보 삭제하기
         try:
             post = Post.objects.get(postid=postid)
+            if request.user.userid != post.userid:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 포스트입니다.'})
         
@@ -552,8 +566,8 @@ class CommentListAPI(APIView): # 댓글 리스트 API
         serializer.save()
         return Response({'message': '댓글이 생성되었습니다.'})
     
-class CommentDetailAPI(APIView): # 댓글 디테일 API
-    permission_classes = [IsAuthenticated]
+class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓글만 수정, 삭제 가능
+    permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, commentid, format=None): # 댓글 정보 가져오기
         try:
             comment = Comment.objects.get(commentid=commentid)
@@ -565,6 +579,8 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API
     def put(self, request, commentid, format=None):
         try:
             Comment = Comment.objects.get(commentid=commentid)
+            if request.user.userid != Comment.userid:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 댓글입니다.'})
         
@@ -586,6 +602,8 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API
     def delete(self, request, commentid, format=None):
         try:
             Comment = Comment.objects.get(commentid=commentid)
+            if request.user.userid != Comment.userid:
+                return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 댓글입니다.'})
         

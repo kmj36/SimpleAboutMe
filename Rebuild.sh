@@ -35,7 +35,7 @@ cd django_app
 python3 manage.py makemigrations
 python3 manage.py migrate
 echo "[Please create superuser.]"
-python3 manage.py createsuperuser2 --noinput --username $DJANGOADMINID --email $DJANGOADMINEMAIL --password $DJANGOADMINPASSWORD
+python3 manage.py createsuperuser --noinput --userid $DJANGOADMINID --email $DJANGOADMINEMAIL --nickname $DJANGOADMINNICKNAME --password $DJANGOADMINPASSWORD
 echo "[django_app build is done.]"
 python3 manage.py runserver
 

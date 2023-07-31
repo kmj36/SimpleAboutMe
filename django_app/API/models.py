@@ -24,7 +24,6 @@ class UserManager(BaseUserManager):
             email=email,
             password=password,
         )
-        superuser.is_staff = True
         superuser.is_admin = True
         superuser.is_active = True
         superuser.save(using=self._db)
@@ -65,10 +64,10 @@ class User(AbstractBaseUser, PermissionsMixin): # User 테이블 정의, 1:N 관
 
 class Tag(models.Model): # Tag 테이블 정의, N:M 관계
     tagid = models.AutoField(primary_key=True)
-    tagname = models.CharField(max_length=50)
+    tagname = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     lastupdated_at = models.DateTimeField(null=True, blank=True)
-    madeby = models.CharField(max_length=30, null=True, blank=True)
+    madeby = models.CharField(max_length=30, null=True, blank=True, editable=False)
     def __str__(self):
         return self.tagname
 
@@ -77,7 +76,7 @@ class Category(models.Model): # Category 테이블 정의, 1:N 관계
     categoryname = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     lastupdated_at = models.DateTimeField(null=True, blank=True)
-    madeby = models.CharField(max_length=30, null=True, blank=True)
+    madeby = models.CharField(max_length=30, null=True, blank=True, editable=False)
     def __str__(self):
         return self.categoryname
 
