@@ -103,5 +103,7 @@ class Comment(models.Model): # Comment 테이블 정의, 1:N 관계
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_secret = models.BooleanField(default=False)
+    secrected_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.content

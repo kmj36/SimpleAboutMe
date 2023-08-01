@@ -5,6 +5,7 @@ echo "[Starting introPage build script...]"
 echo "[packages install...]"
 sudo apt-get update
 sudo apt-get install docker docker-compose python3 python3-pip libmysqlclient-dev -y
+python3 -m pip install --upgrade pip
 pip3 install django
 pip3 install python-dotenv
 pip3 install mysqlclient

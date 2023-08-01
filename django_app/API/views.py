@@ -9,14 +9,14 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
 
 # json count default: 10
-# TODO : permission_classes 수정, 일부 API 접근 권한 수정
 
-class APIRoot(APIView): # API Root
+class APIRoot(APIView): # API Root, TODO : 접근 권한에 따라 API Root 내용 변경
     permission_classes = [AllowAny]
     def get(self, request, format=None): # API Root
         return Response({
             'v1': {
                 'auth': {
+                    'auth' : 'POST /auth/',
                     'register': 'POST /auth/register/',
                     'login': 'POST /auth/login/',
                     'logout': 'POST /auth/logout/',
@@ -58,10 +58,22 @@ class APIRoot(APIView): # API Root
                 },
             }
         })
+
+class TokenAuthAPI(APIView): # 토큰 인증 API
+    permission_classes = [IsAuthenticated]
+    def post(self, request, format=None): # 토큰 인증
+        JWT_authenticator = JWTAuthentication()
+        response = JWT_authenticator.authenticate(request)
         
+        user , token = response
+        return Response({
+            'user': UserSerializer(user).data,
+            'token': str(token)
+        }, status=status.HTTP_200_OK)
+
 class RegisterAPI(APIView): # 회원가입 API
     permission_classes = [AllowAny]
-    def post(self, request, format=None): # 회원가입
+    def post(self, request, format=None): # 회원가입 (필수 필드값: userid, nickname, email, password)
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid() == False:
             return Response(serializer.errors)
