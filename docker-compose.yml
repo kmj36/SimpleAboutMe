@@ -1,24 +1,58 @@
-version: '3.1'
+version: '3.8'
+
 services:
   db:
     image: mysql:latest
     restart: always
-    container_name: ${CONTAINER_NAME}
+    container_name: ${CONTAINER_NAME}_mysql_db
     ports:
-      - ${DBPORT}:3306 # HOST:CONTAINER
+      - ${MYSQL_EXTERNAL_PORT}:3306 # HOST:CONTAINER
     environment:
-      MYSQL_DATABASE: ${DBNAME}
-      MYSQL_ROOT_USER: ${DBUSER}
-      MYSQL_ROOT_PASSWORD: ${DBPASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
       - ./intropageDB/initdb.d:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${MYSQL_ROOT_USER} --password=${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 2s
+      retries: 100
+    networks:
+      - intropageNet
+
   adminer:
     image: adminer
     restart: "no"
     container_name: ${CONTAINER_NAME}_adminer
     ports:
-      - ${ADMINERPORT}:8080 # HOST:CONTAINER
+      - ${ADMINER_PORT}:8080 # HOST:CONTAINER
+    networks:
+      - intropageNet
+
+  api:
+    build: ./django_app
+    restart: always
+    command: bash -c "sleep 1m && python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:${DJANGO_PORT}"
+    container_name: ${CONTAINER_NAME}_django_api
+    ports:
+      - ${DJANGO_PORT}:${DJANGO_PORT} # HOST:CONTAINER
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db:db
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - intropageNet
+
+networks:
+  intropageNet:
+    driver: bridge

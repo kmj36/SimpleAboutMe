@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 # json count default: 10
 
-class APIRoot(APIView): # API Root, TODO : 접근 권한에 따라 API Root 내용 변경
+class APIRoot(APIView): # API Root
     permission_classes = [AllowAny]
     def get(self, request, format=None): # API Root
         return Response({
