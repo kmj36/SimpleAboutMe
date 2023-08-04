@@ -37,7 +37,7 @@ services:
   api:
     build: ./django_app
     restart: always
-    command: bash -c "sleep 1m && python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:${DJANGO_PORT}"
+    command: bash -c "sleep 1m && python manage.py makemigrations && python manage.py migrate && python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} && python manage.py runserver 0.0.0.0:${DJANGO_PORT}"
     container_name: ${CONTAINER_NAME}_django_api
     ports:
       - ${DJANGO_PORT}:${DJANGO_PORT} # HOST:CONTAINER
