@@ -53,6 +53,20 @@ services:
     networks:
       - intropageNet
 
+  web:
+    image: nginx:latest
+    restart: always
+    container_name: ${CONTAINER_NAME}_nginx_web
+    ports:
+      - ${NGINX_PORT}:80 # HOST:CONTAINER
+    volumes:
+      - ./nginx_webapp/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx_webapp/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx_webapp/static:/static
+      - ./nginx_webapp/webfolder:/var/www/html/
+    networks:
+      - intropageNet
+
 networks:
   intropageNet:
     driver: bridge
