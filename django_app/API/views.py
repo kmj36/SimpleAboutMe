@@ -464,8 +464,7 @@ class PostListAPI(APIView): # 포스트 리스트 API
             return Response({'message': '리스트가 비어 있습니다.'})
 
         serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-    
+        return Response(serializer.data) 
     def post(self, request, format=None): # 포스트 생성하기
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid() == False:
