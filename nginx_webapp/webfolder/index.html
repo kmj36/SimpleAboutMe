@@ -1,14 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
     <title>Test blog</title>
+
     <script>
         function TokenAuth()
         {
+            var AccessToken = document.cookie.split(';').filter(function(item) {
+                return item.trim().indexOf('access_token=') == 0
+            });
+
+            if(AccessToken.length == 0)
+            {
+                document.getElementById("0").innerHTML = "토큰을 찾지 못했습니다.";
+                return;
+            }
+
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "http://127.0.0.1:50001/api/v1/auth/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + AccessToken[0].split('=')[1]);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4)
+                {
+                    try
+                    {
+                        document.getElementById("0").innerHTML = document.getElementById("0").innerHTML = JSON.parse(xhr.response).user.userid + " 님으로 토큰이 정상적으로 인증됨.";
+                        document.getElementById("0_return_code").innerHTML = xhr.status;
+                    }catch(e)
+                    {
+                        document.getElementById("0").innerHTML = JSON.stringify(JSON.parse(xhr.response));
+                        document.getElementById("0_return_code").innerHTML = xhr.status;
+                    }
+                    
+                }
+                else
+                {
+                    document.getElementById("0").innerHTML = "데이터를 전송하지 못했거나 문제가 발생했습니다.";
+                    document.getElementById("0_return_code").innerHTML = xhr.status;
+                }
+            }
             xhr.send();
+        }
+
+        function UserResigtry()
+        {
+            var xhr = new XMLHttpRequest();
+            var inputvalue = document.getElementById("1_value");
+
+            xhr.open("POST", "http://127.0.0.1:50001/api/v1/auth/register/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    var resultjson = JSON.parse(xhr.response);
+                    console.log(resultjson)
+                    try
+                    {
+                        document.cookie = "access_token=" + resultjson.token.access;
+                        document.cookie = "refresh_token=" + resultjson.token.refresh;
+                        document.getElementById("1").innerHTML = resultjson.user.userid + " 회원가입되었습니다.";
+                        document.getElementById("1_return_code").innerHTML = xhr.status;
+                    }catch(e)
+                    {
+                        document.getElementById("1").innerHTML = JSON.stringify(resultjson);
+                        document.getElementById("1_return_code").innerHTML = xhr.status;
+                    }
+                }else
+                {
+                    document.getElementById("1").innerHTML = "데이터를 전송하지 못했거나 문제가 발생했습니다.";
+                    document.getElementById("1_return_code").innerHTML = xhr.status;
+                }
+            }
+            xhr.send(JSON.stringify(
+                {
+                    "userid": inputvalue.children[0].value,
+                    "password": inputvalue.children[1].value,
+                    "nickname": inputvalue.children[2].value,
+                    "email": inputvalue.children[3].value
+                }
+            ));
         }
     </script>
 </head>
@@ -16,121 +89,213 @@
 <body>
     <div>
         <h1>Token Auth Test</h1>
-        <div id="0">
-
-        </div>
-        <button type="button" onclick=TokenAuth()>[POST] Test</button>
+        <fieldset>
+            <legend>Result</legend>
+            <div id="0">
+            </div>
+            <div id="0_return_code">
+            </div>
+        </fieldset>
+        <button type="button" onclick=TokenAuth()>[POST] Auth Test</button>
     </div>
 
     <div>
         <h1>User Resigtry Test</h1>
-        <div id="1">
-
-        </div>
-        <button>[GET] Test</button>
+        <fieldset>
+            <legend>Result</legend>
+            <div id="1_value">
+                <input type="text" name="userid" placeholder="userid">
+                <input type="text" name="password" placeholder="password">
+                <input type="text" name="nickname" placeholder="nickname">
+                <input type="text" name="email" placeholder="email">
+            </div>
+            <div style="white-space : pre;" id="1">
+            </div>
+            <div id="1_return_code">
+            </div>
+        </fieldset>
+        <button type="button" onclick=UserResigtry()>[POST] User Resigtry Test</button>
     </div>
 
     <div>
         <h1>User Login Test</h1>
-        <div id="2">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="2">
 
-        </div>
+            </div>
+            <div id="2_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>User Logout Test</h1>
-        <div id="3">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="3">
 
-        </div>
+            </div>
+            <div id="3_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Token Refrash Test</h1>
-        <div id="4">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="4">
 
-        </div>
+            </div>
+            <div id="4_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get User List Test</h1>
-        <div id="5">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="5">
 
-        </div>
+            </div>
+            <div id="5_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get User Info Test</h1>
-        <div id="6">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="6">
 
-        </div>
+            </div>
+            <div id="6_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Tag List Test</h1>
-        <div id="7">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="7">
 
-        </div>
+            </div>
+            <div id="7_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Tag Info Test</h1>
-        <div id="8">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="8">
 
-        </div>
+            </div>
+            <div id="8_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Category List Test</h1>
-        <div id="9">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="9">
 
-        </div>
+            </div>
+            <div id="9_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Category Info Test</h1>
-        <div id="10">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="10">
 
-        </div>
+            </div>
+            <div id="10_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Post List Test</h1>
-        <div id="11">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="11">
 
-        </div>
+            </div>
+            <div id="11_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Post Info Test</h1>
-        <div id="12">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="12">
 
-        </div>
+            </div>
+            <div id="12_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Comment List Test</h1>
-        <div id="13">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="13">
 
-        </div>
+            </div>
+            <div id="13_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
     <div>
         <h1>Get Comment Info Test</h1>
-        <div id="14">
+        <fieldset>
+            <legend>Result</legend>
+            <div id="14">
 
-        </div>
+            </div>
+            <div id="14_return_code">
+
+            </div>
+        </fieldset>
         <button>[GET] Test</button>
     </div>
 
