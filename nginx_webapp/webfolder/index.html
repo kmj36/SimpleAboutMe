@@ -46,7 +46,7 @@
             xhr.send();
         }
 
-        function UserResigtry()
+        function UserRegister()
         {
             var xhr = new XMLHttpRequest();
             var inputvalue = document.getElementById("1_value");
@@ -83,6 +83,223 @@
                 }
             ));
         }
+
+        function UserLogin()
+        {
+            var inputvalue = document.getElementById("2_value");
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://127.0.0.1:50001/api/v1/auth/login/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    var resultjson = JSON.parse(xhr.response);
+                    console.log(resultjson)
+                    try
+                    {
+                        document.cookie = "access_token=" + resultjson.token.access;
+                        document.cookie = "refresh_token=" + resultjson.token.refresh;
+                        document.getElementById("2").innerHTML = resultjson.user.userid + " 로그인되었습니다.";
+                        document.getElementById("2_return_code").innerHTML = xhr.status;
+                    }catch(e)
+                    {
+                        document.getElementById("2").innerHTML = "ID 또는 비밀번호가 틀렸습니다.";
+                        document.getElementById("2_return_code").innerHTML = xhr.status;
+                    }
+                }else
+                {
+                    document.getElementById("2").innerHTML = "데이터를 전송하지 못했거나 문제가 발생했습니다.";
+                    document.getElementById("2_return_code").innerHTML = xhr.status;
+                }
+            }
+            xhr.send(JSON.stringify(
+                {
+                    "userid": inputvalue.children[0].value,
+                    "password": inputvalue.children[1].value
+                }
+            ));
+        }
+
+        function UserLogout()
+        {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://127.0.0.1:50001/api/v1/auth/logout/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            try
+            {
+                xhr.setRequestHeader("Authorization", "Bearer " + document.cookie.split(';').filter(function(item) { return item.trim().indexOf('access_token=') == 0 })[0].split('=')[1]);
+            }catch(e)
+            {
+                document.getElementById("3").innerHTML = "로그인이 되어있지 않습니다.";
+                document.getElementById("3_return_code").innerHTML = xhr.status;
+            }
+            xhr.onreadystatechange = function() {
+                document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                if(xhr.readyState == 4 && xhr.responstText == "{}") {
+                    document.getElementById("3").innerHTML = "정상적으로 로그아웃되었습니다.";
+                    document.getElementById("3_return_code").innerHTML = xhr.status;
+                }else
+                {
+                    document.getElementById("3").innerHTML = xhr.responseText;
+                    document.getElementById("3_return_code").innerHTML = xhr.status;
+                }
+            }
+            try
+            {
+                xhr.send(
+                JSON.stringify(
+                    {
+                        "refresh": document.cookie.split(';').filter(function(item) {
+                            return item.trim().indexOf('refresh_token=') == 0
+                        })[0].split('=')[1]
+                    }
+                )
+                );
+            }catch(e)
+            {
+                document.getElementById("3").innerHTML = "로그인이 되어있지 않습니다.";
+                document.getElementById("3_return_code").innerHTML = xhr.status;
+            }
+        }
+
+        function TokenRefresh()
+        {
+            xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://127.0.0.1:50001/api/v1/auth/refresh/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    var resultjson = JSON.parse(xhr.response);
+                    console.log(resultjson)
+                    try
+                    {
+                        if(xhr.status != 200)
+                            exception;
+                        document.cookie = "access_token=" + resultjson.access;
+                        document.getElementById("4").innerHTML = "토큰이 갱신되었습니다.";
+                        document.getElementById("4_return_code").innerHTML = xhr.status;
+                    }catch(e)
+                    {
+                        document.getElementById("4").innerHTML = xhr.responseText;
+                        document.getElementById("4_return_code").innerHTML = xhr.status;
+                    }
+                }else
+                {
+                    document.getElementById("4").innerHTML = "데이터를 전송하지 못했거나 문제가 발생했습니다.";
+                    document.getElementById("4_return_code").innerHTML = xhr.status;
+                }
+            }
+            try
+            {
+                xhr.send(
+                JSON.stringify(
+                    {
+                        "refresh": document.cookie.split(';').filter(function(item) {
+                            return item.trim().indexOf('refresh_token=') == 0
+                        })[0].split('=')[1]
+                    }
+                )
+                );
+            }catch(e)
+            {
+                document.getElementById("4").innerHTML = "로그인이 되어있지 않습니다.";
+                document.getElementById("4_return_code").innerHTML = xhr.status;
+            }
+        }
+
+        function GetUserList()
+        {
+            try
+            {
+                var access_token = document.cookie.split(';').filter(function(item) { return item.trim().indexOf('access_token=') == 0 })[0].split('=')[1];
+            }catch(e)
+            {
+                document.getElementById("5").innerHTML = "로그인이 되어있지 않습니다.";
+                document.getElementById("5_return_code").innerHTML = 0;
+                return;
+            }
+
+            var resulthtml = "";
+            var query = document.getElementById("5_value").children[0].value;
+
+            xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://127.0.0.1:50001/api/v1/user/?" + query, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + access_token);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var resultjson = JSON.parse(xhr.response);
+                    console.log(resultjson)
+                    for(var i = 0; i < resultjson.length; i++)
+                    {
+                        resulthtml += (i+1) + ". [ID]: " + resultjson[i].userid + " [NICKNAME]: " + resultjson[i].nickname + " [EMAIL]: " + resultjson[i].email + "<br>";
+                    }
+                    document.getElementById("5").innerHTML = resulthtml;
+                    document.getElementById("5_return_code").innerHTML = xhr.status;
+                }else
+                {
+                    if(xhr.status == 403)
+                        document.getElementById("5").innerHTML = "권한이 없습니다.";
+                    
+                    if(xhr.status == 401)
+                        document.getElementById("5").innerHTML = "로그인이 되어있지 않습니다.";
+                    
+                    document.getElementById("5_return_code").innerHTML = xhr.status;
+                }
+            }
+            xhr.send();
+        }
+
+        function UserInfo(methodselect)
+        {
+            switch(methodselect)
+            {
+                case 1:
+                    var method = "GET";
+                    break;
+                case 2:
+                    var method = "PUT";
+                    break;
+                case 3:
+                    var method = "POST";
+                    break;
+                default:
+                    return;
+            }
+
+            var accesstoken = document.cookie.split(';').filter(function(item) { return item.trim().indexOf('access_token=') == 0 })[0].split('=')[1];
+            var userid = JSON.parse(atob(accesstoken.split('.')[1])).user;
+
+            xhr = new XMLHttpRequest();
+            xhr.open(method, "http://127.0.0.1:50001/api/v1/user/" + userid + "/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + accesstoken);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    var resultjson = JSON.parse(xhr.response);
+                    console.log(resultjson)
+                    try
+                    {
+                        document.getElementById("6").innerHTML = JSON.stringify(resultjson, null, 4);
+                        document.getElementById("6_return_code").innerHTML = xhr.status;
+                    }catch(e)
+                    {
+                        document.getElementById("6").innerHTML = xhr.responseText;
+                        document.getElementById("6_return_code").innerHTML = xhr.status;
+                    }
+                }else
+                {
+                    if(xhr.status == 403)
+                        document.getElementById("6").innerHTML = "권한이 없습니다.";
+                    
+                    if(xhr.status == 401)
+                        document.getElementById("6").innerHTML = "로그인이 되어있지 않습니다.";
+                    
+                    document.getElementById("6_return_code").innerHTML = xhr.status;
+                }
+            }
+            xhr.send();
+        }
     </script>
 </head>
 
@@ -100,7 +317,7 @@
     </div>
 
     <div>
-        <h1>User Resigtry Test</h1>
+        <h1>User Register Test</h1>
         <fieldset>
             <legend>Result</legend>
             <div id="1_value">
@@ -114,21 +331,25 @@
             <div id="1_return_code">
             </div>
         </fieldset>
-        <button type="button" onclick=UserResigtry()>[POST] User Resigtry Test</button>
+        <button type="button" onclick=UserRegister()>[POST] User Resigtry Test</button>
     </div>
 
     <div>
         <h1>User Login Test</h1>
         <fieldset>
             <legend>Result</legend>
-            <div id="2">
+            <div id="2_value">
+                <input type="text" name="userid" placeholder="userid">
+                <input type="text" name="password" placeholder="password">
+            </div>
+            <div style="white-space : pre;" id="2">
 
             </div>
             <div id="2_return_code">
 
             </div>
         </fieldset>
-        <button>[GET] Test</button>
+        <button type="button" onclick=UserLogin()>[POST] User Login Test</button>
     </div>
 
     <div>
@@ -142,11 +363,11 @@
 
             </div>
         </fieldset>
-        <button>[GET] Test</button>
+        <button type="button" onclick=UserLogout()>[POST] User Logout Test</button>
     </div>
 
     <div>
-        <h1>Token Refrash Test</h1>
+        <h1>Token Refresh Test</h1>
         <fieldset>
             <legend>Result</legend>
             <div id="4">
@@ -156,35 +377,43 @@
 
             </div>
         </fieldset>
-        <button>[GET] Test</button>
+        <button type="button" onclick=TokenRefresh()>[POST] Token Refresh Test</button>
     </div>
 
     <div>
-        <h1>Get User List Test</h1>
+        <h1>Get User List Test [ADMIN]</h1>
         <fieldset>
             <legend>Result</legend>
-            <div id="5">
+            <div id="5_value">
+                <input type="text" name="query" placeholder="query">
+            </div>
+            <div style="white-space : pre;" id="5">
 
             </div>
             <div id="5_return_code">
 
             </div>
         </fieldset>
-        <button>[GET] Test</button>
+        <button type="button" onclick=GetUserList()>[GET, ADMIN] Get User List Test</button>
     </div>
 
     <div>
         <h1>Get User Info Test</h1>
         <fieldset>
             <legend>Result</legend>
-            <div id="6">
+            <div id="6_value">
+                
+            </div>
+            <div style="white-space: pre;" id="6">
 
             </div>
             <div id="6_return_code">
 
             </div>
         </fieldset>
-        <button>[GET] Test</button>
+        <button type="button" onclick=UserInfo(1)>[GET] Get My Account Info Test</button><br>
+        <button type="button" onclick=UserInfo(2)>[PUT] Modify My Account Info Test</button><br>
+        <button type="button" onclick=UserInfo(3)>[POST] Delete My Account Info Test</button>
     </div>
 
     <div>

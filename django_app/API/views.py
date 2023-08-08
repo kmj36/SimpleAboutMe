@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
+from datetime import timezone
 
 # json count default: 10
 
@@ -124,17 +125,6 @@ class LoginAPI(APIView): # 로그인 API
         status=status.HTTP_200_OK)
         res.set_cookie('refresh_token', refresh_token, httponly=True)
         res.set_cookie('access_token', access_token, httponly=True)
-        return res
-
-class LogoutAPI(APIView): # 로그아웃 API
-    permission_classes = [AllowAny]
-    def post(self, request, format=None): # 로그아웃
-        if request.COOKIES.get('access_token') is None and request.COOKIES.get('refresh_token') is None:
-            return Response({'message': '로그인 상태가 아닙니다.'})
-        
-        res = Response({'message': '로그아웃에 성공했습니다.'}, status=status.HTTP_200_OK)
-        res.delete_cookie('refresh_token')
-        res.delete_cookie('access_token')
         return res
     
 class UserListAPI(APIView): # 유저 리스트 API
