@@ -66,7 +66,7 @@ class Tag(models.Model): # Tag 테이블 정의, N:M 관계
     tagid = models.AutoField(primary_key=True)
     tagname = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    lastupdated_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
     madeby = models.CharField(max_length=30, null=True, blank=True, editable=False)
     def __str__(self):
         return self.tagname
@@ -75,7 +75,7 @@ class Category(models.Model): # Category 테이블 정의, 1:N 관계
     categoryid = models.AutoField(primary_key=True)
     categoryname = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    lastupdated_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
     madeby = models.CharField(max_length=30, null=True, blank=True, editable=False)
     def __str__(self):
         return self.categoryname

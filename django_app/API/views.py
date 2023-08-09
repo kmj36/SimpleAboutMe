@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
-from datetime import timezone
+from django.utils import timezone
 
 # json count default: 10
 
@@ -109,7 +109,9 @@ class LoginAPI(APIView): # 로그인 API
         
         if user is None:
             return Response({'message': '아이디와 비밀번호가 일치하지 않습니다.'})
-        
+        user.last_login = timezone.now()
+        user.save()
+
         serializer = UserSerializer(user)
         token = TokenObtainPairSerializer().get_token(user)
         refresh_token = str(token)
@@ -206,7 +208,9 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
         except:
             return Response({'message': '회원정보를 수정하려면 비밀번호를 입력해주세요.'})
         
-        if user.password != checkpassword:
+        user = authentication.authenticate(userid=userid, password=checkpassword)
+
+        if user is None:
             return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
         serializer = UserSerializer(user, data=request.data)

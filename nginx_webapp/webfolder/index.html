@@ -135,7 +135,7 @@
             xhr.onreadystatechange = function() {
                 document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                if(xhr.readyState == 4 && xhr.responstText == "{}") {
+                if(xhr.responstText == null) {
                     document.getElementById("3").innerHTML = "정상적으로 로그아웃되었습니다.";
                     document.getElementById("3_return_code").innerHTML = xhr.status;
                 }else
@@ -232,7 +232,7 @@
                     console.log(resultjson)
                     for(var i = 0; i < resultjson.length; i++)
                     {
-                        resulthtml += (i+1) + ". [ID]: " + resultjson[i].userid + " [NICKNAME]: " + resultjson[i].nickname + " [EMAIL]: " + resultjson[i].email + "<br>";
+                        resulthtml += (i+1) + ". [ID]: " + resultjson[i].userid + " [NICKNAME]: " + resultjson[i].nickname + " [EMAIL]: " + resultjson[i].email + " [CREADTED_AT]: " + resultjson[i].created_at + "<br>";
                     }
                     document.getElementById("5").innerHTML = resulthtml;
                     document.getElementById("5_return_code").innerHTML = xhr.status;
@@ -266,9 +266,17 @@
                 default:
                     return;
             }
-
-            var accesstoken = document.cookie.split(';').filter(function(item) { return item.trim().indexOf('access_token=') == 0 })[0].split('=')[1];
+            try
+            {
+                var accesstoken = document.cookie.split(';').filter(function(item) { return item.trim().indexOf('access_token=') == 0 })[0].split('=')[1];
+            }catch
+            {
+                document.getElementById("6").innerHTML = "로그인이 되어있지 않습니다.";
+                document.getElementById("6_return_code").innerHTML = 0;
+                return;
+            }
             var userid = JSON.parse(atob(accesstoken.split('.')[1])).user;
+            var body = document.getElementById("6_value").children[0].value;
 
             xhr = new XMLHttpRequest();
             xhr.open(method, "http://127.0.0.1:50001/api/v1/user/" + userid + "/", true);
@@ -298,7 +306,7 @@
                     document.getElementById("6_return_code").innerHTML = xhr.status;
                 }
             }
-            xhr.send();
+            xhr.send(body);
         }
     </script>
 </head>
@@ -402,7 +410,7 @@
         <fieldset>
             <legend>Result</legend>
             <div id="6_value">
-                
+                <textarea name="body" placeholder="Input Method Json"></textarea>
             </div>
             <div style="white-space: pre;" id="6">
 
