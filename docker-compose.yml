@@ -47,6 +47,7 @@ services:
     links:
       - db:db
     environment:
+      DJANGO_ADMIN_ID: ${DJANGO_ADMIN_ID}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}

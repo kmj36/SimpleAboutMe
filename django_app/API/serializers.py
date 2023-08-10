@@ -24,6 +24,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+    
+class UserModifySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('userid', 'nickname', 'email', 'password')
+            
+    def update(self, instance, validated_data):
+        instance.userid = validated_data.get('userid', instance.userid)
+        instance.nickname = validated_data.get('nickname', instance.nickname)
+        instance.email = validated_data.get('email', instance.email)
+        instance.password = validated_data.get('password', instance.password)
+        instance.set_password(instance.password)
+        instance.save()
+        return instance
+
+class UserExcludePasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('userid', 'nickname', 'email', 'created_at', 'updated_at', 'is_admin', 'is_active', 'is_staff', 'is_superuser')
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

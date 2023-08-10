@@ -228,13 +228,9 @@
             xhr.setRequestHeader("Authorization", "Bearer " + access_token);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    var resultjson = JSON.parse(xhr.response);
+                    var resultjson = JSON.stringify(JSON.parse(xhr.responseText), null, 4);
                     console.log(resultjson)
-                    for(var i = 0; i < resultjson.length; i++)
-                    {
-                        resulthtml += (i+1) + ". [ID]: " + resultjson[i].userid + " [NICKNAME]: " + resultjson[i].nickname + " [EMAIL]: " + resultjson[i].email + " [CREADTED_AT]: " + resultjson[i].created_at + "<br>";
-                    }
-                    document.getElementById("5").innerHTML = resulthtml;
+                    document.getElementById("5").innerHTML = resultjson;
                     document.getElementById("5_return_code").innerHTML = xhr.status;
                 }else
                 {

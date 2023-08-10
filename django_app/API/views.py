@@ -1,6 +1,6 @@
 # Create your views here.
 from .models import User, Tag, Category, Post, Comment
-from .serializers import UserSerializer, TagSerializer, CategorySerializer, PostSerializer, CommentSerializer, RegisterSerializer
+from .serializers import *
 from rest_framework import status, authentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
 from django.utils import timezone
+from django.conf import settings
 
 # json count default: 10
 
@@ -192,7 +193,7 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
         except:
             return Response({'message': '존재하지 않는 회원입니다.'})
         
-        serializer = UserSerializer(user)
+        serializer = UserExcludePasswordSerializer(user)
         return Response(serializer.data)
     def put(self, request, userid, format=None): # 유저 정보 수정하기 비밀번호 재확인
         try:
@@ -213,11 +214,14 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
         if user is None:
             return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
-        serializer = UserSerializer(user, data=request.data)
+        
+        request.data['userid'] = userid
+        
+        serializer = UserModifySerializer(user, data=request.data)
         if serializer.is_valid() == False:
             return Response(serializer.errors)
-
-        serializer.save()
+        
+        serializer.update(user, serializer.validated_data)
         return Response({'message': '회원정보가 수정되었습니다.'})
     def post(self, request, userid, format=None): # 유저 정보 삭제하기 비밀번호 재확인
         try:
@@ -227,6 +231,9 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
                 return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 회원입니다.'})
+        
+        if userid == settings.UNIQUE_ADMIN:
+            return Response({'message': '최초 관리자 계정은 삭제할 수 없습니다.'})
         
         try:
             checkpassword = request.data['checkpassword']
