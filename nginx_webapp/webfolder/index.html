@@ -325,7 +325,7 @@
             {}
 
             xhr = new XMLHttpRequest();
-            xhr.open(method, "http://127.0.0.1:50001/api/v1/tag/", true);
+            xhr.open(method, "http://127.0.0.1:50001/api/v1/tag/?" + document.getElementById("7_value").children[1].value, true);
             xhr.setRequestHeader("Content-Type", "application/json");
             if(accesstoken != null)
                 xhr.setRequestHeader("Authorization", "Bearer " + accesstoken);
@@ -350,6 +350,60 @@
                 JSON.stringify(
                     {
                         "tagname": document.getElementById("7_value").children[0].value
+                    }
+                )
+            );
+        }
+
+        function TagInfo(methodselect)
+        {
+            switch(methodselect)
+            {
+                case 1:
+                    var method = "GET";
+                    break;
+                case 2:
+                    var method = "PUT";
+                    break;
+                case 3:
+                    var method = "DELETE";
+                    break;
+                default:
+                    return;
+            }
+            try
+            {
+                var accesstoken = document.cookie.split(';').filter(function(item) { return item.trim().indexOf('access_token=') == 0 })[0].split('=')[1];
+            }catch(e)
+            {}
+            var tagid = document.getElementById("8_value").children[0].value;
+            var tagname = document.getElementById("8_value").children[1].value;
+
+            xhr = new XMLHttpRequest();
+            xhr.open(method, "http://127.0.0.1:50001/api/v1/tag/" + tagid + "/", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Authorization", "Bearer " + accesstoken);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    var resultjson = JSON.parse(xhr.response);
+                    console.log(resultjson)
+
+                    document.getElementById("8").innerHTML = JSON.stringify(resultjson, null, 4);
+
+                    if(xhr.status == 403)
+                        document.getElementById("8").innerHTML = "권한이 없습니다.";
+
+                    if(xhr.status == 401)
+                        document.getElementById("8").innerHTML = "로그인이 되어있지 않습니다.";
+
+                    
+                    document.getElementById("8_return_code").innerHTML = xhr.status;
+                }
+            }
+            xhr.send(
+                JSON.stringify(
+                    {
+                        "tagname": tagname
                     }
                 )
             );
@@ -475,7 +529,8 @@
         <fieldset>
             <legend>Result</legend>
             <div id="7_value">
-                <input type="text" name="tagname" placeholder="Input tagname">
+                <input type="text" name="Newtagname" placeholder="Create tagname">
+                <input type="text" name="tagnamesearch" placeholder="Search tagname">
             </div>
             <div style="white-space: pre;" id="7">
 
@@ -492,6 +547,10 @@
         <h1>Get Tag Info Test</h1>
         <fieldset>
             <legend>Result</legend>
+            <div id="8_value">
+                <input type="text" name="tagid" placeholder="tagid">
+                <input type="text" name="tagname" placeholder="tagname">
+            </div> 
             <div id="8">
 
             </div>
@@ -499,7 +558,9 @@
 
             </div>
         </fieldset>
-        <button>[GET] Test</button>
+        <button type="button" onclick=TagInfo(1)>[GET] Get Tag Test</button><br>
+        <button type="button" onclick=TagInfo(2)>[PUT] MODIFY Tag Test</button><br>
+        <button type="button" onclick=TagInfo(3)>[DELETE] DELETE Tag Test</button>
     </div>
 
     <div>
