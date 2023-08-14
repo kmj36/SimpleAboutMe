@@ -214,7 +214,6 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
         if user is None:
             return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
-        
         request.data['userid'] = userid
         
         serializer = UserModifySerializer(user, data=request.data)
@@ -255,6 +254,7 @@ class TagListAPI(APIView): # 태그 리스트 API,
             tags = Tag.objects.all()
             if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 tagname = request.query_params.get('tagname')
+                madeby = request.query_params.get('madeby')
                 created_at = request.query_params.get('created_at')
 
                 if tagname != None:
@@ -270,6 +270,20 @@ class TagListAPI(APIView): # 태그 리스트 API,
                             tags = tags.filter(tagname__startswith=tagname)       
                     else:
                         tags = tags.filter(tagname=tagname)
+
+                if madeby != None:
+                    if madeby.find('*') != -1:
+                        if madeby[0] == '*' and madeby[-1] == '*':
+                            madeby = madeby[1:-1]
+                            tags = tags.filter(madeby__contains=madeby)
+                        if madeby[0] == '*':
+                            madeby = madeby[1:]
+                            tags = tags.filter(madeby__endswith=madeby)
+                        if madeby[-1] == '*':
+                            madeby = madeby[:-1]
+                            tags = tags.filter(madeby__startswith=madeby)       
+                    else:
+                        tags = tags.filter(madeby=madeby)
                     
                 if created_at != None:
                     tags = tags.filter(created_at__startswith=created_at)
@@ -335,6 +349,7 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
             categories = Category.objects.all()
             if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 categoryname = request.query_params.get('categoryname')
+                madeby = request.query_params.get('madeby')
                 created_at = request.query_params.get('created_at')
 
                 if categoryname != None:
@@ -350,6 +365,20 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
                             categories = categories.filter(categoryname__startswith=categoryname)       
                     else:
                         categories = categories.filter(categoryname=categoryname)
+
+                if madeby != None:
+                    if madeby.find('*') != -1:
+                        if madeby[0] == '*' and madeby[-1] == '*':
+                            madeby = madeby[1:-1]
+                            categories = categories.filter(madeby__contains=madeby)
+                        if madeby[0] == '*':
+                            madeby = madeby[1:]
+                            categories = categories.filter(madeby__endswith=madeby)
+                        if madeby[-1] == '*':
+                            madeby = madeby[:-1]
+                            categories = categories.filter(madeby__startswith=madeby)       
+                    else:
+                        categories = categories.filter(madeby=madeby)
                     
                 if created_at != None:
                     categories = categories.filter(created_at__startswith=created_at)
@@ -467,7 +496,9 @@ class PostListAPI(APIView): # 포스트 리스트 API
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data) 
     def post(self, request, format=None): # 포스트 생성하기
+        request.data['userid'] = request.user.userid
         serializer = PostSerializer(data=request.data)
+
         if serializer.is_valid() == False:
             return Response(serializer.errors)
         
@@ -487,18 +518,19 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
     def put(self, request, postid, format=None): # 포스트 정보 수정하기
         try:
             post = Post.objects.get(postid=postid)
-            if request.user.userid != post.userid:
+            if request.user.userid != post.userid.userid:
                 return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 포스트입니다.'})
         
         try:
             checkpassword = request.data['checkpassword']
-            user = User.objects.get(userid=request.data['userid'])
         except:
             return Response({'message': '포스트를 수정하려면 비밀번호를 입력해주세요.'})
         
-        if user.password != checkpassword:
+        user = authentication.authenticate(userid=request.user.userid, password=checkpassword)
+
+        if user is None:
             return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
         serializer = PostSerializer(post, data=request.data)
@@ -507,21 +539,23 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
         
         serializer.save()
         return Response({'message': '포스트가 수정되었습니다.'})
+
     def delete(self, request, postid, format=None): # 포스트 정보 삭제하기
         try:
             post = Post.objects.get(postid=postid)
-            if request.user.userid != post.userid:
+            if request.user.userid != post.userid.userid:
                 return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 포스트입니다.'})
         
         try:
             checkpassword = request.data['checkpassword']
-            user = User.objects.get(userid=request.data['userid'])
         except:
             return Response({'message': '포스트를 삭제하려면 비밀번호를 입력해주세요.'})
         
-        if user.password != checkpassword:
+        user = authentication.authenticate(userid=request.user.userid, password=checkpassword)
+
+        if user is None:
             return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
         post.delete()
@@ -531,7 +565,7 @@ class CommentListAPI(APIView): # 댓글 리스트 API
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, format=None): # 댓글 리스트 가져오기
         try:
-            Comments = Comment.objects.all()
+            comments = Comment.objects.all()
             if request.query_params != {}: # 쿼리 파라미터가 있을 경우
                 userid = request.query_params.get('userid')
                 postid = request.query_params.get('postid')
@@ -539,39 +573,42 @@ class CommentListAPI(APIView): # 댓글 리스트 API
                 creted_at = request.query_params.get('created_at')
                 
                 if userid != None:
-                    Comments = Comments.filter(userid=userid)
+                    comments = comments.filter(userid=userid)
                 if postid != None:
-                    Comments = Comments.filter(postid=postid)
+                    comments = comments.filter(postid=postid)
                     
                 if content != None:
                     if content.find('*') != -1:
                         if content[0] == '*' and content[-1] == '*':
                             content = content[1:-1]
-                            Comments = Comments.filter(content__contains=content)
+                            comments = comments.filter(content__contains=content)
                         if content[0] == '*':
                             content = content[1:]
-                            Comments = Comments.filter(content__endswith=content)
+                            comments = comments.filter(content__endswith=content)
                         if content[-1] == '*':
                             content = content[:-1]
-                            Comments = Comments.filter(content__startswith=content)       
+                            comments = comments.filter(content__startswith=content)       
                     else:
-                        Comments = Comments.filter(content=content)
+                        comments = comments.filter(content=content)
                     
                 if creted_at != None:
-                    Comments = Comments.filter(creted_at__startswith=creted_at)
+                    comments = comments.filter(creted_at__startswith=creted_at)
                     
             elif request.query_params.get('getall') == None:
-                Comments = Comments[:10]
+                comments = comments[:10]
         except:
             return Response({'message': '리스트를 가져오는데 실패했습니다.'})
         
-        if Comments.count() == 0:
+        if comments.count() == 0:
             return Response({'message': '리스트가 비어 있습니다.'})
         
-        serializer = CommentSerializer(Comments, many=True)
+        serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
+    
     def post(self, request, format=None): # 댓글 생성하기
+        request.data['userid'] = request.user.userid
         serializer = CommentSerializer(data=request.data)
+        
         if serializer.is_valid() == False:
             return Response(serializer.errors)
         
@@ -588,45 +625,49 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
         
         serializer = CommentSerializer(comment)
         return Response(serializer.data)
+    
     def put(self, request, commentid, format=None):
         try:
-            Comment = Comment.objects.get(commentid=commentid)
-            if request.user.userid != Comment.userid:
+            comment = Comment.objects.get(commentid=commentid)
+            if request.user.userid != comment.userid.userid:
                 return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 댓글입니다.'})
         
         try:
             checkpassword = request.data['checkpassword']
-            user = User.objects.get(userid=request.data['userid'])
         except:
             return Response({'message': '댓글을 수정하려면 비밀번호를 입력해주세요.'})
+        
+        user = authentication.authenticate(userid=request.user.userid, password=checkpassword)
 
-        if user.password != checkpassword:
+        if user is None:
             return Response({'message': '비밀번호가 일치하지 않습니다.'})
-
-        serializer = CommentSerializer(Comment, data=request.data)
+        
+        serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid() == False:
             return Response(serializer.errors)
-
+        
         serializer.save()
         return Response({'message': '댓글이 수정되었습니다.'})
+    
     def delete(self, request, commentid, format=None):
         try:
-            Comment = Comment.objects.get(commentid=commentid)
-            if request.user.userid != Comment.userid:
+            comment = Comment.objects.get(commentid=commentid)
+            if request.user.userid != comment.userid.userid:
                 return Response({'message': '접근 권한이 없습니다.'})
         except:
             return Response({'message': '존재하지 않는 댓글입니다.'})
         
         try:
             checkpassword = request.data['checkpassword']
-            user = User.objects.get(userid=request.data['userid'])
         except:
             return Response({'message': '댓글을 삭제하려면 비밀번호를 입력해주세요.'})
         
-        if user.password != checkpassword:
+        user = authentication.authenticate(userid=request.user.userid, password=checkpassword)
+
+        if user is None:
             return Response({'message': '비밀번호가 일치하지 않습니다.'})
         
-        Comment.delete()
+        comment.delete()
         return Response({'message': '댓글이 삭제되었습니다.'})

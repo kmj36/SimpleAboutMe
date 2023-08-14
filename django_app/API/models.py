@@ -86,7 +86,7 @@ class Post(models.Model): # Post 테이블 정의, 1:N 관계
     categoryid = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     tagid = models.ManyToManyField(Tag, blank=True)
     title = models.CharField(max_length=200)
-    content = models.TextField(null=True, blank=True)
+    content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(null=True, blank=True)
