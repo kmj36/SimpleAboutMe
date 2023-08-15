@@ -1,0 +1,8 @@
+{
+  "name": "dev",
+  "version": "1.0.0",
+  "description": "intropagefront",
+  "main": "index.js",
+  "author": "kmj36",
+  "license": "MIT"
+}
