@@ -7,6 +7,19 @@ class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def create_user(self, userid, password, nickname, email):
+        
+        if not userid:
+            raise ValueError('Users must have an userid')
+        
+        if not password:
+            raise ValueError('Users must have an password')
+        
+        if not nickname:
+            raise ValueError('Users must have an nickname')
+        
+        if not email:
+            raise ValueError('Users must have an email')
+        
         user = self.model(
             userid=userid,
             nickname=nickname,
@@ -18,6 +31,19 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, userid=None, password=None, nickname=None, email=None):
+        
+        if not userid:
+            raise ValueError('SuperUsers must have an userid')
+        
+        if not password:
+            raise ValueError('SuperUsers must have an password')
+        
+        if not nickname:
+            raise ValueError('SuperUsers must have an nickname')
+        
+        if not email:
+            raise ValueError('SuperUsers must have an email')
+        
         superuser = self.create_user(
             userid=userid,
             nickname=nickname,
@@ -30,13 +56,13 @@ class UserManager(BaseUserManager):
         return superuser
 
 class User(AbstractBaseUser, PermissionsMixin): # User 테이블 정의, 1:N 관계
-    userid = models.CharField(max_length=30, primary_key=True)
-    password = models.CharField(max_length=128)
-    nickname = models.CharField(max_length=60)
-    email = models.EmailField(max_length=254, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    last_login = models.DateTimeField(null=True, blank=True)
+    userid = models.CharField(verbose_name='User ID', max_length=32, primary_key=True) # userid를 기본키로 설정
+    password = models.CharField(verbose_name='User Password', max_length=128)
+    nickname = models.CharField(verbose_name='User Nickname', max_length=64, unique=True)
+    email = models.EmailField(verbose_name='User Email', max_length=256, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True) # 생성 시간
+    updated_at = models.DateTimeField(auto_now=True) # 수정 시간
+    last_login = models.DateTimeField(null=True) # 마지막 로그인 시간
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -63,47 +89,44 @@ class User(AbstractBaseUser, PermissionsMixin): # User 테이블 정의, 1:N 관
         return self.is_admin
 
 class Tag(models.Model): # Tag 테이블 정의, N:M 관계
-    tagid = models.AutoField(primary_key=True)
-    tagname = models.CharField(max_length=50, unique=True)
+    tagid = models.AutoField(verbose_name='Tag ID', primary_key=True)
+    userid = models.ForeignKey(User, verbose_name='Tag Creator', on_delete=models.PROTECT, editable=False, null=True)
+    tagname = models.CharField(verbose_name='Tag Name', max_length=32, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    madeby = models.CharField(max_length=30, null=True, blank=True, editable=False)
     def __str__(self):
-        return self.tagname
+        return self.tagid
 
 class Category(models.Model): # Category 테이블 정의, 1:N 관계
-    categoryid = models.AutoField(primary_key=True)
-    categoryname = models.CharField(max_length=50, unique=True)
+    categoryid = models.AutoField(verbose_name='Category ID', primary_key=True)
+    userid = models.ForeignKey(User, verbose_name='Category Creator', on_delete=models.PROTECT, editable=False, null=True)
+    categoryname = models.CharField(verbose_name='Category ID', max_length=64, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    madeby = models.CharField(max_length=30, null=True, blank=True, editable=False)
     def __str__(self):
-        return self.categoryname
+        return self.categoryid
 
 class Post(models.Model): # Post 테이블 정의, 1:N 관계
-    postid = models.AutoField(primary_key=True)
-    userid = models.ForeignKey(User, on_delete=models.CASCADE)
-    categoryid = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
-    tagid = models.ManyToManyField(Tag, blank=True)
-    title = models.CharField(max_length=200)
-    content = models.TextField()
+    postid = models.AutoField(verbose_name='Post ID', primary_key=True)
+    userid = models.ForeignKey(User, verbose_name='Post Creator', on_delete=models.PROTECT, editable=False, null=True)
+    categoryid = models.ForeignKey(Category, verbose_name='Post Category', on_delete=models.CASCADE, null=True, blank=True)
+    tagid = models.ManyToManyField(Tag, verbose_name='Post Tags', blank=True)
+    title = models.CharField(verbose_name='Post Title', max_length=128)
+    content = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    published_at = models.DateTimeField(null=True, blank=True)
     is_published = models.BooleanField(default=True)
-    secrected_at = models.DateTimeField(null=True, blank=True)
     is_secret = models.BooleanField(default=False)
     def __str__(self):
         return self.title
 
 class Comment(models.Model): # Comment 테이블 정의, 1:N 관계
-    commentid = models.AutoField(primary_key=True)
-    userid = models.ForeignKey(User, on_delete=models.CASCADE)
-    postid = models.ForeignKey(Post, on_delete=models.CASCADE)
-    content = models.TextField()
+    commentid = models.AutoField(verbose_name='Comment ID', primary_key=True)
+    postid = models.ForeignKey(Post, verbose_name='Comment Post ID', on_delete=models.CASCADE)
+    userid = models.ForeignKey(User, verbose_name='Comment Creator', on_delete=models.PROTECT, editable=False, null=True)
+    content = models.CharField(verbose_name='Comment Content', max_length=1024, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_secret = models.BooleanField(default=False)
-    secrected_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.content
