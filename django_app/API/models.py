@@ -99,16 +99,16 @@ class Tag(models.Model): # Tag 테이블 정의, N:M 관계
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return self.tagid
+        return self.tagname
 
 class Category(models.Model): # Category 테이블 정의, 1:N 관계
     categoryid = models.AutoField(verbose_name='Category ID', primary_key=True)
     userid = models.ForeignKey(User, verbose_name='Category Creator', on_delete=models.SET_NULL, null=True, blank=True)
-    categoryname = models.CharField(verbose_name='Category ID', max_length=64, unique=True)
+    categoryname = models.CharField(verbose_name='Category Name', max_length=64, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return self.categoryid
+        return self.categoryname
 
 class Post(models.Model): # Post 테이블 정의, 1:N 관계
     postid = models.AutoField(verbose_name='Post ID', primary_key=True)
@@ -121,6 +121,7 @@ class Post(models.Model): # Post 테이블 정의, 1:N 관계
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(null=True, blank=True)
     is_published = models.BooleanField(default=True)
+    secret_password = models.CharField(verbose_name='Secret Password', max_length=128, null=True, blank=True)
     is_secret = models.BooleanField(default=False)
     def __str__(self):
         return self.title
