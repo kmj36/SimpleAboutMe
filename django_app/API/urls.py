@@ -1,11 +1,11 @@
 from django.urls import path
 
 from API.views import *
-from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenVerifyView
 
 urlpatterns = [
     path('', APIRoot.as_view()),
-    path('auth/', TokenAuthAPI.as_view()),
+    path('auth/', TokenVerifyView.as_view()),
     path('auth/register/', RegisterAPI.as_view()),
     path('auth/login/', LoginAPI.as_view()),
     path('auth/logout/', TokenBlacklistView.as_view()),

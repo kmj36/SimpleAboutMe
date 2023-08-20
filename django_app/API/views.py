@@ -17,61 +17,68 @@ class APIRoot(APIView): # API Root
     def get(self, request, format=None): # API Root
         return Response({
             'v1': {
-                'auth': {
-                    'auth' : 'POST /auth/',
-                    'register': 'POST /auth/register/',
-                    'login': 'POST /auth/login/',
-                    'logout': 'POST /auth/logout/',
-                    'refresh': 'POST /auth/refresh/',
+                'token-auth': {
+                    'method' : ['POST'],
+                    'url' : '/api/v1/auth/',
                 },
-                'user': {
-                    'list': 'GET /user/',
-                    'detail': 'GET /user/<str:userid>/',
-                    'update': 'PUT /user/<str:userid>/',
-                    'delete': 'POST /user/<str:userid>/',
+                'register': {
+                    'method' : ['POST'],
+                    'url' : '/api/v1/auth/register/',
                 },
-                'tag': {
-                    'list': 'GET /tag/',
-                    'detail': 'GET /tag/<int:tagid>/',
-                    'create': 'POST /tag/',
-                    'update': 'PUT /tag/<int:tagid>/',
-                    'delete': 'DELETE /tag/<int:tagid>/',
+                'login' : {
+                    'method' : ['POST'],
+                    'url' : '/api/v1/auth/login/',
                 },
-                'category': {
-                    'list': 'GET /category/',
-                    'detail': 'GET /category/<int:categoryid>/',
-                    'create': 'POST /category/',
-                    'update': 'PUT /category/<int:categoryid>/',
-                    'delete': 'DELETE /category/<int:categoryid>/',
+                'logout' : {
+                    'method' : ['POST'],
+                    'url' : '/api/v1/auth/logout/', 
                 },
-                'post': {
-                    'list': 'GET /post/',
-                    'detail': 'GET /post/<int:postid>/',
-                    'create': 'POST /post/',
-                    'update': 'PUT /post/<int:postid>/',
-                    'delete': 'DELETE /post/<int:postid>/',
+                'refresh' : {
+                    'method' : ['POST'],
+                    'url' : '/api/v1/auth/refresh/',
                 },
-                'comment': {
-                    'list': 'GET /comment/',
-                    'detail': 'GET /comment/<int:commentid>/',
-                    'create': 'POST /comment/',
-                    'update': 'PUT /comment/<int:commentid>/',
-                    'delete': 'DELETE /comment/<int:commentid>/',
+                'userlist' : {
+                    'method' : ['GET'],
+                    'url' : '/api/v1/user/',
+                },
+                'userdetail' : {
+                    'method' : ['GET', 'PUT', 'POST'],
+                    'url' : '/api/v1/user/<str:userid>/',
+                },
+                'taglist' : {
+                    'method' : ['GET', 'POST'],
+                    'url' : '/api/v1/tag/',
+                },
+                'tagdetail' : {
+                    'method' : ['GET', 'PUT', 'DELETE'],
+                    'url' : '/api/v1/tag/<int:tagid>/',
+                },
+                'categorylist' : {
+                    'method' : ['GET', 'POST'],
+                    'url' : '/api/v1/category/',
+                },
+                'categorydetail' : {
+                    'method' : ['GET', 'PUT', 'DELETE'],
+                    'url' : '/api/v1/category/<int:categoryid>/',
+                },
+                'postlist' : {
+                    'method' : ['GET', 'POST'],
+                    'url' : '/api/v1/post/',
+                },
+                'postdetail' : {
+                    'method' : ['GET', 'PUT', 'DELETE'],
+                    'url' : '/api/v1/post/<int:postid>/',
+                },
+                'commentlist' : {
+                    'method' : ['GET', 'POST'],
+                    'url' : '/api/v1/comment/',
+                },
+                'commentdetail' : {
+                    'method' : ['GET', 'PUT', 'DELETE'],
+                    'url' : '/api/v1/comment/<int:commentid>/',
                 },
             }
         })
-
-class TokenAuthAPI(APIView): # 토큰 인증 API
-    permission_classes = [IsAuthenticated]
-    def post(self, request, format=None): # 토큰 인증
-        JWT_authenticator = JWTAuthentication()
-        response = JWT_authenticator.authenticate(request)
-        
-        user , token = response
-        return Response({
-            'user': UserSerializer(user).data,
-            'token': str(token)
-        }, status=status.HTTP_200_OK)
 
 class RegisterAPI(APIView): # 회원가입 API
     permission_classes = [AllowAny]
@@ -539,7 +546,6 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
         
         serializer.save()
         return Response({'message': '포스트가 수정되었습니다.'})
-
     def delete(self, request, postid, format=None): # 포스트 정보 삭제하기
         try:
             post = Post.objects.get(postid=postid)
@@ -604,7 +610,6 @@ class CommentListAPI(APIView): # 댓글 리스트 API
         
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
-    
     def post(self, request, format=None): # 댓글 생성하기
         request.data['userid'] = request.user.userid
         serializer = CommentSerializer(data=request.data)
@@ -625,8 +630,7 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
         
         serializer = CommentSerializer(comment)
         return Response(serializer.data)
-    
-    def put(self, request, commentid, format=None):
+    def put(self, request, commentid, format=None): # 댓글 정보 수정하기
         try:
             comment = Comment.objects.get(commentid=commentid)
             if request.user.userid != comment.userid.userid:
@@ -650,8 +654,7 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
         
         serializer.save()
         return Response({'message': '댓글이 수정되었습니다.'})
-    
-    def delete(self, request, commentid, format=None):
+    def delete(self, request, commentid, format=None): # 댓글 정보 삭제하기
         try:
             comment = Comment.objects.get(commentid=commentid)
             if request.user.userid != comment.userid.userid:

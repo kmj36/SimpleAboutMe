@@ -58,6 +58,11 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
+        
+class PostExcludePasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ('postid', 'userid', 'categoryid', 'tagid', 'title', 'content', 'created_at', 'updated_at', 'is_published', 'is_secret', 'published_at')
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
