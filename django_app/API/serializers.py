@@ -4,10 +4,11 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class RegisterSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+        read_only_fields = ('created_at', 'updatead_at', 'last_login', 'is_active', 'is_admin', 'is_superuser', 'groups', 'user_permissions')
 
     def create(self, validated_data):
         userid = validated_data.get('userid')
@@ -25,11 +26,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
     
-class UserModifySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('userid', 'nickname', 'email', 'password')
-            
     def update(self, instance, validated_data):
         instance.userid = validated_data.get('userid', instance.userid)
         instance.nickname = validated_data.get('nickname', instance.nickname)
@@ -38,16 +34,11 @@ class UserModifySerializer(serializers.ModelSerializer):
         instance.set_password(instance.password)
         instance.save()
         return instance
-
+    
 class UserExcludePasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('userid', 'nickname', 'email', 'created_at', 'updated_at', 'is_admin', 'is_active', 'is_staff', 'is_superuser')
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
+        exclude = ('password',)
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:

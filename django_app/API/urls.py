@@ -19,5 +19,5 @@ urlpatterns = [
     path('post/', PostListAPI.as_view()),
     path('post/<int:postid>/', PostDetailAPI.as_view()),
     path('comment/', CommentListAPI.as_view()),
-    path('comment/<int:commentid>/', CommentDetailAPI.as_view()),
+    path('comment/<int:commentid>', CommentDetailAPI.as_view()),
 ]
