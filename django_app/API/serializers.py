@@ -7,9 +7,9 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = '__all__' 
         read_only_fields = ('created_at', 'updatead_at', 'last_login', 'is_active', 'is_admin', 'is_superuser', 'groups', 'user_permissions')
-
+    
     def create(self, validated_data):
         userid = validated_data.get('userid')
         nickname = validated_data.get('nickname')
@@ -34,12 +34,22 @@ class UserSerializer(serializers.ModelSerializer):
         instance.set_password(instance.password)
         instance.save()
         return instance
+
+class UserDetailSerializer(UserSerializer):
+    currentpassword = serializers.CharField(help_text='Type Current Your Password',  write_only=True, required=True)
+    changepassword = serializers.CharField(help_text='Type Desired Your Password',  write_only=True, required=True)
+    changepassword2 = serializers.CharField(help_text='Type Desired Your Password Again',  write_only=True, required=True)
     
-class UserExcludePasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ('password',)
-
+        fields = ['nickname', 'email', 'currentpassword', 'changepassword', 'changepassword2']
+        read_only_fields = ('userid', 'created_at', 'updatead_at', 'last_login', 'is_active', 'is_admin', 'is_superuser', 'groups', 'user_permissions')
+    
+    def validate(self, data):
+        if data['changepassword'] != data['changepassword2']:
+            raise serializers.ValidationError("Password fields didn't match.")
+        return data
+    
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag

@@ -15,6 +15,8 @@ class APIRoot(APIView): # API Root
     permission_classes = [AllowAny]
     def get(self, request, format=None): # API Root
         return Response({
+            'code' : status.HTTP_200_OK,
+            'message' : 'API 경로',
             'v1': {
                 'token-auth': {
                     'method' : ['POST'],
@@ -77,15 +79,18 @@ class APIRoot(APIView): # API Root
                     'url' : '/api/v1/comment/<int:commentid>/',
                 },
             }
-        })
+        }, status=status.HTTP_200_OK)
 
-class RegisterAPI(APIView): # 회원가입 API
+class RegisterAPI(APIView): # 회원가입 API 
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
     def post(self, request, format=None): # [POST] 회원가입 (Required Fields : userid, nickname, email, password)
-        serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer(instance=None, data=request.data)
         if serializer.is_valid() == False:
-            return Response(serializer.errors)
+            return Response({
+                "code" : status.HTTP_400_BAD_REQUEST,
+                "message" : serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         user = serializer.save()
         
@@ -94,7 +99,7 @@ class RegisterAPI(APIView): # 회원가입 API
         access_token = str(token.access_token)
         res = Response({
             "code" : status.HTTP_201_CREATED,
-            "message" : "회원가입에 성공했습니다.",
+            "message" : user.userid + " 회원가입에 성공했습니다.",
             "user" : {
                 "userid" : user.userid,
                 "nickname" : user.nickname,
@@ -119,13 +124,19 @@ class LoginAPI(APIView): # 로그인 API
         password = request.data.get('password')
         
         if(userid == None or password == None):
-            return Response({'message': '아이디와 비밀번호를 입력해주세요.'})
+            return Response({
+                "code" : status.HTTP_400_BAD_REQUEST,
+                "message" : "아이디와 비밀번호를 입력해주세요."
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         user = authentication.authenticate(userid=userid, password=password)
         
         if user is None:
-            return Response({'message': '아이디와 비밀번호가 일치하지 않습니다.'})
-        
+            return Response({
+                "code" : status.HTTP_401_UNAUTHORIZED,
+                "message" : "아이디와 비밀번호가 일치하지 않습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+            
         user.last_login = timezone.now()
         user.save()
         
@@ -134,7 +145,7 @@ class LoginAPI(APIView): # 로그인 API
         access_token = str(token.access_token)
         res = Response({
             "code" : status.HTTP_200_OK,
-            "message" : "로그인 되었습니다.",
+            "message" : user.userid + " 로그인 되었습니다.",
             "user" : {
                 "userid" : user.userid,
                 "nickname" : user.nickname,
@@ -154,6 +165,7 @@ class LoginAPI(APIView): # 로그인 API
     
 class UserListAPI(APIView): # 유저 리스트 API
     permission_classes = [IsAdminUser]
+    serializer_class = UserSerializer
     def get(self, request, format=None): # 유저 리스트 가져오기
         filtervalue = {}
         
@@ -186,77 +198,153 @@ class UserListAPI(APIView): # 유저 리스트 API
             users = User.objects.all().filter(**filtervalue)
         
         if users.count() == 0:
-            return Response({'message': '리스트가 비어 있습니다.'})
+            return Response({
+                "code": status.HTTP_204_NO_CONTENT,
+                "message": "리스트가 비어 있습니다."
+            }, status=status.HTTP_204_NO_CONTENT)
         
         serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+        return Response({
+            "code" : status.HTTP_200_OK,
+            "message" : "유저 리스트 조회되었습니다.",
+            "users" : serializer.data,
+        }, status=status.HTTP_200_OK)
     
 class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 userid 정보만 접근 가능
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
     def get(self, request, userid, format=None): # 유저 정보 가져오기
         try:
-            if request.user.userid == userid:
-                user = User.objects.get(userid=userid)
-            else:
-                return Response({'message': '접근 권한이 없습니다.'})
+            user = User.objects.get(userid=userid)
+            if request.user.userid != userid:
+                return Response({
+                    "code" : status.HTTP_401_UNAUTHORIZED,
+                    "message" : "접근 권한이 없습니다."
+                }, status=status.HTTP_401_UNAUTHORIZED)
         except:
-            return Response({'message': '존재하지 않는 회원입니다.'})
+            return Response({
+                "code" : status.HTTP_404_NOT_FOUND,
+                "message": "존재하지 않는 회원입니다."
+            }, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = UserExcludePasswordSerializer(user)
-        return Response(serializer.data)
+        serializer = UserSerializer(user)
+        return Response({
+            "code" : status.HTTP_200_OK,
+            "message" : serializer.data['userid'] + " 유저 조회되었습니다.",
+            "user" : {
+                "userid": serializer.data['userid'],
+                "is_superuser": serializer.data['is_superuser'],
+                "nickname": serializer.data['nickname'],
+                "email": serializer.data['email'],
+                "created_at": serializer.data['created_at'],
+                "updated_at": serializer.data['updated_at'],
+                "last_login": serializer.data['last_login'],
+                "is_active": serializer.data['is_active'],
+            },
+        }, status=status.HTTP_200_OK)
+    serializer_class = UserDetailSerializer
     def put(self, request, userid, format=None): # 유저 정보 수정하기 비밀번호 재확인
         try:
-            if request.user.userid == userid:
-                user = User.objects.get(userid=userid)
-            else:
-                return Response({'message': '접근 권한이 없습니다.'})
+            user = User.objects.get(userid=userid)
+            if request.user.userid != userid:
+                return Response({
+                    "code" : status.HTTP_401_UNAUTHORIZED,
+                    "message" : "접근 권한이 없습니다."
+                }, status=status.HTTP_401_UNAUTHORIZED)
         except:
-            return Response({'message': '존재하지 않는 회원입니다.'})
-         
-        try:
-            checkpassword = request.data['checkpassword']
-        except:
-            return Response({'message': '회원정보를 수정하려면 비밀번호를 입력해주세요.'})
+            return Response({
+                "code" : status.HTTP_404_NOT_FOUND,
+                "message": "존재하지 않는 회원입니다."
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+        current_password = request.data.get('currentpassword')
+        change_password = request.data.get('changepassword')
+        change_password2 = request.data.get('changepassword2')
         
-        user = authentication.authenticate(userid=userid, password=checkpassword)
+        if current_password == None or change_password == None or change_password2 == None:
+            return Response({
+                "code" : status.HTTP_400_BAD_REQUEST,
+                "message" : "현재 비밀번호와 변경할 비밀번호를 입력해주세요."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = authentication.authenticate(userid=userid, password=current_password)
 
         if user is None:
-            return Response({'message': '비밀번호가 일치하지 않습니다.'})
+            return Response({
+                "code" : status.HTTP_401_UNAUTHORIZED,
+                "message" : "비밀번호가 일치하지 않습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+            
+        modifydata = request.data
+        modifydata._mutable = True
+        modifydata['userid'] = request.user.userid
+        modifydata['password'] = change_password2
+        modifydata._mutable = False
         
-        request.data['userid'] = userid
+        UserDetailSerializer(data=modifydata).validate(modifydata)
         
-        serializer = UserSerializer(user, data=request.data)
+        serializer = UserSerializer(user, data=modifydata)
         if serializer.is_valid() == False:
-            return Response(serializer.errors)
-        
-        serializer.update(user, serializer.validated_data)
-        return Response({'message': '회원정보가 수정되었습니다.'})
+            return Response({
+                    "code" : status.HTTP_400_BAD_REQUEST,
+                    "message" : serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        changeddata = serializer.update(user, serializer.validated_data)
+        return Response({
+            "code" : status.HTTP_200_OK,
+            "message" : "회원정보가 수정되었습니다.",
+            "user" : {
+                "userid" : changeddata.userid,
+                "nickname" : changeddata.nickname,
+                "email" : changeddata.email,
+                "updated_at" : changeddata.updated_at,
+                "is_active" : changeddata.is_active,
+            }
+        }, status=status.HTTP_200_OK)
     def post(self, request, userid, format=None): # 유저 정보 삭제하기 비밀번호 재확인
         try:
-            if request.user.userid == userid:
-                user = User.objects.get(userid=userid)
-            else:
-                return Response({'message': '접근 권한이 없습니다.'})
+            user = User.objects.get(userid=userid)
+            if request.user.userid != userid:
+                return Response({
+                    "code" : status.HTTP_401_UNAUTHORIZED,
+                    "message" : "접근 권한이 없습니다."
+                }, status=status.HTTP_401_UNAUTHORIZED)
         except:
-            return Response({'message': '존재하지 않는 회원입니다.'})
+            return Response({
+                "code" : status.HTTP_404_NOT_FOUND,
+                "message": "존재하지 않는 회원입니다."
+            }, status=status.HTTP_404_NOT_FOUND)
         
         if userid == settings.UNIQUE_ADMIN:
-            return Response({'message': '최초 관리자 계정은 삭제할 수 없습니다.'})
+            return Response({
+                "code" : status.HTTP_403_FORBIDDEN,
+                "message" : "최초 관리자 계정은 삭제할 수 없습니다."
+            }, status=status.HTTP_403_FORBIDDEN)
         
-        try:
-            checkpassword = request.data['checkpassword']
-        except:
-            return Response({'message': '회원정보를 삭제하려면 비밀번호를 입력해주세요.'})
+        checkpassword = request.data.get('currentpassword')
+        if checkpassword is None:
+            return Response({
+                "code" : status.HTTP_400_BAD_REQUEST,
+                "message" : "회원정보를 삭제하려면 현재 비밀번호를 입력해주세요."
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         user = authentication.authenticate(userid=userid, password=checkpassword)
         
         if user is None:
-            return Response({'message': '비밀번호가 일치하지 않습니다.'})
+            return Response({
+                "code" : status.HTTP_401_UNAUTHORIZED,
+                "message" : "비밀번호가 일치하지 않습니다."
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
+        tempuserid = user.userid
         user.delete()
-        return Response({'message': '회원정보가 삭제되었습니다.'})
+        return Response({
+            "code" : status.HTTP_200_OK,
+            "message": tempuserid + " 회원정보가 삭제되었습니다."
+        }, status=status.HTTP_200_OK)
 
-class TagListAPI(APIView): # 태그 리스트 API, 
+class TagListAPI(APIView): # 태그 리스트 API [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, format=None): # 태그 리스트 가져오기
         filtervalue = {}
@@ -294,7 +382,7 @@ class TagListAPI(APIView): # 태그 리스트 API,
         serializer.save()
         return Response({'message': '태그가 생성되었습니다.'})
 
-class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그만 수정, 삭제 가능
+class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그만 수정, 삭제 가능  [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, tagid, format=None): # 태그 정보 가져오기
         try:
@@ -329,7 +417,7 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
         tag.delete()
         return Response({'message': '태그가 삭제되었습니다.'})
 
-class CategoryListAPI(APIView): # 카테고리 리스트 API
+class CategoryListAPI(APIView): # 카테고리 리스트 API  [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, format=None): # 카테고리 리스트 가져오기
         filtervalue = {}
@@ -367,7 +455,7 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
         serializer.save()
         return Response({'message': '카테고리가 생성되었습니다.'})
     
-class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성한 카테고리만 수정, 삭제 가능
+class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성한 카테고리만 수정, 삭제 가능  [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, categoryid, format=None): # 카테고리 정보 가져오기
         try:
@@ -402,7 +490,7 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
         category.delete()
         return Response({'message': '카테고리가 삭제되었습니다.'})
 
-class PostListAPI(APIView): # 포스트 리스트 API
+class PostListAPI(APIView): # 포스트 리스트 API  [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = PostSerializer
     def get(self, request, format=None): # 포스트 리스트 가져오기
@@ -460,7 +548,7 @@ class PostListAPI(APIView): # 포스트 리스트 API
         serializer.save()
         return Response({'message': '포스트가 생성되었습니다.'})
     
-class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포스트만 수정, 삭제 가능
+class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포스트만 수정, 삭제 가능  [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, postid, format=None): # 포스트 정보 가져오기
         try:
@@ -515,7 +603,7 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
         post.delete()
         return Response({'message': '포스트가 삭제되었습니다.'})
 
-class CommentListAPI(APIView): # 댓글 리스트 API
+class CommentListAPI(APIView): # 댓글 리스트 API  [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, format=None): # 댓글 리스트 가져오기
         filtervalue = {}
@@ -560,7 +648,7 @@ class CommentListAPI(APIView): # 댓글 리스트 API
         serializer.save()
         return Response({'message': '댓글이 생성되었습니다.'})
     
-class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓글만 수정, 삭제 가능
+class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓글만 수정, 삭제 가능  [TODO]
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self, request, commentid, format=None): # 댓글 정보 가져오기
         try:
