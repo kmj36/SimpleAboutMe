@@ -4,3 +4,4 @@ djangorestframework_simplejwt==5.2.2
 django-cors-headers==4.2.0
 python-dotenv==1.0.0
 mysqlclient==2.2.0
+pycryptodome==3.18.0

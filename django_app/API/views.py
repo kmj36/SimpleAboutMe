@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 from django.conf import settings
+from .privateapimode import PrivateAPI
+import json
 
 # json count default: 10
 
@@ -16,69 +18,113 @@ class APIRoot(APIView): # API Root
     permission_classes = [AllowAny]
     def get(self, request, format=None): # API Root
         return Response({
-            'code' : status.HTTP_200_OK,
-            'message' : 'API 경로',
-            'v1': {
-                'token-auth': {
-                    'method' : ['POST'],
-                    'url' : '/api/v1/auth/',
+            "code": 200,
+            "message": "API 경로",
+            "v1": {
+                "token-auth": {
+                    "method": [
+                        "POST"
+                    ],
+                    "url": "/api/v1/auth/"
                 },
-                'register': {
-                    'method' : ['POST'],
-                    'url' : '/api/v1/auth/register/',
+                "register": {
+                    "method": [
+                        "POST"
+                    ],
+                    "url": "/api/v1/auth/register/"
                 },
-                'login' : {
-                    'method' : ['POST'],
-                    'url' : '/api/v1/auth/login/',
+                "login": {
+                    "method": [
+                        "POST"
+                    ],
+                    "url": "/api/v1/auth/login/"
                 },
-                'logout' : {
-                    'method' : ['POST'],
-                    'url' : '/api/v1/auth/logout/', 
+                "logout": {
+                    "method": [
+                        "POST"
+                    ],
+                    "url": "/api/v1/auth/logout/"
                 },
-                'refresh' : {
-                    'method' : ['POST'],
-                    'url' : '/api/v1/auth/refresh/',
+                "refresh": {
+                    "method": [
+                        "POST"
+                    ],
+                    "url": "/api/v1/auth/refresh/"
                 },
-                'userlist' : {
-                    'method' : ['GET'],
-                    'url' : '/api/v1/user/',
+                "userlist": {
+                    "method": [
+                        "GET"
+                    ],
+                    "url": "/api/v1/user/"
                 },
-                'userdetail' : {
-                    'method' : ['GET', 'PUT', 'POST'],
-                    'url' : '/api/v1/user/<str:userid>/',
+                "userdetail": {
+                    "method": [
+                        "GET",
+                        "PUT",
+                        "POST"
+                    ],
+                    "url": "/api/v1/user/<str:userid>/"
                 },
-                'taglist' : {
-                    'method' : ['GET', 'POST'],
-                    'url' : '/api/v1/tag/',
+                "taglist": {
+                    "method": [
+                        "GET",
+                        "POST"
+                    ],
+                    "url": "/api/v1/tag/"
                 },
-                'tagdetail' : {
-                    'method' : ['GET', 'PUT', 'DELETE'],
-                    'url' : '/api/v1/tag/<int:tagid>/',
+                "tagdetail": {
+                    "method": [
+                        "GET",
+                        "PUT",
+                        "DELETE"
+                    ],
+                    "url": "/api/v1/tag/<int:tagid>/"
                 },
-                'categorylist' : {
-                    'method' : ['GET', 'POST'],
-                    'url' : '/api/v1/category/',
+                "categorylist": {
+                    "method": [
+                        "GET",
+                        "POST"
+                    ],
+                    "url": "/api/v1/category/"
                 },
-                'categorydetail' : {
-                    'method' : ['GET', 'PUT', 'DELETE'],
-                    'url' : '/api/v1/category/<int:categoryid>/',
+                "categorydetail": {
+                    "method": [
+                        "GET",
+                        "PUT",
+                        "DELETE"
+                    ],
+                    "url": "/api/v1/category/<int:categoryid>/"
                 },
-                'postlist' : {
-                    'method' : ['GET', 'POST'],
-                    'url' : '/api/v1/post/',
+                "postlist": {
+                    "method": [
+                        "GET",
+                        "POST"
+                    ],
+                    "url": "/api/v1/post/"
                 },
-                'postdetail' : {
-                    'method' : ['GET', 'PUT', 'DELETE'],
-                    'url' : '/api/v1/post/<int:postid>/',
+                "postdetail": {
+                    "method": [
+                        "GET",
+                        "PUT",
+                        "DELETE"
+                    ],
+                    "url": "/api/v1/post/<int:postid>/"
                 },
-                'commentlist' : {
-                    'method' : ['GET', 'POST'],
-                    'url' : '/api/v1/comment/',
+                "commentlist": {
+                    "method": [
+                        "GET",
+                        "POST"
+                    ],
+                    "url": "/api/v1/comment/"
                 },
-                'commentdetail' : {
-                    'method' : ['GET', 'PUT', 'DELETE'],
-                    'url' : '/api/v1/comment/<int:commentid>/',
-                },
+                "commentdetail": {
+                    "method": [
+                        "GET",
+                        "PUT",
+                        "DELETE"
+                    ],
+                    "url": "/api/v1/comment/<int:commentid>/"
+                }
             }
         }, status=status.HTTP_200_OK)
 
