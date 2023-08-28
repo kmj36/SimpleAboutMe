@@ -146,15 +146,16 @@ DATABASES = {
         'NAME': os.environ.get('MYSQL_DATABASE'),
         'USER': os.environ.get('MYSQL_ROOT_USER'),
         'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-        #[DOCKER]'HOST': 'db',
-        'HOST': '127.0.0.1',
-        'PORT': '50002',
+        #'HOST': 'db',
+        #'PORT': '3306',
+        'HOST': '127.0.0.1', # [LOCAL]
+        'PORT': '50002', # [LOCAL]
     }
 }
 
 
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/ko/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -162,6 +163,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS' : {
+            'min_length' : 8,
+        },
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',

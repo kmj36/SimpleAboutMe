@@ -113,7 +113,7 @@ class PostAdmin(admin.ModelAdmin):
         else:
             obj.published_at = None
 
-        if obj.is_secret is True and not obj.secret_password.startswith('pbkdf2_sha256'):
+        if obj.is_secret is True and not obj.secret_password.startswith('pbkdf2_sha256$'):
             obj.secret_password = make_password(obj.secret_password)
             
         obj.save()
