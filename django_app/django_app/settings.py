@@ -201,3 +201,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 UNIQUE_ADMIN = os.environ.get('DJANGO_ADMIN_ID')
+
+DJANGO_PRIVATE_API_MODE = os.environ.get('DJANGO_PRIVATE_API_MODE')
+
+DJANGO_PRIVATE_API_KEY = os.environ.get('DJANGO_PRIVATE_API_KEY')
