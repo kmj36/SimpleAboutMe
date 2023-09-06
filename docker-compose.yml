@@ -24,16 +24,7 @@ services:
       retries: 100
     networks:
       - intropageNet
-
- # adminer:
- #   image: adminer
- #   restart: "no"
- #   container_name: ${CONTAINER_NAME}_adminer
- #   ports:
- #     - ${ADMINER_PORT}:8080 # HOST:CONTAINER
- #   networks:
- #     - intropageNet
-
+      
   api:
     build: ./django_app
     restart: always
