@@ -16,7 +16,7 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
-      - ./mysql_init/initdb.d:/docker-entrypoint-initdb.d/
+      - ./mysql_db:/var/lib/mysql
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${MYSQL_ROOT_USER} --password=${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
