@@ -5,6 +5,7 @@
 .vscode/
 
 ### SQL ###
+mysql_db/
 
 ### Django ###
 *.log

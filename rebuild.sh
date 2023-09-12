@@ -7,6 +7,8 @@ echo "[Down docker-compose...]"
 sudo docker-compose down
 echo "[Remove docker-compose...]"
 sudo docker rmi p_intropage_v1-api p_intropage_v1_api -f
+ehcho "[Remove mysql-data...]"
+sudo rm -rf mysql_db
 
 echo "[Update docker...]"
 sudo apt-get update -y
