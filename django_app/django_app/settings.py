@@ -146,10 +146,10 @@ DATABASES = {
         'NAME': os.environ.get('MYSQL_DATABASE'),
         'USER': os.environ.get('MYSQL_ROOT_USER'),
         'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-        'HOST': 'db',
-        'PORT': '3306',
-        #'HOST': '127.0.0.1', # [LOCAL]
-        #'PORT': '50002', # [LOCAL]
+        #'HOST': 'db',
+        #'PORT': '3306',
+        'HOST': '127.0.0.1', # [LOCAL]
+        'PORT': '50002', # [LOCAL]
     }
 }
 
