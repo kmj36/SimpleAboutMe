@@ -56,7 +56,7 @@ class User(AbstractBaseUser, PermissionsMixin): # User 테이블 정의, 1:N 관
     last_login = models.DateTimeField(null=True) # 마지막 로그인 시간
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-
+    
     objects = UserManager()
 
     USERNAME_FIELD = 'userid'

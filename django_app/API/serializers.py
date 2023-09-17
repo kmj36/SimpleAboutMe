@@ -66,8 +66,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserDetailSerializer(UserSerializer):
     currentpassword = serializers.CharField(help_text='Type Current Your Password',  write_only=True, required=True)
-    changepassword = serializers.CharField(help_text='Type Desired Your Password',  write_only=True, required=True)
-    changepassword2 = serializers.CharField(help_text='Type Desired Your Password Again',  write_only=True, required=True)
+    changepassword = serializers.CharField(help_text='Type New Password',  write_only=True, required=True)
+    changepassword2 = serializers.CharField(help_text='Type New Password Again',  write_only=True, required=True)
     
     class Meta:
         model = User

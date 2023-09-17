@@ -19,8 +19,9 @@ from django_app.views import Home
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', Home.as_view()), # Home
-    path('api/v1/', include('API.urls')),
-    path('api-auth/', include('rest_framework.urls')),
+    #path('api/', ...), # 추후 API html 개발
+    path('api/v1/', include('API.urls')), # API v1
+    path('admin/', admin.site.urls), # Admin
+    path('api-auth/', include('rest_framework.urls')), # DRF Auth
 ]
