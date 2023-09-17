@@ -3,6 +3,8 @@ from rest_framework import status
 from .models import User, Tag, Category, Post, Comment
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from .literals import literals
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -21,16 +23,22 @@ class UserSerializer(serializers.ModelSerializer):
         if len(userid) < 5:
             returnjson = {
                 "code" : status.HTTP_400_BAD_REQUEST,
-                "detail" : "유저 ID 는 5자 이상이어야 합니다.",
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message" : "유저 ID 는 5자 이상이어야 합니다.",
+                "detail" : "userid is too short",
             }
-            raise serializers.ValidationError(returnjson)
+            raise serializers.ValidationError(returnjson, code=status.HTTP_400_BAD_REQUEST)
         
         if len(nickname) < 3:
             returnjson = {
                 "code" : status.HTTP_400_BAD_REQUEST,
-                "detail" : "닉네임은 3자 이상이어야 합니다.",
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message" : "닉네임은 3자 이상이어야 합니다.",
+                "detail" : "nickname is too short",
             }
-            raise serializers.ValidationError(returnjson)
+            raise serializers.ValidationError(returnjson, code=status.HTTP_400_BAD_REQUEST)
         
         try:
             validate_password(user=User, password=password)
@@ -41,9 +49,12 @@ class UserSerializer(serializers.ModelSerializer):
                 errormessage.append(str(e.args[0][i])[2:-2])
             returnjson = {
                 "code" : status.HTTP_400_BAD_REQUEST,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message" : "비밀번호가 유효하지 않습니다.",
                 "detail" : errormessage,
             }
-            raise serializers.ValidationError(returnjson)
+            raise serializers.ValidationError(returnjson, code=status.HTTP_400_BAD_REQUEST)
         
         user = User.objects.create_user(
             userid=userid,
