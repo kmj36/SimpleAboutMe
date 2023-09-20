@@ -166,7 +166,6 @@ class RegisterAPI(APIView): # 회원가입 API
                 "updated_at" : returnserializer.data.get("updated_at"),
                 "is_active" : returnserializer.data.get("is_active"),
                 "is_admin" : returnserializer.data.get("is_admin"),
-                "is_superuser" : returnserializer.data.get("is_superuser"),
             },
             "token": {
                 "refresh": refresh_token,
@@ -204,6 +203,15 @@ class LoginAPI(APIView): # 로그인 API
                 "detail" : "userid and password is not match"
             }).get(), status=status.HTTP_401_UNAUTHORIZED)
             
+        if user.is_banned == True:
+            return Response(PrivateJSON({
+                "code" : status.HTTP_401_UNAUTHORIZED,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message": literals.AUTH_FAILED,
+                "detail" : user.pk + " User is banned"
+            }).get(), status=status.HTTP_401_UNAUTHORIZED)
+            
         user.last_login = timezone.now()
         user.save()
         
@@ -227,7 +235,6 @@ class LoginAPI(APIView): # 로그인 API
                 "last_login" : serializer.data.get("last_login"),
                 "is_active" : serializer.data.get("is_active"),
                 "is_admin" : serializer.data.get("is_admin"),
-                "is_superuser" : serializer.data.get("is_superuser"),
             },
             "token": {
                 "refresh": refresh_token,
@@ -237,8 +244,61 @@ class LoginAPI(APIView): # 로그인 API
         res.set_cookie('access_token', access_token, httponly=True)
         res.set_cookie('refresh_token', refresh_token, httponly=True)
         return res
-    
-class UserListAPI(APIView): # 유저 리스트 API (2500 기본값)
+
+class ControlHistroyAPI(APIView): # [관리자] 컨트롤 히스토리 API
+    permission_classes = [IsAdminUser]
+    serializer_class = ForcedControlSerializer
+    def get(self, request, format=None):
+        filtervalue = {}
+        
+        adminid = request.query_params.get('adminid')
+        targetid = request.query_params.get('targetid')
+        contenttype = request.query_params.get('contenttype')
+        contentid = request.query_params.get('contentid')
+        reason = request.query_params.get('reason')
+        modified_at = request.query_params.get('modified_at')
+        is_deleted = request.query_params.get('is_deleted')
+        
+        if adminid != None:
+            filtervalue['adminid'] = adminid
+        if targetid != None:
+            filtervalue['targetid'] = targetid
+        if contenttype != None:
+            filtervalue['contenttype'] = contenttype
+        if contentid != None:
+            filtervalue['contentid'] = contentid
+        if reason != None:
+            filtervalue['reason__icontains'] = reason
+        if modified_at != None:
+            filtervalue['modified_at__startswith'] = modified_at
+        if is_deleted != None:
+            filtervalue['is_deleted'] = is_deleted
+        
+        if filtervalue == []:
+            histories = ForcedControl.objects.all()[:2500]
+        else:
+            histories = ForcedControl.objects.all().filter(**filtervalue)
+        
+        if histories.count() == 0:
+            return Response(PrivateJSON({
+                "code": status.HTTP_204_NO_CONTENT,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message": literals.NOCONTENT_RESPONSE,
+                "detail" : "No Content"
+            }).get(), status=status.HTTP_204_NO_CONTENT)
+        
+        serializer = ForcedControlSerializer(histories, many=True)
+        return Response(PrivateJSON({
+            "code" : status.HTTP_200_OK,
+            "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+            "status" : literals.SUCCESS,
+            "message" : literals.LIST_RESPONSE,
+            "detail" : "User List",
+            "histories" : serializer.data,
+        }).get(), status=status.HTTP_200_OK)
+
+class UserListAPI(APIView): # [관리자] 유저 리스트 API (2500 기본값)
     permission_classes = [IsAdminUser]
     serializer_class = UserSerializer
     def get(self, request, format=None): # 유저 리스트 가져오기
@@ -297,7 +357,7 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
     def get(self, request, userid, format=None): # 유저 정보 가져오기
         try:
             user = User.objects.get(userid=userid)
-            if request.user.userid != userid:
+            if request.user.userid != user.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -330,14 +390,13 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
                 "last_login" : serializer.data.get("last_login"),
                 "is_active" : serializer.data.get("is_active"),
                 "is_admin" : serializer.data.get("is_admin"),
-                "is_superuser" : serializer.data.get("is_superuser"),
             },
         }).get(), status=status.HTTP_200_OK)
     serializer_class = UserDetailSerializer
     def put(self, request, userid, format=None): # 유저 정보 수정하기 비밀번호 재확인
         try:
             user = User.objects.get(userid=userid)
-            if request.user.userid != userid:
+            if request.user.userid != user.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_401_UNAUTHORIZED,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -353,6 +412,85 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
                 "message": literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` User is not exist.".format(userid),
             }).get(), status=status.HTTP_404_NOT_FOUND)
+            
+        if userid == settings.UNIQUE_ADMIN:
+            return Response(PrivateJSON({
+                "code" : status.HTTP_403_FORBIDDEN,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message" : literals.CANNOTMODIFY_SUPERUSER,
+                "detail" : request.user.userid + " don't have permission to this access.",
+                "requester" : request.user.userid,
+            }).get(), status=status.HTTP_403_FORBIDDEN)
+            
+        if user.is_active == False:
+            return Response(PrivateJSON({
+                "code" : status.HTTP_403_FORBIDDEN,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message": literals.FORBIDDEN_RESPONSE,
+                "detail" : user.userid + " User is not active."
+            }).get(), status=status.HTTP_403_FORBIDDEN)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            print(request.user.userid)
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : user.userid,
+                "contenttype" : "user",
+                "contentid" : user.userid,
+                "reason" : request.data.get("reason"),
+                "modified_at" : timezone.now(),
+                "is_deleted" : False
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            modifydata = request.data
+            modifydata._mutable = True
+            modifydata['userid'] = user.userid
+            modifydata['password'] = user.password
+            modifydata._mutable = False
+            
+            serializer = UserSerializer(instance=user, data=modifydata)
+            if serializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : serializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+                
+            serializer.update(instance=user, validated_data=serializer.validated_data, is_adminmodify=request.user.is_admin)
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.MODIFY_SUCCESS,
+                "detail" : serializer.data.get('userid') + " User Modify Success by" + request.user.userid,
+                "user" : {
+                    "userid" : serializer.data.get('userid'),
+                    "nickname" : serializer.data.get('nickname'),
+                    "email" : serializer.data.get('email'),
+                    "created_at" : serializer.data.get('created_at'),
+                    "updated_at" : serializer.data.get('updated_at'),
+                    "last_login" : serializer.data.get('last_login'),
+                    "is_active" : serializer.data.get('is_active'),
+                    "is_admin" : serializer.data.get('is_admin'),
+                }
+            }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
             
         current_password = request.data.get('currentpassword')
         change_password = request.data.get('changepassword')
@@ -377,9 +515,9 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
             }).get(), status=status.HTTP_400_BAD_REQUEST)
         
         
-        user = authentication.authenticate(userid=userid, password=current_password)
+        userauth = authentication.authenticate(userid=user.userid, password=current_password)
 
-        if user is None:
+        if userauth is None:
             return Response(PrivateJSON({
                 "code" : status.HTTP_401_UNAUTHORIZED,
                 "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -390,11 +528,9 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
             
         modifydata = request.data
         modifydata._mutable = True
-        modifydata['userid'] = user.pk
+        modifydata['userid'] = userauth.userid
         modifydata['password'] = change_password
         modifydata._mutable = False
-        
-        UserDetailSerializer(instance=modifydata).validate(data=modifydata)
         
         serializer = UserSerializer(instance=user, data=modifydata)
         if serializer.is_valid() == False:
@@ -422,13 +558,12 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
                 "last_login" : serializer.data.get('last_login'),
                 "is_active" : serializer.data.get('is_active'),
                 "is_admin" : serializer.data.get('is_admin'),
-                "is_superuser" : serializer.data.get('is_superuser'),
             }
         }).get(), status=status.HTTP_200_OK)
     def post(self, request, userid, format=None): # 유저 정보 삭제하기 비밀번호 재확인
         try:
             user = User.objects.get(userid=userid)
-            if request.user.userid != userid:
+            if request.user.userid != userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_401_UNAUTHORIZED,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -454,6 +589,50 @@ class UserDetailAPI(APIView): # 유저 디테일 API, 로그인한 자신의 use
                 "detail" : request.user.userid + " don't have permission to this access.",
                 "requester" : request.user.userid,
             }).get(), status=status.HTTP_403_FORBIDDEN)
+            
+        if user.is_active == False:
+            return Response(PrivateJSON({
+                "code" : status.HTTP_403_FORBIDDEN,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message": literals.FORBIDDEN_RESPONSE,
+                "detail" : user.userid + " User is not active."
+            }).get(), status=status.HTTP_403_FORBIDDEN)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : user.userid,
+                "contenttype" : "user",
+                "contentid" : user.userid,
+                "reason" : request.data.get("reason"),
+                "modified_at" : timezone.now(),
+                "is_deleted" : True
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                    "code" : status.HTTP_400_BAD_REQUEST,
+                    "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                    "status" : literals.ERROR,
+                    "message" : literals.INVALID_REQUEST,
+                    "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            tempuserid = user.userid
+            user.is_active = False
+            user.save()
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.DELETE_SUCCESS,
+                "detail" : tempuserid + " User Delete Success by" + request.user.userid,
+            }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         checkpassword = request.data.get('currentpassword')
         if checkpassword is None:
@@ -579,7 +758,7 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
     def put(self, request, tagid, format=None): # 태그 정보 수정하기
         try:
             tag = Tag.objects.get(tagid=tagid)
-            if request.user.userid != tag.userid.userid:
+            if request.user.userid != tag.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -595,6 +774,50 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
                 "message" : literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Tag ID is not exist.".format(tagid),
             }).get(), status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : tag.userid.userid,
+                "contenttype" : "tag",
+                "contentid" : str(tag.tagid),
+                "reason" : request.data.get("reason"),
+                "modified_at" : timezone.now(),
+                "is_deleted" : False
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+                
+            serializer = TagSerializer(instance=tag, data=request.data)
+            if serializer.is_valid() == False:
+                return Response(PrivateJSON({
+                    "code" : status.HTTP_400_BAD_REQUEST,
+                    "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                    "status" : literals.ERROR,
+                    "message" : literals.INVALID_REQUEST,
+                    "detail" : serializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer.update(instance=tag, validated_data=serializer.validated_data)
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.MODIFY_SUCCESS,
+                "detail" :  "{0} Tag Modify Success by {1}".format(serializer.data.get('tagid'), request.user.userid),
+                "tag" : serializer.data
+        }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         serializer = TagSerializer(instance=tag, data=request.data)
         if serializer.is_valid() == False:
@@ -607,6 +830,7 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
             }).get(), status=status.HTTP_400_BAD_REQUEST)
         
         serializer.update(instance=tag, validated_data=serializer.validated_data)
+        
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -618,7 +842,7 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
     def delete(self, request, tagid, format=None): # 태그 정보 삭제하기
         try:
             tag = Tag.objects.get(tagid=tagid)
-            if request.user.userid != tag.userid.userid:
+            if request.user.userid != tag.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -634,6 +858,40 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
                 "message" : literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Tag ID is not exist.".format(tagid),
             }).get(), status=status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : tag.userid.userid,
+                "contenttype" : "tag",
+                "contentid" : str(tag.tagid),
+                "reason" : "관리자에 의해 {0} 태그가 삭제됨".format(tag.tagname),
+                "modified_at" : timezone.now(),
+                "is_deleted" : True
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            temptagname = tag.tagname
+            tag.delete()
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.DELETE_SUCCESS,
+                "detail" : "{0} Tag Delete Success by {1}".format(temptagname, request.user.userid),
+            }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         temptagname = tag.tagname
         tag.delete()
@@ -737,7 +995,7 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
     def put(self, request, categoryid, format=None): # 카테고리 정보 수정하기
         try:
             category = Category.objects.get(categoryid=categoryid)
-            if request.user.userid != category.userid.userid:
+            if request.user.userid != category.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "requst_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -753,6 +1011,50 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
                 "message": literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Category ID is not exist.".format(categoryid),
             }).get(), status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : category.userid.userid,
+                "contenttype" : "category",
+                "contentid" : str(category.categoryid),
+                "reason" : request.data.get("reason"),
+                "modified_at" : timezone.now(),
+                "is_deleted" : False
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+                
+            serializer = CategorySerializer(instance=category, data=request.data)
+            if serializer.is_valid() == False:
+                return Response(PrivateJSON({
+                    "code" : status.HTTP_400_BAD_REQUEST,
+                    "requst_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                    "status" : literals.ERROR,
+                    "message" : literals.INVALID_REQUEST,
+                    "detail" : serializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer.update(instance=category, validated_data=serializer.validated_data)
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.MODIFY_SUCCESS,
+                "detail" :  "{0} Category Modify Success by {1}".format(serializer.data.get('categoryid'), request.user.userid),
+                "tag" : serializer.data
+        }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         serializer = CategorySerializer(instance=category, data=request.data)
         if serializer.is_valid() == False:
@@ -765,6 +1067,7 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
             }).get(), status=status.HTTP_400_BAD_REQUEST)
         
         serializer.update(instance=category, validated_data=serializer.validated_data)
+        
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "requst_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -776,7 +1079,7 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
     def delete(self, request, categoryid, format=None): # 카테고리 정보 삭제하기
         try:
             category = Category.objects.get(categoryid=categoryid)
-            if request.user.userid != category.userid.userid:
+            if request.user.userid != category.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -792,6 +1095,40 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
                 "message": literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Category ID is not exist.".format(categoryid),
             }).get(), status=status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : category.userid.userid,
+                "contenttype" : "category",
+                "contentid" : str(category.categoryid),
+                "reason" : "관리자에 의해 {0} 카테고리가 삭제됨".format(category.categoryname),
+                "modified_at" : timezone.now(),
+                "is_deleted" : True
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+                
+            tempcategoryname = category.categoryname
+            category.delete()
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.DELETE_SUCCESS,
+                "detail" : "{0} Category Delete Success {1}".format(tempcategoryname, request.user.userid),
+            }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         tempcategoryname = category.categoryname
         category.delete()
@@ -931,7 +1268,7 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
     def put(self, request, postid, format=None): # 포스트 정보 수정하기
         try:
             post = Post.objects.get(postid=postid)
-            if request.user.userid != post.userid.userid:
+            if request.user.userid != post.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -948,6 +1285,69 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
                 "message" : literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Post ID is not exist.".format(postid),
             }).get(), status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : post.userid.userid,
+                "contenttype" : "post",
+                "contentid" : str(post.postid),
+                "reason" : request.data.get("reason"),
+                "modified_at" : timezone.now(),
+                "is_deleted" : False
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+                
+            serializer = PostSerializer(instance=post, data=request.data)
+            if serializer.is_valid() == False:
+                return Response(PrivateJSON({
+                    "code" : status.HTTP_400_BAD_REQUEST,
+                    "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                    "status" : literals.ERROR,
+                    "message" : literals.INVALID_REQUEST,
+                    "detail" : serializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.validated_data['userid'] = request.user
+            if serializer.validated_data.get('is_published') == True and serializer.validated_data.get('published_at') == None:
+                serializer.validated_data['published_at'] = timezone.now()
+            else:
+                serializer.validated_data['published_at'] = None
+
+            if serializer.validated_data.get('is_secret') == True:
+                if serializer.validated_data.get('secret_password') == "":
+                    return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.REQUIRED_FIELD,
+                        "detail" : "secret_password is required field."
+                    }).get(), status=status.HTTP_400_BAD_REQUEST)
+                
+                if not serializer.validated_data.get('secret_password').startswith('pbkdf2_sha256$'):
+                    serializer.validated_data['secret_password'] = make_password(serializer.validated_data['secret_password'])
+            
+            serializer.update(instance=post, validated_data=serializer.validated_data)
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.MODIFY_SUCCESS,
+                "detail" :  "{0} Post Modify Success by {1}".format(serializer.data.get('postid'), request.user.userid),
+                "post" : serializer.data
+        }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         serializer = PostSerializer(instance=post, data=request.data)
         if serializer.is_valid() == False:
@@ -979,6 +1379,7 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
                 serializer.validated_data['secret_password'] = make_password(serializer.validated_data['secret_password'])
         
         serializer.update(instance=post, validated_data=serializer.validated_data)
+        
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -990,7 +1391,7 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
     def delete(self, request, postid, format=None): # 포스트 정보 삭제하기
         try:
             post = Post.objects.get(postid=postid)
-            if request.user.userid != post.userid.userid:
+            if request.user.userid != post.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -1006,6 +1407,40 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
                 "message" : literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Post ID is not exist.".format(postid),
             }).get(), status=status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : post.userid.userid,
+                "contenttype" : "post",
+                "contentid" : str(post.postid),
+                "reason" : "관리자에 의해 {0} 포스트가 삭제됨".format(post.title),
+                "modified_at" : timezone.now(),
+                "is_deleted" : True
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            tempposttitle = post.title
+            post.delete()
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.DELETE_SUCCESS,
+                "detail" : "{0} Post Delete Success {1}".format(tempposttitle, request.user.userid),
+            }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         tempposttitle = post.title
         post.delete()
@@ -1115,7 +1550,7 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
     def put(self, request, commentid, format=None): # 댓글 정보 수정하기
         try:
             comment = Comment.objects.get(commentid=commentid)
-            if request.user.userid != comment.userid.userid:
+            if request.user.userid != comment.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -1131,6 +1566,50 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
                 "message" : literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Comment ID is not exist.".format(commentid),
             }).get(), status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : comment.userid.userid,
+                "contenttype" : "comment",
+                "contentid" : str(comment.commentid),
+                "reason" : request.data.get("reason"),
+                "modified_at" : timezone.now(),
+                "is_deleted" : False
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+                
+            serializer = CommentSerializer(instance=comment, data=request.data)
+            if serializer.is_valid() == False:
+                return Response(PrivateJSON({
+                    "code" : status.HTTP_400_BAD_REQUEST,
+                    "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                    "status" : literals.ERROR,
+                    "message" : literals.INVALID_REQUEST,
+                    "detail" : serializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer.update(instance=comment, validated_data=serializer.validated_data)
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.MODIFY_SUCCESS,
+                "detail" :  "{0} Comment Modify Success by {1}".format(serializer.data.get('commentid'), request.user.userid),
+                "comment" : serializer.data
+        }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         serializer = CommentSerializer(instance=comment, data=request.data)
         if serializer.is_valid() == False:
@@ -1143,6 +1622,7 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
             }).get(), status=status.HTTP_400_BAD_REQUEST)
         
         serializer.update(instance=comment, validated_data=serializer.validated_data)
+        
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -1154,7 +1634,7 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
     def delete(self, request, commentid, format=None): # 댓글 정보 삭제하기
         try:
             comment = Comment.objects.get(commentid=commentid)
-            if request.user.userid != comment.userid.userid:
+            if request.user.userid != comment.userid.userid and request.user.is_admin == False:
                 return Response(PrivateJSON({
                     "code" : status.HTTP_403_FORBIDDEN,
                     "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -1170,6 +1650,40 @@ class CommentDetailAPI(APIView): # 댓글 디테일 API, 자신이 생성한 댓
                 "message" : literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Comment ID is not exist.".format(commentid),
             }).get(), status=status.HTTP_404_NOT_FOUND)
+            
+        ''' ADMIN '''
+        if request.user.is_admin == True:
+            adminserializer = ForcedControlSerializer(data={
+                "adminid" : request.user.userid,
+                "targetid" : comment.userid.userid,
+                "contenttype" : "comment",
+                "contentid" : str(comment.commentid),
+                "reason" : "관리자에 의해 {0} 댓글이 삭제됨".format(comment.content),
+                "modified_at" : timezone.now(),
+                "is_deleted" : True
+            })
+            
+            if adminserializer.is_valid() == False:
+                return Response(PrivateJSON({
+                        "code" : status.HTTP_400_BAD_REQUEST,
+                        "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                        "status" : literals.ERROR,
+                        "message" : literals.INVALID_REQUEST,
+                        "detail" : adminserializer.errors
+                }).get(), status=status.HTTP_400_BAD_REQUEST)
+            
+            tempcommentcontent = comment.content
+            comment.delete()
+            adminserializer.save()
+            
+            return Response(PrivateJSON({
+                "code" : status.HTTP_200_OK,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.SUCCESS,
+                "message" : request.user.userid + " 으로 인해 " + literals.DELETE_SUCCESS,
+                "detail" : "{0} Comment Delete Success {1}".format(tempcommentcontent, request.user.userid),
+            }).get(), status=status.HTTP_200_OK)
+        ''' ADMIN '''
         
         tempcommentcontent = comment.content
         comment.delete()

@@ -82,8 +82,8 @@ class User(AbstractBaseUser, PermissionsMixin): # 유저 테이블 정의, 1:N �
 
 class UserReportDetail(models.Model): # 유저신고 테이블 정의, 1:N 관계
     reportid = models.AutoField(verbose_name='Report ID', primary_key=True)
-    userid = models.ForeignKey(User, verbose_name='User ID', on_delete=models.SET_NULL, null=True, blank=True)
-    targetid = models.ForeignKey(User, verbose_name='Reporter ID', on_delete=models.CASCADE, related_name='reporterid')
+    userid = models.ForeignKey(User, verbose_name='User ID', on_delete=models.SET_NULL, null=True, blank=True, related_name='reporter')
+    targetid = models.ForeignKey(User, verbose_name='Reporter ID', on_delete=models.CASCADE, null=True, blank=True)
     reportreason = models.CharField(verbose_name='Report Reason', max_length=128)
     reportat = models.DateTimeField(auto_now_add=True)
     evidence_type = models.CharField(verbose_name='Evidence Type', max_length=32, null=True, blank=True)
@@ -94,21 +94,21 @@ class UserReportDetail(models.Model): # 유저신고 테이블 정의, 1:N 관�
     
 class UserBanDetail(models.Model): # 유저 밴 테이블 정의, 1:N 관계
     banid = models.AutoField(verbose_name='Ban ID', primary_key=True)
-    userid = models.ForeignKey(User, verbose_name='User ID', on_delete=models.CASCADE)
-    bannedby = models.ForeignKey(User, verbose_name='Blocker ID', on_delete=models.SET_NULL, null=True, blank=True, related_name='blockerid')
+    userid = models.ForeignKey(User, verbose_name='User ID', on_delete=models.CASCADE, null=True, blank=True, related_name='banneduser')
+    bannedby = models.ForeignKey(User, verbose_name='Blocker ID', on_delete=models.SET_NULL, null=True, blank=True)
     bannedreason = models.CharField(verbose_name='Block Reason', max_length=128)
     bannedat = models.DateTimeField(auto_now_add=True)
-    banreleaseat = models.DateTimeField(null=True, blank=True)
+    banneduntil = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return self.bannedreason
 
 class ForcedControl(models.Model): # 강제 콘텐츠 제어 테이블 정의, 1:N 관계
     controlid = models.AutoField(verbose_name='Control ID', primary_key=True)
-    adminid = models.ForeignKey(User, verbose_name='Admin ID', on_delete=models.SET_NULL, null=True, blank=True)
-    targetid = models.ForeignKey(User, verbose_name='Target ID', on_delete=models.CASCADE)
+    adminid = models.ForeignKey(User, verbose_name='Admin ID', on_delete=models.SET_NULL, null=True, blank=True, related_name='admin')
+    targetid = models.ForeignKey(User, verbose_name='Target ID', on_delete=models.SET_NULL, null=True, blank=True, related_name='target')
     contenttype = models.CharField(verbose_name='Content Type', max_length=32)
-    contentid = models.IntegerField(verbose_name='Content ID')
+    contentid = models.CharField(verbose_name='Content ID', max_length=32)
     reason = models.CharField(verbose_name='Reason', max_length=128)
     modified_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
@@ -151,7 +151,7 @@ class Post(models.Model): # 게시물 테이블 정의, 1:N 관계
 
 class Comment(models.Model): # 댓글 테이블 정의, 1:N 관계
     commentid = models.AutoField(verbose_name='Comment ID', primary_key=True)
-    postid = models.ForeignKey(Post, verbose_name='Comment Post ID', on_delete=models.CASCADE)
+    postid = models.ForeignKey(Post, verbose_name='Comment Post ID', on_delete=models.CASCADE, null=True, blank=True)
     userid = models.ForeignKey(User, verbose_name='Comment Creator', on_delete=models.CASCADE, null=True, blank=True)
     content = models.CharField(verbose_name='Comment Content', max_length=1024)
     created_at = models.DateTimeField(auto_now_add=True)

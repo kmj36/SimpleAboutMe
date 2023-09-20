@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework import status
-from .models import User, Tag, Category, Post, Comment
+from .models import *
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from .literals import literals
@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__' 
-        read_only_fields = ('created_at', 'updated_at', 'last_login', 'is_active', 'is_admin', 'is_superuser', 'groups', 'user_permissions')
+        read_only_fields = ('created_at', 'updated_at', 'last_login', 'is_active', 'is_admin', 'is_superuser', 'is_reported', 'is_banned', 'groups', 'user_permissions')
     
     def create(self, validated_data):
         userid = validated_data.get('userid')
@@ -66,12 +66,13 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
     
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data, is_adminmodify):
         instance.userid = validated_data.get('userid', instance.userid)
         instance.nickname = validated_data.get('nickname', instance.nickname)
         instance.email = validated_data.get('email', instance.email)
         instance.password = validated_data.get('password', instance.password)
-        instance.set_password(instance.password)
+        if is_adminmodify == False:
+            instance.set_password(instance.password)
         instance.save()
         return instance
 
@@ -79,37 +80,54 @@ class UserDetailSerializer(UserSerializer):
     currentpassword = serializers.CharField(help_text='Type Current Your Password',  write_only=True, required=True)
     changepassword = serializers.CharField(help_text='Type New Password',  write_only=True, required=True)
     changepassword2 = serializers.CharField(help_text='Type New Password Again',  write_only=True, required=True)
-    
+    reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = User
-        fields = ['nickname', 'email', 'currentpassword', 'changepassword', 'changepassword2']
+        fields = ['nickname', 'email', 'currentpassword', 'changepassword', 'changepassword2', 'reason']
         read_only_fields = ('userid', 'created_at', 'updated_at', 'last_login', 'is_active', 'is_admin', 'is_superuser', 'groups', 'user_permissions')
     
-    def validate(self, data):
-        if data['changepassword'] != data['changepassword2']:
-            raise serializers.ValidationError("Password fields didn't match.")
-        return data
+class UserReportDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserReportDetail
+        fields = '__all__'
+        read_only_fields = ('reportid', 'userid', 'reportat')
+        
+class UserBanDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserBanDetail
+        fields = '__all__'
+        read_only_fields = ('banid', 'userid', 'bannedby', 'bannedat')
+        
+class ForcedControlSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForcedControl
+        fields = '__all__'
+        read_only_fields = ('controlid', 'modified_at')
     
 class TagSerializer(serializers.ModelSerializer):
+    reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = Tag
         fields = '__all__'
-        read_only_fields = ('tagid', 'userid', 'created_at', 'updated_at')
+        read_only_fields = ('tagid', 'userid', 'reason', 'created_at', 'updated_at')
 
 class CategorySerializer(serializers.ModelSerializer):
+    reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = Category
         fields = '__all__'
-        read_only_fields = ('categoryid', 'userid', 'created_at', 'updated_at')
+        read_only_fields = ('categoryid', 'userid', 'reason', 'created_at', 'updated_at')
 
 class PostSerializer(serializers.ModelSerializer):
+    reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = Post
         fields = '__all__'
-        read_only_fields = ('postid', 'userid', 'created_at', 'updated_at', 'published_at')
+        read_only_fields = ('postid', 'userid', 'reason', 'created_at', 'updated_at', 'published_at')
 
 class CommentSerializer(serializers.ModelSerializer):
+    reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('commentid', 'userid', 'created_at', 'updated_at')
+        read_only_fields = ('commentid', 'userid', 'reason', 'created_at', 'updated_at')

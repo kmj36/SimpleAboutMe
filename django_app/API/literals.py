@@ -19,4 +19,5 @@ class literals:
     CREATE_SUCCESS = "정보가 생성되었습니다."
     MODIFY_SUCCESS = "정보가 변경되었습니다."
     CANNOTDELETE_SUPERUSER = "최초 관리자 계정은 삭제할 수 없습니다."
+    CANNOTMODIFY_SUPERUSER = "최초 관리자 계정은 수정할 수 없습니다."
     REQUIRED_FIELD = "필수 입력값이 누락되었습니다."
