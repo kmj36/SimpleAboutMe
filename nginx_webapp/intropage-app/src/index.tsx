@@ -5,6 +5,8 @@ import App from './App';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+const body = document.getElementsByTagName('body')[0];
+body.style.margin = "0px";
 root.render(
   <React.StrictMode>
     <App />

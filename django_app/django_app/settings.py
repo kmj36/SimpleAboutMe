@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
     'API',
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = 'API.User'
@@ -99,21 +99,26 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # CORS
+    'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS=[
-    "http://127.0.0.1:50000",
-    "http://localhost:50000",
-    "http://127.0.0.1:50001",
-    "http://localhost:50001"
+##CORS
+#CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_WHITELIST = [
+    'http://127.0.0.1:3000'
+    #'api:'+os.environ.get('NGINX_PORT'), # [NGINX]
+    #'localhost:'+os.environ.get('NGINX_PORT'), # [NGINX]
+    #'api'+os.environ.get('DJANGO_PORT'), # [DJANGO]
+    #'localhost:'+os.environ.get('DJANGO_PORT'), # [DJANGO]
 ]
 
 ROOT_URLCONF = 'django_app.urls'
