@@ -128,6 +128,7 @@ class Category(models.Model): # 게시물 카테고리 테이블 정의, 1:N 관
     categoryid = models.AutoField(verbose_name='Category ID', primary_key=True)
     userid = models.ForeignKey(User, verbose_name='Category Creator', on_delete=models.SET_NULL, null=True, blank=True)
     categoryname = models.CharField(verbose_name='Category Name', max_length=64, unique=True)
+    categorydescription = models.CharField(verbose_name='Category Description', max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
@@ -138,6 +139,7 @@ class Post(models.Model): # 게시물 테이블 정의, 1:N 관계
     userid = models.ForeignKey(User, verbose_name='Post Creator', on_delete=models.CASCADE, null=True, blank=True)
     categoryid = models.ForeignKey(Category, verbose_name='Post Category', on_delete=models.SET_NULL, null=True, blank=True)
     tagid = models.ManyToManyField(Tag, verbose_name='Post Tags', blank=True)
+    thumbnailurl = models.CharField(verbose_name='Thumbnail URL', max_length=256, null=True, blank=True)
     title = models.CharField(verbose_name='Post Title', max_length=128)
     content = models.TextField(verbose_name='Post Content')
     created_at = models.DateTimeField(auto_now_add=True)
