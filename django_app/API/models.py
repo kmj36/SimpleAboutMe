@@ -116,7 +116,7 @@ class ForcedControl(models.Model): # 강제 콘텐츠 제어 테이블 정의, 1
         return self.reason
 
 class Tag(models.Model): # 게시물 태그 테이블 정의, N:M 관계
-    tagid = models.AutoField(verbose_name='Tag ID', primary_key=True)
+    tagid = models.CharField(verbose_name='Tag ID', max_length=64, primary_key=True)
     userid = models.ForeignKey(User, verbose_name='Tag Creator', on_delete=models.SET_NULL, null=True, blank=True)
     tagname = models.CharField(verbose_name='Tag Name', max_length=32, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -125,9 +125,8 @@ class Tag(models.Model): # 게시물 태그 테이블 정의, N:M 관계
         return self.tagname
 
 class Category(models.Model): # 게시물 카테고리 테이블 정의, 1:N 관계
-    categoryid = models.AutoField(verbose_name='Category ID', primary_key=True)
+    categoryid = models.CharField(verbose_name='Category Name', max_length=64, primary_key=True)
     userid = models.ForeignKey(User, verbose_name='Category Creator', on_delete=models.SET_NULL, null=True, blank=True)
-    categoryname = models.CharField(verbose_name='Category Name', max_length=64, unique=True)
     categorydescription = models.CharField(verbose_name='Category Description', max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

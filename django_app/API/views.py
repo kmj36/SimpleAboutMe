@@ -81,7 +81,7 @@ class APIRoot(APIView): # API Root
                         "PUT",
                         "DELETE"
                     ],
-                    "url": "/api/v1/tag/<int:tagid>/"
+                    "url": "/api/v1/tag/<str:tagid>/"
                 },
                 "categorylist": {
                     "method": [
@@ -96,7 +96,7 @@ class APIRoot(APIView): # API Root
                         "PUT",
                         "DELETE"
                     ],
-                    "url": "/api/v1/category/<int:categoryid>/"
+                    "url": "/api/v1/category/<str:categoryid>/"
                 },
                 "postlist": {
                     "method": [
@@ -673,14 +673,14 @@ class TagListAPI(APIView): # 태그 리스트 API (2500 기본값)
         filtervalue = {}
         
         userid = request.query_params.get('userid')
-        tagname = request.query_params.get('tagname')
+        tagid = request.query_params.get('tagid')
         created_at = request.query_params.get('created_at')
         updated_at = request.query_params.get('updated_at')
         
         if userid != None:
             filtervalue['userid'] = userid
-        if tagname != None:
-            filtervalue['tagname__icontains'] = tagname
+        if tagid != None:
+            filtervalue['tagid__icontains'] = tagid
         if created_at != None:
             filtervalue['created_at__startswith'] = created_at
         if updated_at != None:
@@ -781,7 +781,7 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
                 "adminid" : request.user.userid,
                 "targetid" : tag.userid.userid,
                 "contenttype" : "tag",
-                "contentid" : str(tag.tagid),
+                "contentid" : tag.tagid,
                 "reason" : request.data.get("reason"),
                 "modified_at" : timezone.now(),
                 "is_deleted" : False
@@ -865,8 +865,8 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
                 "adminid" : request.user.userid,
                 "targetid" : tag.userid.userid,
                 "contenttype" : "tag",
-                "contentid" : str(tag.tagid),
-                "reason" : "관리자에 의해 {0} 태그가 삭제됨".format(tag.tagname),
+                "contentid" : tag.tagid,
+                "reason" : "관리자에 의해 {0} 태그가 삭제됨".format(tag.tagid),
                 "modified_at" : timezone.now(),
                 "is_deleted" : True
             })
@@ -880,7 +880,7 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
                         "detail" : adminserializer.errors
                 }).get(), status=status.HTTP_400_BAD_REQUEST)
             
-            temptagname = tag.tagname
+            temptagid = tag.tagid
             tag.delete()
             adminserializer.save()
             
@@ -889,18 +889,18 @@ class TagDetailAPI(APIView): # 태그 디테일 API, 자신이 생성한 태그�
                 "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
                 "status" : literals.SUCCESS,
                 "message" : request.user.userid + " 으로 인해 " + literals.DELETE_SUCCESS,
-                "detail" : "{0} Tag Delete Success by {1}".format(temptagname, request.user.userid),
+                "detail" : "{0} Tag Delete Success by {1}".format(temptagid, request.user.userid),
             }).get(), status=status.HTTP_200_OK)
         ''' ADMIN '''
         
-        temptagname = tag.tagname
+        temptagid = tag.tagid
         tag.delete()
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
             "status" : literals.SUCCESS,
             "message" : literals.DELETE_SUCCESS,
-            "detail" : "{0} Tag Delete Success".format(temptagname),
+            "detail" : "{0} Tag Delete Success".format(temptagid),
         }).get(), status=status.HTTP_200_OK)
 
 class CategoryListAPI(APIView): # 카테고리 리스트 API
@@ -910,14 +910,14 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
         filtervalue = {}
         
         userid = request.query_params.get('userid')
-        categoryname = request.query_params.get('categoryname')
+        categoryid = request.query_params.get('categoryid')
         created_at = request.query_params.get('created_at')
         updated_at = request.query_params.get('updated_at')
         
         if userid != None:
             filtervalue['userid'] = userid
-        if categoryname != None:
-            filtervalue['categoryname__icontains'] = categoryname
+        if categoryid != None:
+            filtervalue['categoryid__icontains'] = categoryid
         if created_at != None:
             filtervalue['created_at__startswith'] = created_at
         if updated_at != None:
@@ -1018,7 +1018,7 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
                 "adminid" : request.user.userid,
                 "targetid" : category.userid.userid,
                 "contenttype" : "category",
-                "contentid" : str(category.categoryid),
+                "contentid" : category.categoryid,
                 "reason" : request.data.get("reason"),
                 "modified_at" : timezone.now(),
                 "is_deleted" : False
@@ -1102,8 +1102,8 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
                 "adminid" : request.user.userid,
                 "targetid" : category.userid.userid,
                 "contenttype" : "category",
-                "contentid" : str(category.categoryid),
-                "reason" : "관리자에 의해 {0} 카테고리가 삭제됨".format(category.categoryname),
+                "contentid" : category.categoryid,
+                "reason" : "관리자에 의해 {0} 카테고리가 삭제됨".format(category.categoryid),
                 "modified_at" : timezone.now(),
                 "is_deleted" : True
             })
@@ -1117,7 +1117,7 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
                         "detail" : adminserializer.errors
                 }).get(), status=status.HTTP_400_BAD_REQUEST)
                 
-            tempcategoryname = category.categoryname
+            tempcategoryid = category.categoryid
             category.delete()
             adminserializer.save()
             
@@ -1126,18 +1126,18 @@ class CategoryDetailAPI(APIView): # 카테고리 디테일 API, 자신이 생성
                 "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
                 "status" : literals.SUCCESS,
                 "message" : request.user.userid + " 으로 인해 " + literals.DELETE_SUCCESS,
-                "detail" : "{0} Category Delete Success {1}".format(tempcategoryname, request.user.userid),
+                "detail" : "{0} Category Delete Success {1}".format(tempcategoryid, request.user.userid),
             }).get(), status=status.HTTP_200_OK)
         ''' ADMIN '''
         
-        tempcategoryname = category.categoryname
+        tempcategoryid = category.categoryid
         category.delete()
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
             "status" : literals.SUCCESS,
             "message" : literals.DELETE_SUCCESS,
-            "detail" : "{0} Category Delete Success".format(tempcategoryname),
+            "detail" : "{0} Category Delete Success".format(tempcategoryid),
         }).get(), status=status.HTTP_200_OK)
 
 class PostListAPI(APIView): # 포스트 리스트 API
@@ -1160,9 +1160,9 @@ class PostListAPI(APIView): # 포스트 리스트 API
         if userid != None:
             filtervalue['userid'] = userid
         if categoryid != None:
-            filtervalue['categoryid'] = categoryid
+            filtervalue['categoryid__icontains'] = categoryid
         if tagid != None:
-            filtervalue['tagid'] = tagid
+            filtervalue['tagid__icontains'] = tagid
         if title != None:
             filtervalue['title__icontains'] = title
         if content != None:

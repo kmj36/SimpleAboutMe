@@ -30,20 +30,20 @@ class CustomUserAdmin(UserAdmin):
     filter_horizontal = ()
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('tagid', 'tagname', 'userid', 'created_at', 'updated_at')
+    list_display = ('tagid', 'userid', 'created_at', 'updated_at')
     list_filter = ('created_at', 'updated_at')
-    search_fields = ('tagid', 'tagname', 'userid__userid')
+    search_fields = ('tagid', 'userid__userid')
     readonly_fields = ('userid', 'created_at', 'updated_at')
 
     fieldsets = (
-        (None, {'fields': ('userid', 'tagname',)}),
+        (None, {'fields': ('userid', 'tagid',)}),
         ('Tag Info', {'fields': ('created_at', 'updated_at')}),
     )
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('userid', 'tagname',),
+            'fields': ('userid', 'tagid',),
         }),
     )
 
@@ -56,20 +56,20 @@ class TagAdmin(admin.ModelAdmin):
         obj.save()
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('categoryid', 'categoryname', 'userid', 'created_at', 'updated_at')
+    list_display = ('categoryid', 'userid', 'created_at', 'updated_at')
     list_filter = ('created_at', 'updated_at')
-    search_fields = ('categoryid', 'categoryname', 'userid__userid')
+    search_fields = ('categoryid', 'userid__userid')
     readonly_fields = ('userid', 'created_at', 'updated_at')
 
     fieldsets = (
-        (None, {'fields': ('userid', 'categoryname',)}),
+        (None, {'fields': ('userid', 'categoryid',)}),
         ('Category Info', {'fields': ('created_at', 'updated_at')}),
     )
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('userid', 'categoryname',),
+            'fields': ('userid', 'categoryid',),
         }),
     )
 

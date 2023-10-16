@@ -15,7 +15,6 @@ import Controls from './routes/admin/AdminControl'
 import Navigation from './components/Navigation';
 import Loading from './components/Loading';
 
-
 function App() {
   const [loading, setLoading] = useState(true);
 
