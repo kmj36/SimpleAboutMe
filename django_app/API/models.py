@@ -118,11 +118,10 @@ class ForcedControl(models.Model): # 강제 콘텐츠 제어 테이블 정의, 1
 class Tag(models.Model): # 게시물 태그 테이블 정의, N:M 관계
     tagid = models.CharField(verbose_name='Tag ID', max_length=64, primary_key=True)
     userid = models.ForeignKey(User, verbose_name='Tag Creator', on_delete=models.SET_NULL, null=True, blank=True)
-    tagname = models.CharField(verbose_name='Tag Name', max_length=32, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return self.tagname
+        return self.tagid
 
 class Category(models.Model): # 게시물 카테고리 테이블 정의, 1:N 관계
     categoryid = models.CharField(verbose_name='Category Name', max_length=64, primary_key=True)
@@ -131,7 +130,7 @@ class Category(models.Model): # 게시물 카테고리 테이블 정의, 1:N 관
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
-        return self.categoryname
+        return self.categoryid
 
 class Post(models.Model): # 게시물 테이블 정의, 1:N 관계
     postid = models.AutoField(verbose_name='Post ID', primary_key=True)

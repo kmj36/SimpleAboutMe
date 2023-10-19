@@ -1,12 +1,8 @@
-import styled from 'styled-components';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {ThemeProvider} from '@mui/material/styles';
 import {
-    Box,
     Container,
     Slide,
     Grow,
-    Button,
-    Paper,
     TextField,
     InputAdornment,
     Select,
@@ -15,9 +11,7 @@ import {
     MenuItem,
     ListItemText,
     Checkbox,
-    Stack,
     Chip,
-    Typography,
     Divider,
     Pagination
 } from '@mui/material';
@@ -27,196 +21,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Search, Send } from '@material-ui/icons';
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-
-const BlogBox = styled.div`
-`
-
-const SectionBanner = styled.div`
-    height: 300px;
-    background-color: #f5f5f5;
-    background-image: url("studio.jpg");
-    object-fit: cover;
-`
-
-const AdvancedSearchContainer = styled(Container)`
-    height: 100%;
-`;
-
-const AdvancedSearchBox = styled(Box)`
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-`;
-
-const AdvancedSearchWrapper = styled(Box)`
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 2rem;
-    padding-top: 10px;
-`;
-
-const AdvancedSearchPaper = styled(Paper)`
-    display: flex;
-    width: 100%;
-    height: 100%;
-`;
-
-const AdvancedSearchOptionWrapper = styled(Box)`
-    display: flex;
-    width: 100%;
-    padding-top: 5px;
-`;
-
-const AdvancedSearchInputButton = styled(Button)`
-    padding-left: 5px;
-`;
-
-const SectionPosts = styled(Box)`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    padding-top: 40px;
-    padding-bottom: 20px;
-`;
-
-const PostSearchBox = styled(Box)`
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-`;
-
-const PostPaper = styled(Paper)`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-`;
-
-const PostImageBox = styled(Box)`
-    width: 300px;
-    min-width: 300px;
-    height: 200px;
-    padding: 5px;
-`;
-
-const PostImage = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-`;
-
-const PostInfoBox = styled(Box)`
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
-`;
-
-const PostStack = styled(Stack)`
-    width: 100%;
-`;
-
-const PostInfoCategoryBox = styled(Box)`
-    padding-top: 10px;
-`;
-
-const PostInfoTypography = styled(Typography)`
-    width: 100%;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: break-all;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-`;
-
-const PostInfoTagsBox = styled(Box)`
-    margin-top: auto;
-    width: 100%;
-`;
-
-const PostInfoTitleBox = styled(Box)`
-    padding-top: 10px;
-`;
-
-const PostInfoContentBox = styled(Box)`
-    padding-top: 5px;
-`;
-
-const PostInfoTagsTypography = styled(Typography)`
-    width: 100%;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: break-all;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-`;
-
-const PostInfoContentTypography = styled(Typography)`
-    width: 100%;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: break-all;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-`;
-
-const PostClassifyBox = styled(Box)`
-    display: flex;
-    min-width: 250px;
-`;
-
-const PostClassifyWrapper = styled(Box)`
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    flex-grow: 1;
-`;
-
-const PostCategorySelectStack = styled(Stack)`
-`;
-
-const PostPaginationBox = styled(Box)`
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    padding-top: 20px;
-    padding-bottom: 10px;
-`;
+import * as S from '../../styles/Blog_Style';
+import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from '../../funcs/CallAPI';
 
 function Blog({setLoading} : {setLoading: any})
 {
-    interface Post {
-        postid: number,
-        thumbnailurl: string,
-        title: string,
-        content: string,
-        created_at: string,
-        updated_at: string,
-        published_at: string | null,
-        is_published: boolean,
-        secret_password: string | null,
-        is_secret: boolean,
-        userid: string,
-        categoryid: number | null,
-        tagid: number[]
-    }
-
-    interface APIResponse {
-        code: number;
-        status: string;
-        detail: string;
-        message: string;
-        request_time: string;
-        posts: Post[];
-    }
-
-    const [postjson, setPostjson] = useState({} as APIResponse);
+    const [postjson, setPostjson] = useState({} as Posts_APIResponse);
     const [selectCategoryName, setselectCategoryName] = useState<string>("");
     const [selectTagName, setSelectTagName] = useState<string[]>([]);
     const [selectCategoryBarName, setselectCategoryBarName] = useState<string>("");
@@ -248,46 +58,6 @@ function Blog({setLoading} : {setLoading: any})
         'Virginia Andrews',
         'Kelly Snyder',
     ];
-
-    const theme = createTheme();
-
-    theme.typography.h4 = {
-        fontSize: '2.5rem',
-        '@media (max-width:1023px)': {
-        /* 타블렛 */
-            fontSize: '2rem',
-        },
-        '@media (max-width:767px)': {
-        /* 모바일 */
-            fontSize: '1.5rem',
-        }
-    };
-
-    theme.typography.h5 = {
-        fontSize: '1.5rem',
-        fontWeight: 600,
-        '@media (max-width:1023px)': {
-        /* 타블렛 */
-            fontSize: '1.2rem',
-        },
-        '@media (max-width:767px)': {
-        /* 모바일 */
-            fontSize: '1rem',
-        }
-    };
-
-    theme.typography.h6 = {
-        fontSize: '1.2rem',
-        fontWeight: 600,
-        '@media (max-width:1023px)': {
-        /* 타블렛 */
-            fontSize: '1rem',
-        },
-        '@media (max-width:767px)': {
-        /* 모바일 */
-            fontSize: '0.8rem',
-        }
-    };
     
     const handleImageError = (e : any) => {
         e.target.src = "/No_Image.jpg"
@@ -322,21 +92,22 @@ function Blog({setLoading} : {setLoading: any})
     useEffect(() =>  {
         (async () => {
             setLoading(true);
-            const getjson = await axios.get("http://127.0.0.1:8000/api/v1/post/");
-            setPostjson(getjson.data);
+            const postlist = await CallAPI({APIType: "PostList", Method: "GET"});
+            if(isPostsAPIResponse(postlist))
+                setPostjson(postlist);
             setLoading(false);
         })();
     }, []);
 
     return (
-        <BlogBox ref={BlogRef}>
-            <ThemeProvider theme={theme}>
+        <S.BlogBox ref={BlogRef}>
+            <ThemeProvider theme={S.theme}>
                 <Slide in={true} container={BlogRef.current} timeout={timeout}>
-                    <SectionBanner>
-                        <AdvancedSearchContainer maxWidth="md">
-                            <AdvancedSearchBox>
-                                <AdvancedSearchWrapper>
-                                    <AdvancedSearchPaper>
+                    <S.SectionBanner>
+                        <S.AdvancedSearchContainer maxWidth="md">
+                            <S.AdvancedSearchBox>
+                                <S.AdvancedSearchWrapper>
+                                    <S.AdvancedSearchPaper>
                                         <TextField
                                             id="input-with-icon-textfield"
                                             placeholder="Post Search"
@@ -351,13 +122,13 @@ function Blog({setLoading} : {setLoading: any})
                                             color="primary"
                                             variant="standard"
                                         />
-                                    </AdvancedSearchPaper>
-                                    <AdvancedSearchInputButton variant="contained" endIcon={<Send />} sx={{ marginLeft: 1 }}>
+                                    </S.AdvancedSearchPaper>
+                                    <S.AdvancedSearchInputButton variant="contained" endIcon={<Send />} sx={{ marginLeft: 1 }}>
                                         Search
-                                    </AdvancedSearchInputButton>
-                                </AdvancedSearchWrapper>
-                                <AdvancedSearchOptionWrapper>
-                                    <AdvancedSearchPaper>
+                                    </S.AdvancedSearchInputButton>
+                                </S.AdvancedSearchWrapper>
+                                <S.AdvancedSearchOptionWrapper>
+                                    <S.AdvancedSearchPaper>
                                         <FormControl variant="filled" sx={{ m: 1 }}>
                                             <TextField id="outlined-basic" label="UserID" variant="outlined" />
                                         </FormControl>
@@ -411,52 +182,52 @@ function Blog({setLoading} : {setLoading: any})
                                                 </DemoContainer>                 
                                             </LocalizationProvider>
                                         </FormControl>
-                                    </AdvancedSearchPaper>
-                                </AdvancedSearchOptionWrapper>
-                            </AdvancedSearchBox>
-                        </AdvancedSearchContainer>
-                    </SectionBanner>
+                                    </S.AdvancedSearchPaper>
+                                </S.AdvancedSearchOptionWrapper>
+                            </S.AdvancedSearchBox>
+                        </S.AdvancedSearchContainer>
+                    </S.SectionBanner>
                 </Slide>
                 <Container maxWidth="lg">
-                    <SectionPosts>
-                        <PostSearchBox>
-                            <PostStack spacing={2}>
+                    <S.SectionPosts>
+                        <S.PostSearchBox>
+                            <S.PostStack spacing={2}>
                                 {postjson.posts?.map((post, index) => (
                                     <Grow
                                     in={true}
                                     >
-                                        <PostPaper key={index}>
-                                            <PostImageBox>
-                                                <PostImage src={regex.test(post.thumbnailurl) ? post.thumbnailurl : "No_image.jpg"} onError={handleImageError} />
-                                            </PostImageBox>
-                                            <PostInfoBox>
-                                                <PostInfoCategoryBox>
+                                        <S.PostPaper key={index}>
+                                            <S.PostImageBox>
+                                                <S.PostImage src={regex.test(post.thumbnailurl) ? post.thumbnailurl : "No_image.jpg"} onError={handleImageError} />
+                                            </S.PostImageBox>
+                                            <S.PostInfoBox>
+                                                <S.PostInfoCategoryBox>
                                                     <Chip label={post.categoryid} />
-                                                </PostInfoCategoryBox>
-                                                <PostInfoTitleBox>
-                                                    <PostInfoTypography variant='h5'>
+                                                </S.PostInfoCategoryBox>
+                                                <S.PostInfoTitleBox>
+                                                    <S.PostInfoTypography variant='h5'>
                                                         {post.title}
-                                                    </PostInfoTypography>
-                                                </PostInfoTitleBox>
-                                                <PostInfoContentBox>
-                                                    <PostInfoContentTypography variant='subtitle1'>
+                                                    </S.PostInfoTypography>
+                                                </S.PostInfoTitleBox>
+                                                <S.PostInfoContentBox>
+                                                    <S.PostInfoContentTypography variant='subtitle1'>
                                                         {post.content}
-                                                    </PostInfoContentTypography>
-                                                </PostInfoContentBox>
-                                                <PostInfoTagsBox>
-                                                    <PostInfoTagsTypography variant='subtitle1' color="gray">
+                                                    </S.PostInfoContentTypography>
+                                                </S.PostInfoContentBox>
+                                                <S.PostInfoTagsBox>
+                                                    <S.PostInfoTagsTypography variant='subtitle1' color="gray">
                                                         #Lorem #ipsum #dolor #sit #amet
-                                                    </PostInfoTagsTypography>
-                                                </PostInfoTagsBox>
-                                            </PostInfoBox>
-                                        </PostPaper>
+                                                    </S.PostInfoTagsTypography>
+                                                </S.PostInfoTagsBox>
+                                            </S.PostInfoBox>
+                                        </S.PostPaper>
                                     </Grow>
                                 ))}
-                            </PostStack>
-                            <PostClassifyBox>
+                            </S.PostStack>
+                            <S.PostClassifyBox>
                                 <Divider orientation="vertical" flexItem sx={{ marginLeft: 1, marginRight: 1}}/>
-                                <PostClassifyWrapper>
-                                    <PostCategorySelectStack>
+                                <S.PostClassifyWrapper>
+                                    <S.PostCategorySelectStack>
                                         <Chip label="Categories"/>
                                         {names.map((name) => (
                                             <MenuItem key={name} value={name} divider={true} onClick={() => handleSelectCategory(name)}>
@@ -464,18 +235,18 @@ function Blog({setLoading} : {setLoading: any})
                                                 <ListItemText primary={name} />
                                             </MenuItem>
                                         ))}
-                                    </PostCategorySelectStack>
-                                </PostClassifyWrapper>
+                                    </S.PostCategorySelectStack>
+                                </S.PostClassifyWrapper>
                                 <Divider orientation="vertical" flexItem sx={{ marginLeft: 1, marginRight: 1}}/>
-                            </PostClassifyBox>
-                        </PostSearchBox>
-                        <PostPaginationBox>
+                            </S.PostClassifyBox>
+                        </S.PostSearchBox>
+                        <S.PostPaginationBox>
                             <Pagination count={10} variant="outlined" color="primary" size="large" sx = {{ width: "auto"}}/>
-                        </PostPaginationBox>
-                    </SectionPosts>
+                        </S.PostPaginationBox>
+                    </S.SectionPosts>
                 </Container>
             </ThemeProvider>
-        </BlogBox>
+        </S.BlogBox>
     );
 }
 
