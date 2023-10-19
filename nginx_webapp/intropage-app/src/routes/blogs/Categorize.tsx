@@ -1,42 +1,68 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Paper, Grow, Box, Typography, Grid } from '@material-ui/core';
-import { Stack } from '@mui/material';
-import Divider from '@mui/material/Divider';
+import { Box, Typography, Grid, Container, Paper, Slide } from '@mui/material';
 import styled from 'styled-components';
 
-const CategoryBlock = styled.div`
-    margin: 10px;
+function getRandom(min : number, max : number) : number
+{
+	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+const palettes : string[] = ['#12FC99' , '#FCB312', '#12DDFC', '#FC7A12', '#449AA7'];
+
+const paleetes_card : string[] = ['#56DAF0', '#F062A5', '#4AF0AB', '#F08732', '#3EF041'];
+
+const CategoryBlock = styled(Box)`
 `;
 
-const PostBlock = styled.div`
+const SectionBanner = styled(Box)`
+    height: 18rem;
+    background-color: ${palettes[getRandom(0,4)]};
+`;
+
+const BannerBox = styled(Box)`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+`;
+
+const BannerTypography = styled(Typography)``;
+
+const SectionCategoryGrid = styled(Box)`
+    padding-top: 20px;
+`;
+
+const CategoriesGridBox = styled(Box)``;
+
+const CategoriesGridContainer = styled(Grid)``;
+
+const CategoriesGrid = styled(Grid)``;
+
+const CategoryBox = styled(Box)``;
+
+const CategoryTitleBox = styled(Box)`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+`;
+
+const CategorySubTitleBox = styled(Box)`
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 60px;
 `;
 
 function Categorize({setLoading} : {setLoading: any})
 {
     interface Category {
-        categoryid: number;
+        categoryid: string;
         userid: string;
-        categoryname: string;
         categorydescription: string;
         created_at: string;
         updated_at: string;
-    }
-
-    interface Post {
-        postid: number,
-        thumbnailurl: string,
-        title: string,
-        content: string,
-        created_at: string,
-        updated_at: string,
-        published_at: string | null,
-        is_published: boolean,
-        secret_password: string | null,
-        is_secret: boolean,
-        userid: string,
-        categoryid: number | null,
-        tagid: number[]
     }
 
     interface APIResponse {
@@ -51,12 +77,7 @@ function Categorize({setLoading} : {setLoading: any})
         categories: Category[];
     }
 
-    interface APIResponse_Posts extends APIResponse {
-        posts: Post[];
-    }
-
     const [category, setCategory] = useState({} as APIResponse_Categories);
-    const [post, setPost] = useState({} as APIResponse_Posts);
 
     useEffect(() => {
         (async () => {
@@ -70,7 +91,37 @@ function Categorize({setLoading} : {setLoading: any})
 
     return (
         <CategoryBlock>
-            
+            <SectionBanner>
+                <Slide in={true} >
+                    <BannerBox>
+                        <BannerTypography variant='h3'>
+                            Post Categories
+                        </BannerTypography>
+                    </BannerBox>
+                </Slide>
+            </SectionBanner>
+            <SectionCategoryGrid>
+                <Container maxWidth="xl">
+                    <CategoriesGridBox>
+                        <CategoriesGridContainer container spacing={1}>
+                            {category.categories?.map((item, index) => (
+                                <CategoriesGrid item key={index} xs={2.4}>
+                                    <Paper>
+                                        <CategoryBox>
+                                            <CategoryTitleBox sx={{ backgroundColor : paleetes_card[getRandom(0,4)] }}>
+                                                <Typography variant='h4'>{item.categoryid}</Typography>
+                                            </CategoryTitleBox>
+                                            <CategorySubTitleBox>
+                                                <Typography variant='subtitle1'>{item.categorydescription === null || item.categorydescription === "" ? item.categoryid : item.categorydescription}</Typography>
+                                            </CategorySubTitleBox>
+                                        </CategoryBox>
+                                    </Paper>
+                                </CategoriesGrid>
+                            ))}
+                        </CategoriesGridContainer>
+                    </CategoriesGridBox>
+                </Container>
+            </SectionCategoryGrid>
         </CategoryBlock>
     );
 }

@@ -3,8 +3,7 @@ import { useState } from 'react';
 
 import NotFound from './routes/errors/NotFound';
 import Home from './routes/Home';
-import About from './routes/AboutMe';
-import Contact from './routes/Contact';
+import About from './routes/About';
 import Portfolio from './routes/Portfolio';
 import Blog from './routes/blogs/Blog';
 import Page from './routes/blogs/Page';
@@ -26,7 +25,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Home setLoading={setLoading} />} />
             <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/post" element={<Blog setLoading={setLoading} />} />
             <Route path="/post/:pagenum" element={<Page />} />

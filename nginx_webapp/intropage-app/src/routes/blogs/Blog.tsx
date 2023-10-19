@@ -57,7 +57,7 @@ const AdvancedSearchWrapper = styled(Box)`
     flex-direction: row;
     width: 100%;
     height: 2rem;
-    padding-top: 50px;
+    padding-top: 10px;
 `;
 
 const AdvancedSearchPaper = styled(Paper)`
@@ -80,7 +80,7 @@ const SectionPosts = styled(Box)`
     display: flex;
     flex-direction: column;
     width: 100%;
-    padding-top: 10px;
+    padding-top: 40px;
     padding-bottom: 20px;
 `;
 

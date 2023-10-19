@@ -50,15 +50,12 @@ function Navigation()
         } else if (path === "/categorize") {
             setValue(2);
             setPathicon(<Category/>);
-        } else if (path === "/about") {
-            setValue(3);
-            setPathicon(<Face/>);
         } else if (path === "/portfolio") {
-            setValue(4);
+            setValue(3);
             setPathicon(<DynamicFeed/>);
-        } else if (path === "/contact") {
-            setValue(5);
-            setPathicon(<Contacts/>);
+        } else if (path === "/about") {
+            setValue(4);
+            setPathicon(<Face/>);
         }
     }, [path]);
 
@@ -85,9 +82,8 @@ function Navigation()
                             <Tab icon={<Home/>} value={0} label="Home" component={Link} to="/" />
                             <Tab icon={<Assignment/>} value={1} label="Blog" component={Link} to="/post" />
                             <Tab icon={<Category/>} value={2} label="Categorize" component={Link} to="/categorize" />
-                            <Tab icon={<Face/>} value={3} label="About" component={Link} to="/about" />
-                            <Tab icon={<DynamicFeed/>} value={4} label="Portfolio" component={Link} to="/portfolio" />
-                            <Tab icon={<Contacts/>} value={5} label="Contact" component={Link} to="/contact" />
+                            <Tab icon={<DynamicFeed/>} value={3} label="Portfolio" component={Link} to="/portfolio" />
+                            <Tab icon={<Face/>} value={4} label="About" component={Link} to="/about" />
                         </Tabs>
                         <Box>
                             <TextField
