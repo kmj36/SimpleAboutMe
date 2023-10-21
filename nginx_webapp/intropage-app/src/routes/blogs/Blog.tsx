@@ -23,9 +23,12 @@ import { Search, Send } from '@material-ui/icons';
 import { useState, useEffect, useRef } from 'react';
 import * as S from '../../styles/Blog_Style';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from '../../funcs/CallAPI';
+import { useAppDispatch } from '../../redux/hooks';
+import { loading, done } from '../../redux/feature/LoadingReducer';
 
-function Blog({setLoading} : {setLoading: any})
+function Blog()
 {
+    const dispatch = useAppDispatch();
     const [postjson, setPostjson] = useState({} as Posts_APIResponse);
     const [selectCategoryName, setselectCategoryName] = useState<string>("");
     const [selectTagName, setSelectTagName] = useState<string[]>([]);
@@ -91,11 +94,11 @@ function Blog({setLoading} : {setLoading: any})
 
     useEffect(() =>  {
         (async () => {
-            setLoading(true);
+            dispatch(loading());
             const postlist = await CallAPI({APIType: "PostList", Method: "GET"});
             if(isPostsAPIResponse(postlist))
                 setPostjson(postlist);
-            setLoading(false);
+            dispatch(done());
         })();
     }, []);
 

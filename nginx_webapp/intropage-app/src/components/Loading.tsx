@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { Fade } from '@material-ui/core';
+import { useAppSelector } from '../redux/hooks';
 
 const LoadingBox = styled.div`
     display: block;
@@ -15,9 +16,11 @@ const LoadingBox = styled.div`
 `;
 
 function Loading(props: any) {
+    const loading = useAppSelector((state) => state.loading.value)
+
     return (
         <div>
-            <Fade in={props.isload} timeout={500}>
+            <Fade in={loading} timeout={500}>
                 <LoadingBox />
             </Fade>
             {props.children}

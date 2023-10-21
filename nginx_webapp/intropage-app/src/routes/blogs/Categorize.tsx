@@ -2,18 +2,21 @@ import { useState, useEffect } from 'react';
 import { Typography, Container, Paper, Slide } from '@mui/material';
 import * as S from '../../styles/Categorize_Style';
 import { CallAPI, Categories_APIResponse, isCategoriesAPIResponse } from '../../funcs/CallAPI';
+import { useAppDispatch } from '../../redux/hooks';
+import { loading, done } from '../../redux/feature/LoadingReducer';
 
-function Categorize({setLoading} : {setLoading: any})
+function Categorize()
 {
+    const dispatch = useAppDispatch();
     const [category, setCategory] = useState({} as Categories_APIResponse);
 
     useEffect(() => {
         (async () => {
-            setLoading(true);
+            dispatch(loading());
             const res = await CallAPI({APIType: "CategoryList", Method: "GET"});
             if(isCategoriesAPIResponse(res))
                 setCategory(res);
-            setLoading(false);
+            dispatch(done());
         })();
         
     }, []);

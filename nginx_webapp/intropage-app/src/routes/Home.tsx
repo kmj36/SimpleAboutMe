@@ -18,17 +18,20 @@ import {
 import { Search, Send, DateRange, Facebook, Instagram, Twitter, GitHub, RssFeed, YouTube } from '@material-ui/icons';
 import * as S from '../styles/Home_Style';
 import Footer from '../components/Footer';
+import { useAppDispatch } from '../redux/hooks';
+import { loading, done } from '../redux/feature/LoadingReducer';
 
-function Home({setLoading} : {setLoading: any})
+function Home()
 {
+    const dispatch = useAppDispatch();
     const containerRef = useRef(null);
     const featuredRef = useRef(null);
     const timeout : number = 600;
 
     useEffect(() =>  {
         (async () => {
-            setLoading(true);
-            setLoading(false);
+            dispatch(loading());
+            dispatch(done());
         })();
     }, []);
 
