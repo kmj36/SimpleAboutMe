@@ -109,25 +109,25 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        read_only_fields = ('tagid', 'userid', 'reason', 'created_at', 'updated_at')
+        read_only_fields = ('userid', 'created_at', 'updated_at')
 
 class CategorySerializer(serializers.ModelSerializer):
     reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = Category
         fields = '__all__'
-        read_only_fields = ('categoryid', 'userid', 'reason', 'created_at', 'updated_at')
+        read_only_fields = ('userid', 'created_at', 'updated_at')
 
 class PostSerializer(serializers.ModelSerializer):
     reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = Post
         fields = '__all__'
-        read_only_fields = ('postid', 'userid', 'reason', 'created_at', 'updated_at', 'published_at')
+        read_only_fields = ('postid', 'userid', 'views', 'created_at', 'updated_at', 'published_at')
 
 class CommentSerializer(serializers.ModelSerializer):
     reason = serializers.CharField(help_text='Type Reason',  write_only=True, required=False)
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('commentid', 'userid', 'reason', 'created_at', 'updated_at')
+        read_only_fields = ('commentid', 'userid', 'created_at', 'updated_at')

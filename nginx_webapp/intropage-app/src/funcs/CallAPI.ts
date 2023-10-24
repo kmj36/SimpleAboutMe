@@ -61,6 +61,7 @@ interface Post {
     thumbnailurl: string;
     title: string;
     content: string;
+    views: number;
     created_at: string;
     updated_at: string;
     published_at: string;

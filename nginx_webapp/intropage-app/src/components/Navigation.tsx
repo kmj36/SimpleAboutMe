@@ -68,7 +68,7 @@ function Navigation()
                             {pathicon}
                         </SiteIcon>
                         <SiteTitle>
-                            kmj36's Portfolio Site
+                            PortLog
                         </SiteTitle>
                     </AppbarBanner>
                     <Toolbar style={{ flexDirection: 'row', justifyContent: 'space-around' }}>

@@ -61,10 +61,6 @@ function Blog()
         'Virginia Andrews',
         'Kelly Snyder',
     ];
-    
-    const handleImageError = (e : any) => {
-        e.target.src = "/No_Image.jpg"
-    }
 
     const handleCategory = (e: any) => {
         if(e.target.value === "None")
@@ -91,6 +87,10 @@ function Blog()
 
     const expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
     const regex = new RegExp(expression);
+
+    const handleImageError = (e : any) => {
+        e.target.src = "/No_Image.jpg"
+    }
 
     useEffect(() =>  {
         (async () => {
@@ -201,7 +201,7 @@ function Blog()
                                     >
                                         <S.PostPaper key={index}>
                                             <S.PostImageBox>
-                                                <S.PostImage src={regex.test(post.thumbnailurl) ? post.thumbnailurl : "No_image.jpg"} onError={handleImageError} />
+                                                <S.PostImage src={typeof post.thumbnailurl == 'string' && regex.test(post.thumbnailurl) ? post.thumbnailurl : "No_image.jpg"} onError={handleImageError} />
                                             </S.PostImageBox>
                                             <S.PostInfoBox>
                                                 <S.PostInfoCategoryBox>

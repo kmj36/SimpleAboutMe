@@ -129,6 +129,14 @@ export const Title = styled(Typography)`
     -webkit-box-orient: vertical;
 `;
 
+export const TitleImg = styled.img
+`
+    padding-left: 10px;
+    padding-top: 10px;
+    width: 64px;
+    height: 64px;
+`;
+
 export const SubTitle = styled(Typography)`
     width: 100%;
     text-overflow: ellipsis;
@@ -260,6 +268,8 @@ export const TopCardTagsBox = styled(Box)`
 
 export const TopCardTypography = styled(Typography)`
     width: 100%;
+    min-height: 64px;
+    padding-top: 5px;
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-all;
@@ -306,6 +316,7 @@ export const BlogBoxGridPaper = styled(Paper)`
 export const BlogBoxGridPaperTopImageBox = styled(Box)`
     width: 100%;
     height: 208px;
+    
     @media screen and (max-width:1023px) {
     /* 타블렛 */
         height: 144px;
@@ -315,6 +326,11 @@ export const BlogBoxGridPaperTopImageBox = styled(Box)`
     /* 모바일 */
         height: 144px;
     }
+`;
+
+export const BlogBoxGridChipBox = styled(Box)`
+    padding-top: 5px;
+    padding-left: 5px;
 `;
 
 export const BlogBoxGridPaperTopImage = styled.img`

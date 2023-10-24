@@ -24,7 +24,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/post" element={<Blog/>} />
-            <Route path="/post/:pagenum" element={<Page />} />
+            <Route path="/post/:pagestr" element={<Page />} />
             <Route path="/search" element={<Search />} />
             <Route path="/categorize" element={<Categorize/>} />
             <Route path="/controlpanel" element={<Controls />} />

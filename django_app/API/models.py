@@ -116,7 +116,7 @@ class ForcedControl(models.Model): # 강제 콘텐츠 제어 테이블 정의, 1
         return self.reason
 
 class Tag(models.Model): # 게시물 태그 테이블 정의, N:M 관계
-    tagid = models.CharField(verbose_name='Tag ID', max_length=64, primary_key=True)
+    tagid = models.CharField(verbose_name='Tag Name', max_length=64, primary_key=True)
     userid = models.ForeignKey(User, verbose_name='Tag Creator', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -137,9 +137,10 @@ class Post(models.Model): # 게시물 테이블 정의, 1:N 관계
     userid = models.ForeignKey(User, verbose_name='Post Creator', on_delete=models.CASCADE, null=True, blank=True)
     categoryid = models.ForeignKey(Category, verbose_name='Post Category', on_delete=models.SET_NULL, null=True, blank=True)
     tagid = models.ManyToManyField(Tag, verbose_name='Post Tags', blank=True)
-    thumbnailurl = models.CharField(verbose_name='Thumbnail URL', max_length=256, null=True, blank=True)
+    thumbnailurl = models.TextField(verbose_name='Thumbnail URL', max_length=65535, default="", blank=True)
     title = models.CharField(verbose_name='Post Title', max_length=128)
     content = models.TextField(verbose_name='Post Content')
+    views = models.PositiveIntegerField(verbose_name='View Counts', default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(null=True, blank=True)

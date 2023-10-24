@@ -1157,6 +1157,8 @@ class PostListAPI(APIView): # 포스트 리스트 API
         is_published = request.query_params.get('is_published')
         is_secret = request.query_params.get('is_secret')
         
+        order = request.query_params.get('order')
+        
         if userid != None:
             filtervalue['userid'] = userid
         if categoryid != None:
@@ -1191,6 +1193,15 @@ class PostListAPI(APIView): # 포스트 리스트 API
                 "message" : literals.NOCONTENT_RESPONSE,
                 "detail" : "No Post List"
             }).get(), status=status.HTTP_204_NO_CONTENT)
+            
+        if order == 'recent':
+            posts = posts.order_by('-created_at')
+            
+        if order == 'old':
+            posts = posts.order_by('created_at')
+            
+        if order == 'review':
+            posts = posts.order_by('-views')
         
         serializer = PostSerializer(instance=posts, many=True)
         return Response(PrivateJSON({
