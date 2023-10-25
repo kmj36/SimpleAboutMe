@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     Divider,
     Paper,
@@ -24,9 +24,11 @@ import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from '../funcs/CallAPI
 
 function Home()
 {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const containerRef = useRef(null);
     const featuredRef = useRef(null);
+    const SearchRef = useRef<HTMLInputElement | null>(null);
     const timeout : number = 600;
     const [postdata, setPostdata] = useState({} as Posts_APIResponse);
 
@@ -35,6 +37,21 @@ function Home()
 
     const handleImageError = (e : any) => {
         e.target.src = "/No_Image.jpg"
+    }
+
+    const handleOnSearchEnter = (e : any) => {
+        if(e.keyCode===13)
+        {
+            const searchValue = SearchRef?.current?.value;
+            if (searchValue !== null && typeof searchValue == 'string')
+                navigate(`/search?v=${encodeURIComponent(searchValue)}`);
+        }
+    }
+
+    const handleOnSearchButton = (e : any) => {
+        const searchValue = SearchRef?.current?.value;
+        if (searchValue !== null && typeof searchValue == 'string')
+            navigate(`/search?v=${encodeURIComponent(searchValue)}`);
     }
 
     useEffect(() =>  {
@@ -66,6 +83,8 @@ function Home()
                                             <TextField
                                                 id="input-with-icon-textfield"
                                                 placeholder="Post Search"
+                                                onKeyDown={handleOnSearchEnter}
+                                                inputRef={SearchRef}
                                                 InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
@@ -79,7 +98,7 @@ function Home()
                                             />
                                         </Box>
                                     </Paper>
-                                    <Button variant="contained" endIcon={<Send />}>
+                                    <Button variant="contained" endIcon={<Send />} onClick={handleOnSearchButton}>
                                         Search
                                     </Button>
                                 </S.HomeBannerSearchBox>

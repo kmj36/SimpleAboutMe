@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.conf import settings
 from .privatejson import PrivateJSON
 from .literals import literals
+from urllib import parse
 
 # json count default: 10
 
@@ -279,15 +280,6 @@ class ControlHistroyAPI(APIView): # [관리자] 컨트롤 히스토리 API
         else:
             histories = ForcedControl.objects.all().filter(**filtervalue)
         
-        if histories.count() == 0:
-            return Response(PrivateJSON({
-                "code": status.HTTP_204_NO_CONTENT,
-                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
-                "status" : literals.SUCCESS,
-                "message": literals.NOCONTENT_RESPONSE,
-                "detail" : "No Content"
-            }).get(), status=status.HTTP_204_NO_CONTENT)
-        
         serializer = ForcedControlSerializer(histories, many=True)
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
@@ -331,15 +323,6 @@ class UserListAPI(APIView): # [관리자] 유저 리스트 API (2500 기본값)
             users = User.objects.all()[:2500]
         else:
             users = User.objects.all().filter(**filtervalue)
-        
-        if users.count() == 0:
-            return Response(PrivateJSON({
-                "code": status.HTTP_204_NO_CONTENT,
-                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
-                "status" : literals.SUCCESS,
-                "message": literals.NOCONTENT_RESPONSE,
-                "detail" : "No Content"
-            }).get(), status=status.HTTP_204_NO_CONTENT)
         
         serializer = UserSerializer(users, many=True)
         return Response(PrivateJSON({
@@ -691,15 +674,6 @@ class TagListAPI(APIView): # 태그 리스트 API (2500 기본값)
         else:
             tags = Tag.objects.all().filter(**filtervalue)
         
-        if tags.count() == 0:
-            return Response(PrivateJSON({
-                "code" : status.HTTP_204_NO_CONTENT,
-                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
-                "status" : literals.SUCCESS,
-                "message" : literals.NOCONTENT_RESPONSE,
-                "detail" : "No Tag List"
-            }).get(), status=status.HTTP_204_NO_CONTENT)
-        
         serializer = TagSerializer(instance=tags, many=True)
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
@@ -928,15 +902,6 @@ class CategoryListAPI(APIView): # 카테고리 리스트 API
         else:
             categorys = Category.objects.all().filter(**filtervalue)
         
-        if categorys.count() == 0:
-            return Response(PrivateJSON({
-                "code" : status.HTTP_204_NO_CONTENT,
-                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
-                "status" : literals.SUCCESS,
-                "message" : literals.NOCONTENT_RESPONSE,
-                "detail" : "No Category List"
-            }).get(), status=status.HTTP_204_NO_CONTENT)
-        
         serializer = CategorySerializer(instance=categorys, many=True)
         return Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
@@ -1162,13 +1127,13 @@ class PostListAPI(APIView): # 포스트 리스트 API
         if userid != None:
             filtervalue['userid'] = userid
         if categoryid != None:
-            filtervalue['categoryid__icontains'] = categoryid
+            filtervalue['categoryid'] = categoryid
         if tagid != None:
-            filtervalue['tagid__icontains'] = tagid
+            filtervalue['tagid'] = tagid
         if title != None:
-            filtervalue['title__icontains'] = title
+            filtervalue['title__contains'] = title
         if content != None:
-            filtervalue['content__icontains'] = content
+            filtervalue['content__contains'] = content
         if created_at != None:
             filtervalue['created_at__startswith'] = created_at
         if updated_at != None:
@@ -1184,15 +1149,6 @@ class PostListAPI(APIView): # 포스트 리스트 API
             posts = Post.objects.all()[:2500]
         else:
             posts = Post.objects.all().filter(**filtervalue)
-        
-        if posts.count() == 0:
-            return Response(PrivateJSON({
-                "code" : status.HTTP_204_NO_CONTENT,
-                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
-                "status" : literals.SUCCESS,
-                "message" : literals.NOCONTENT_RESPONSE,
-                "detail" : "No Post List"
-            }).get(), status=status.HTTP_204_NO_CONTENT)
             
         if order == 'recent':
             posts = posts.order_by('-created_at')
@@ -1493,15 +1449,6 @@ class CommentListAPI(APIView): # 댓글 리스트 API
             comments = Comment.objects.all()[:10]
         else:
             comments = Comment.objects.all().filter(**filtervalue)
-        
-        if comments.count() == 0:
-            return Response(PrivateJSON({
-                "code" : status.HTTP_204_NO_CONTENT,
-                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
-                "status" : literals.SUCCESS,
-                "message" : literals.NOCONTENT_RESPONSE,
-                "detail" : "No Comment List"
-            }).get(), status=status.HTTP_204_NO_CONTENT)
         
         serializer = CommentSerializer(instance=comments, many=True)
         return Response(PrivateJSON({

@@ -208,6 +208,7 @@ export async function CallAPI({
     try {
         const config = {
             method: Method, // Use the specified HTTP method
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
             url: `${baseURL_v1}${apiEndpoints[APIType]}`,
             data: Body ? Body : {}
         };
