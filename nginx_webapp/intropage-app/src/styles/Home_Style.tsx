@@ -395,8 +395,7 @@ export const SectionFeatured = styled(Box)`
 
 export const SectionSNS = styled(Box)`
     display: flex;
-    padding-top: 50px;
-    padding-bottom: 50px;
+    padding-top: 25px;
 `;
 
 export const FeaturedTitleTypography = styled(Typography)`
