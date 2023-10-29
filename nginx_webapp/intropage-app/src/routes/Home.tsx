@@ -44,14 +44,14 @@ function Home()
         {
             const searchValue = SearchRef?.current?.value;
             if (searchValue !== null && typeof searchValue == 'string')
-                navigate(`/search?v=${encodeURIComponent(searchValue)}`);
+                navigate(`/search?t=${encodeURIComponent(searchValue)}`);
         }
     }
 
     const handleOnSearchButton = (e : any) => {
         const searchValue = SearchRef?.current?.value;
         if (searchValue !== null && typeof searchValue == 'string')
-            navigate(`/search?v=${encodeURIComponent(searchValue)}`);
+            navigate(`/search?t=${encodeURIComponent(searchValue)}`);
     }
 
     useEffect(() =>  {

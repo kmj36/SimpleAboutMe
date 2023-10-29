@@ -1124,12 +1124,14 @@ class PostListAPI(APIView): # 포스트 리스트 API
         
         order = request.query_params.get('order')
         
+        tagid = str(tagid).split(',')
+        
         if userid != None:
             filtervalue['userid'] = userid
         if categoryid != None:
             filtervalue['categoryid'] = categoryid
-        if tagid != None:
-            filtervalue['tagid'] = tagid
+        if tagid[0] != 'None' and len(tagid) > 0:
+            filtervalue['tagid__in'] = tagid
         if title != None:
             filtervalue['title__contains'] = title
         if content != None:

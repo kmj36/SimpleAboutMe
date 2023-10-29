@@ -114,7 +114,7 @@ export const SearchPostStack = styled(Stack)`
 export const SearchPostPaper = styled(Paper)`
     display: flex;
     flex-direction: row;
-    justify-contents: center;
+    align-items: center;
 `;
 
 export const SearchPostImage = styled.img`
@@ -139,7 +139,7 @@ export const SearchPostTitleTypography = styled(Typography)`
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    padding: 5px 0px 5px 0px;
+    padding-top: 5px;
 `;
 
 export const SearchPostContentTypography = styled(Typography)`
@@ -165,6 +165,12 @@ export const SearchPostTagTypography = styled(Typography)`
 export const SearchPostDateBox = styled(Box)`
     display: flex;
     flex-direction: row;
+`;
+
+export const SearchPostAuthorBox = styled(Box)`
+`;
+
+export const SearchPostAuthorTypography = styled(Typography)`
 `;
 
 export const SearchPostDateIcon = styled.img`

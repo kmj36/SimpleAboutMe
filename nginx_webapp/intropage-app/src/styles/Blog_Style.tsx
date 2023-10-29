@@ -151,6 +151,19 @@ export const PostInfoTagsBox = styled(Box)`
     width: 100%;
 `;
 
+export const PostInfoDateBox = styled(Box)`
+`;
+
+export const PostInfoDateTypography = styled(Typography)`
+`;
+
+export const PostInfoAuthorBox = styled(Box)`
+`;
+
+export const PostInfoAuthorTypography = styled(Typography)`
+    padding-bottom: 10px;
+`;
+
 export const PostInfoTitleBox = styled(Box)`
     padding-top: 10px;
 `;
