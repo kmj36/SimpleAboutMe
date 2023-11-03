@@ -5,10 +5,10 @@ import styled from 'styled-components';
 export const theme = createTheme();
 
 theme.typography.h4 = {
-    fontSize: '2.5rem',
+    fontSize: '2rem',
     '@media (max-width:1023px)': {
     /* 타블렛 */
-        fontSize: '2rem',
+        fontSize: '1.7rem',
     },
     '@media (max-width:767px)': {
     /* 모바일 */
@@ -65,6 +65,7 @@ export const BannerBox = styled(Box)`
     border: 1px solid rgba(0, 0, 0, 0.2);
     margin: 5px;
     color: white;
+    aligns-item: center;
 
     @media screen and (max-width:1023px) {
     /* 타블렛 */

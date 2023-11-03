@@ -75,6 +75,7 @@ interface Post {
 
 interface Comment {
     commentid: number;
+    created_ip: string;
     content: string;
     created_at: string;
     updated_at: string;
@@ -152,9 +153,10 @@ export interface Posts_APIResponse extends APIResponse {
 export const isPostsAPIResponse = (obj : any): obj is Posts_APIResponse => "posts" in obj;
 
 export interface Post_APIResponse extends APIResponse {
+    requestor: string;
     post: Post;
 }
-export const isPostAPIResponse = (obj : any): obj is Post_APIResponse => "post" in obj;
+export const isPostAPIResponse = (obj : any): obj is Post_APIResponse => "post" in obj && "requestor" in obj;
 
 export interface Comments_APIResponse extends APIResponse {
     comments: Comment[];
@@ -241,7 +243,9 @@ export async function CallAPI({
             case 'CategoryDetail':
                 return response.data as Category_APIResponse;
             case 'PostList':
-                return response.data as Posts_APIResponse;
+                var unpublicremoving = response.data as Posts_APIResponse;
+                unpublicremoving.posts = unpublicremoving.posts.filter((post) => (post.is_published));
+                return unpublicremoving;
             case 'PostDetail':
                 return response.data as Post_APIResponse;
             case 'CommentList':

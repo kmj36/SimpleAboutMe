@@ -1,9 +1,51 @@
 import styled from 'styled-components';
+import { createTheme } from '@mui/material/styles';
 import {
     Box,
     Typography,
     Grid
 } from '@mui/material';
+
+
+export const theme = createTheme();
+
+theme.typography.h4 = {
+    fontSize: '2.5rem',
+    '@media (max-width:1023px)': {
+    /* 타블렛 */
+        fontSize: '2rem',
+    },
+    '@media (max-width:767px)': {
+    /* 모바일 */
+        fontSize: '1.5rem',
+    }
+};
+
+theme.typography.h5 = {
+    fontSize: '1.5rem',
+    fontWeight: 600,
+    '@media (max-width:1023px)': {
+    /* 타블렛 */
+        fontSize: '1.2rem',
+    },
+    '@media (max-width:767px)': {
+    /* 모바일 */
+        fontSize: '1rem',
+    }
+};
+
+theme.typography.h6 = {
+    fontSize: '1.2rem',
+    fontWeight: 600,
+    '@media (max-width:1023px)': {
+    /* 타블렛 */
+        fontSize: '1rem',
+    },
+    '@media (max-width:767px)': {
+    /* 모바일 */
+        fontSize: '0.8rem',
+    }
+};
 
 export function getRandomBannerColors() : string
 {
@@ -24,7 +66,8 @@ export const CategoryBlock = styled(Box)`
 
 export const SectionBanner = styled(Box)`
     height: 18rem;
-    background-color: ${getRandomBannerColors()};
+    background-image: url('categories.jpg');
+    background-size: cover;
 `;
 
 export const BannerBox = styled(Box)`

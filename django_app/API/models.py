@@ -152,8 +152,9 @@ class Post(models.Model): # 게시물 테이블 정의, 1:N 관계
 
 class Comment(models.Model): # 댓글 테이블 정의, 1:N 관계
     commentid = models.AutoField(verbose_name='Comment ID', primary_key=True)
-    postid = models.ForeignKey(Post, verbose_name='Comment Post ID', on_delete=models.CASCADE, null=True, blank=True)
+    postid = models.ForeignKey(Post, verbose_name='Comment Post ID', on_delete=models.CASCADE)
     userid = models.ForeignKey(User, verbose_name='Comment Creator', on_delete=models.CASCADE, null=True, blank=True)
+    created_ip = models.CharField(verbose_name='Comment Creator IP', max_length=16, null=True)
     content = models.CharField(verbose_name='Comment Content', max_length=1024)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

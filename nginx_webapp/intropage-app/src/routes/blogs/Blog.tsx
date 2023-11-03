@@ -64,10 +64,10 @@ function Blog()
     const handleCategory = (e: any) => {
         if(e.target.value === "None")
         {
-            setselectCategoryName("")
-            return
+            setselectCategoryName("");
+            return;
         }
-        setselectCategoryName(e.target.value)
+        setselectCategoryName(e.target.value);
     }
 
     const handleSelectTag = (e : any) => {
@@ -76,6 +76,7 @@ function Blog()
     }
 
     const handleSelectCategory = (target: string) => {
+        setPaginationIndex(0);
         if(target===selectCategoryBarName)
             setselectCategoryBarName("");
         else
@@ -160,7 +161,7 @@ function Blog()
     useEffect(() =>  {
         (async () => {
             dispatch(loading());
-            const postlist = await CallAPI({APIType: "PostList", Method: "GET"});
+            const postlist = await CallAPI({APIType: "PostList", Query:"order=recent", Method: "GET"});
             const categorieslist = await CallAPI({APIType: "CategoryList", Method: "GET"});
             const tagslist = await CallAPI({APIType: "TagList", Method: "GET"});
             if(isPostsAPIResponse(postlist))
@@ -277,7 +278,7 @@ function Blog()
                                         return true;
                                     else
                                         return false;
-                                }).slice(0+(pagemax*paginationIndex),pagemax+(pagemax*paginationIndex)).map((post, index) => (
+                                })?.slice(0+(pagemax*paginationIndex),pagemax+(pagemax*paginationIndex))?.map((post, index) => (
                                     <Grow
                                     in={true}
                                     >
@@ -302,12 +303,12 @@ function Blog()
                                                     </S.PostInfoContentBox>
                                                     <S.PostInfoTagsBox>
                                                         <S.PostInfoTagsTypography variant='subtitle1' color="gray">
-                                                            {post.tagid.length > 0 ? post.tagid.map((tag) => ("#" + tag + " ")) : "#NoTag"}
+                                                            {post.tagid.length > 0 ? post.tagid?.map((tag) => ("#" + tag + " ")) : "#NoTag"}
                                                         </S.PostInfoTagsTypography>
                                                     </S.PostInfoTagsBox>
                                                     <S.PostInfoDateBox>
                                                         <S.PostInfoDateTypography variant='subtitle2'>
-                                                            {post.created_at.slice(0, 19).replace(/[T.]/g, ' / ')}
+                                                            {post.created_at?.slice(0, 19)?.replace(/[T.]/g, ' / ')}
                                                         </S.PostInfoDateTypography>
                                                     </S.PostInfoDateBox>
                                                     <S.PostInfoAuthorBox>
@@ -338,7 +339,7 @@ function Blog()
                             </S.PostClassifyBox>
                         </S.PostSearchBox>
                         <S.PostPaginationBox>
-                            <Pagination onChange={handlePagination} count={Math.ceil(pagesize / 4)} variant="outlined" color="primary" size="large" sx = {{ width: "auto"}}/>
+                            <Pagination page={paginationIndex+1} onChange={handlePagination} count={Math.ceil(pagesize / 4)} variant="outlined" color="primary" size="large" sx = {{ width: "auto"}}/>
                         </S.PostPaginationBox>
                     </S.SectionPosts>
                 </Container>

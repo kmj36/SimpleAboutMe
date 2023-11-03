@@ -69,12 +69,31 @@ function Search()
                             <SearchRounded style={{width: 128, height: 128}}/>
                         </S.SearchIconBox>
                         <S.SearchResultCountBox>
+                            {titlevalue ?
                             <S.SearchResultTitle variant="h4" noWrap={true}>
-                                키워드: {titlevalue !== "" ? titlevalue : "All"}
+                            키워드: {titlevalue}
                             </S.SearchResultTitle>
-                            <S.SearchResultSubTitle variant="h5">
-                                검색 결과 - {searchjson?.posts?.length.toString()} 개.
-                            </S.SearchResultSubTitle>
+                            : <S.SearchResultTitle variant="h4" noWrap={true}>키워드: All</S.SearchResultTitle>}
+                            {userid ?
+                            <S.SearchResultTitle variant="h4" noWrap={true}>
+                            유저명: {userid}
+                            </S.SearchResultTitle>
+                            : ""}
+                            {categoryid ?
+                            <S.SearchResultTitle variant="h4" noWrap={true}>
+                            카테고리명: {categoryid}
+                            </S.SearchResultTitle>
+                            : ""}
+                            {tagid ?
+                            <S.SearchResultTitle variant="h4" noWrap={true}>
+                            태그명: {tagid}
+                            </S.SearchResultTitle>
+                            : ""}
+                            {datevalue ?
+                            <S.SearchResultTitle variant="h4" noWrap={true}>
+                            날짜: {datevalue}
+                            </S.SearchResultTitle>
+                            : ""}
                         </S.SearchResultCountBox>
                     </S.BannerBox>
                 </S.SectionBanner>

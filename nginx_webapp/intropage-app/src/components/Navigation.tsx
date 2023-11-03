@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AppBar, Tabs, Tab, Toolbar, Box, TextField, InputAdornment, Fade } from '@material-ui/core';
 import { Search, Home, Assignment, Category, Face, DynamicFeed, Contacts } from '@material-ui/icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 
 const AppbarBanner = styled(Box)`
@@ -32,6 +32,7 @@ const SiteTitle = styled(Box)`
 
 function Navigation()
 {
+    const SearchRef = useRef<HTMLInputElement | null>(null);
     const [value, setValue] = useState(0);
     const [pathicon, setPathicon] = useState(<Home/>);
     const [path, setPath] = useState(window.location.pathname);
@@ -39,6 +40,18 @@ function Navigation()
     const Changehandle = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
     };
+
+    const handleOnSearchEnter = (e : any) => {
+        if(e.keyCode===13)
+        {
+            var query = "";
+            const inputtitle = SearchRef?.current?.value;
+            if (typeof inputtitle == 'string')
+                query += `t=${encodeURIComponent(inputtitle)}&`;
+            
+            window.location.replace(`/search?${query}`);
+        }
+    }
 
     useEffect(() => {
         if (path === "/") {
@@ -89,6 +102,8 @@ function Navigation()
                             <TextField
                                 id="input-with-icon-textfield"
                                 placeholder="Search"
+                                inputRef={SearchRef}
+                                onKeyDown={handleOnSearchEnter}
                                 InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
