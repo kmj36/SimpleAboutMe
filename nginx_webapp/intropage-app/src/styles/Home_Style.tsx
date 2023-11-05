@@ -15,24 +15,24 @@ theme.typography.h4 = {
     fontSize: '2.5rem',
     '@media (max-width:1023px)': {
     /* 타블렛 */
-        fontSize: '2rem',
+        fontSize: '2.1rem',
     },
     '@media (max-width:767px)': {
     /* 모바일 */
-        fontSize: '1.5rem',
+        fontSize: '1.9rem',
     }
 };
 
 theme.typography.h5 = {
-    fontSize: '1.5rem',
+    fontSize: '1.6rem',
     fontWeight: 600,
     '@media (max-width:1023px)': {
     /* 타블렛 */
-        fontSize: '1.2rem',
+        fontSize: '1.3rem',
     },
     '@media (max-width:767px)': {
     /* 모바일 */
-        fontSize: '1rem',
+        fontSize: '1.3rem',
     }
 };
 
@@ -85,6 +85,7 @@ export const HomeTitleBox = styled(Box)`
     border-radius: 5px;
     border: 1px solid rgba(0, 0, 0, 0.2);
     margin: 5px;
+    padding: 5px;
 
     @media screen and (max-width:1023px) {
     /* 타블렛 */
@@ -239,6 +240,7 @@ export const HomeTopCardsBox = styled(Box)`
     display: flex;
     width: 384px;
     height: 512px;
+    margin-left: 10px;
     @media screen and (max-width:1023px) {
     /* 타블렛 */
         display: none;
@@ -351,7 +353,7 @@ export const BlogBoxGridPaperTitleTypography = styled(Typography)`
     overflow: hidden;
     word-break: break-all;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
 `;
 
@@ -368,6 +370,15 @@ export const BlogBoxGridPaperContentTypography = styled(Typography)`
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    @media screen and (max-width:1023px) {
+    /* 타블렛 */
+        -webkit-line-clamp: 3;
+    }
+
+    @media screen and (max-width:767px) {
+    /* 모바일 */
+        -webkit-line-clamp: 3;
+    }
 `;
 
 export const BlogBoxGridPaperDateBox = styled(Box)`

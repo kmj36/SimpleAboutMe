@@ -77,12 +77,14 @@ function Navigation()
             <AppBar position="relative" style={{ background: '#333D51', color: 'white' }}>
                 <Box sx={{ display: "flex", flexDirection: "comuln"}}>
                     <AppbarBanner>
-                        <SiteIcon>
-                            {pathicon}
-                        </SiteIcon>
-                        <SiteTitle>
-                            PortLog
-                        </SiteTitle>
+                        <Link to='/' style={{ textDecoration: 'none', color: 'white', display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                            <SiteIcon>
+                                {pathicon}
+                            </SiteIcon>
+                            <SiteTitle>
+                                PortLog
+                            </SiteTitle>
+                        </Link>
                     </AppbarBanner>
                     <Toolbar style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                         <Tabs

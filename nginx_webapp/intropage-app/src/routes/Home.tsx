@@ -67,8 +67,8 @@ function Home()
     return (
         <Box ref={containerRef}>
             <ThemeProvider theme={S.theme}>
-                <Slide in={true} container={containerRef.current} timeout={timeout}>
-                    <S.SectionBanner>
+                <S.SectionBanner>
+                    <Slide in={true} container={containerRef.current} timeout={timeout}>
                         <Container>
                             <S.HomeBannerBox>
                                 <S.HomeTitleBox>
@@ -82,7 +82,7 @@ function Home()
                                         <Box sx={{ display: "flex", height: "100%"}}>
                                             <TextField
                                                 id="input-with-icon-textfield"
-                                                placeholder="Post Search"
+                                                placeholder="게시물 검색"
                                                 onKeyDown={handleOnSearchEnter}
                                                 inputRef={SearchRef}
                                                 InputProps={{
@@ -99,13 +99,13 @@ function Home()
                                         </Box>
                                     </Paper>
                                     <Button variant="contained" endIcon={<Send />} onClick={handleOnSearchButton}>
-                                        Search
+                                        검색
                                     </Button>
                                 </S.HomeBannerSearchBox>
                             </S.HomeBannerBox>
                         </Container>
-                    </S.SectionBanner>
-                </Slide>
+                    </Slide>
+                </S.SectionBanner>
                 <S.SectionPopular>
                     <Grow in={true} timeout={timeout}>
                         <Container>
@@ -116,7 +116,7 @@ function Home()
                                         <S.ImageOverlayGradient />
                                         <S.HomeTopImageTitleWrapper>
                                             <S.HomeTopImageTitleBox>
-                                                <Chip label={postdata?.posts && postdata.posts[0]?.categoryid != null && postdata.posts[0]?.categoryid !== "" ? postdata.posts[0]?.categoryid : "No Set"} variant='outlined'/>
+                                                <Chip label={postdata?.posts && postdata.posts[0]?.categoryid != null && postdata.posts[0]?.categoryid !== "" ? postdata.posts[0]?.categoryid : "No Set"} sx={{ color: 'white' }}/>
                                                 <S.HomeTopImageTitleTypography variant='h4' color="white">
                                                     {postdata?.posts ? postdata.posts[0]?.title : ""}
                                                 </S.HomeTopImageTitleTypography>
@@ -195,7 +195,7 @@ function Home()
                                 <S.BlogBoxGrid container spacing={3}>
                                 {
                                     postdata?.posts?.slice().sort( (a,b) => (b.created_at.replace(/[-T:.]/g, '').localeCompare(a.created_at.replace(/[-T:.]/g, ''))) ).slice( 0,6 ).map( (value, index) => (
-                                        <Grid key={index} item xs={4}>
+                                        <Grid key={index} item xs={12} sm={4} md={4}>
                                             <S.BlogBoxGridPaper elevation={1}>
                                                 <Link to={'/post/'+ value.postid} style={{ textDecoration: 'none', color: 'black' }}>
                                                     <S.BlogBoxGridPaperTopImageBox>
@@ -215,7 +215,7 @@ function Home()
                                                         </S.BlogBoxGridPaperDateTypography>
                                                     </S.BlogBoxGridPaperDateBox>
                                                     <S.BlogBoxGridPaperContent>
-                                                        <S.BlogBoxGridPaperContentTypography variant='subtitle1'>
+                                                        <S.BlogBoxGridPaperContentTypography variant='subtitle2'>
                                                             {value.content}
                                                         </S.BlogBoxGridPaperContentTypography>
                                                     </S.BlogBoxGridPaperContent>
@@ -241,7 +241,7 @@ function Home()
                                 {
                                     postdata?.posts?.slice().sort((a,b) => (b.views - a.views)).slice(0, 3).map((value, index) => (
                                         <Slide in={true} direction="up" timeout={timeout} container={featuredRef.current}>
-                                            <Grid key={index} item xs={4}>
+                                            <Grid key={index} item xs={12} sm={4} md={4}>
                                                 <S.FeaturedGridPaper sx={{ borderRadius: '10px' }}>
                                                     <Link to={'/post/' + value.postid} style={{ textDecoration: 'none', color: 'black' }}>
                                                         <S.FeaturedGridImage src={regex.test(value.thumbnailurl) ? value.thumbnailurl : "No_Image.jpg"} onError={handleImageError} />

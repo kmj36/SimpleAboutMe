@@ -1,0 +1,9 @@
+@font-face {
+    font-family: "SpoqaHanSansNeo-Regular";
+    font-weight: normal;
+    src: url("./fonts/SpoqaHanSansNeo-Regular.ttf") format("truetype");
+}
+
+body {
+    font-family: "SpoqaHanSansNeo-Regular";
+}
