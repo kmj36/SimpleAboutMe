@@ -101,6 +101,14 @@ export const PostSearchBox = styled(Box)`
     display: flex;
     flex-direction: row;
     width: 100%;
+
+    @media screen and (max-width:1023px) {
+        flex-direction: column;
+    }
+
+    @media screen and (max-width:767px) {
+        flex-direction: column;
+    }
 `;
 
 export const PostPaper = styled(Paper)`
@@ -195,6 +203,14 @@ export const PostInfoContentTypography = styled(Typography)`
 export const PostClassifyBox = styled(Box)`
     display: flex;
     min-width: 250px;
+
+    @media screen and (max-width:1023px) {
+        display: none;
+    }
+
+    @media screen and (max-width:767px) {
+        display: none;
+    }
 `;
 
 export const PostClassifyWrapper = styled(Box)`
@@ -213,4 +229,17 @@ export const PostPaginationBox = styled(Box)`
     justify-content: center;
     padding-top: 20px;
     padding-bottom: 10px;
+`;
+
+export const PostSelectedCategoryBox = styled(Box)`
+    display: none;
+    flex-direction: column;
+
+    @media screen and (max-width:1023px) {
+        display: flex;
+    }
+
+    @media screen and (max-width:767px) {
+
+    }
 `;

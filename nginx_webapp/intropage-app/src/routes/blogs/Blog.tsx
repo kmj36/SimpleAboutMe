@@ -8,7 +8,10 @@ import {
     Select,
     InputLabel,
     FormControl,
+    Menu,
     MenuItem,
+    List,
+    ListItem,
     ListItemText,
     Checkbox,
     Chip,
@@ -45,7 +48,6 @@ function Blog()
     const [selectCategoryName, setselectCategoryName] = useState<string>("");
     const [selectTagName, setSelectTagName] = useState<string[]>([]);
     const [datevalue, setDateValue] = useState<Dayjs | null>();
-
     const SearchRef = useRef<HTMLInputElement | null>(null);
     const BlogRef = useRef(null);
     const timeout = 600;
@@ -157,6 +159,15 @@ function Blog()
         setInputuserid(e.target.value);
     }
 
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+    const handleClickListItem = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     useEffect(() =>  {
         (async () => {
@@ -272,6 +283,50 @@ function Blog()
                 <Container maxWidth="lg">
                     <S.SectionPosts>
                         <S.PostSearchBox>
+                            <S.PostSelectedCategoryBox>
+                                <Divider flexItem sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}/>
+                                <List
+                                    component="nav"
+                                    aria-label="Selected category"
+                                    sx={{ bgcolor: 'background.paper' }}
+                                >
+                                    <ListItem
+                                    button
+                                    id="lock-button"
+                                    aria-haspopup="listbox"
+                                    aria-controls="lock-menu"
+                                    aria-label="Selected Category"
+                                    aria-expanded={open ? 'true' : undefined}
+                                    onClick={handleClickListItem}
+                                    >
+                                    <ListItemText
+                                        primary="Selected Category"
+                                        secondary={selectCategoryBarName === "" ? 'All' : selectCategoryBarName}
+                                    />
+                                    </ListItem>
+                                </List>
+                                <Menu
+                                    id="lock-menu"
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    MenuListProps={{
+                                    'aria-labelledby': 'lock-button',
+                                    role: 'listbox',
+                                    }}
+                                >
+                                    {categoriesjson?.categories?.map((category, index) => (
+                                    <MenuItem
+                                        key={index}
+                                        selected={category.categoryid===selectCategoryBarName}
+                                        onClick={() => handleSelectCategory(category.categoryid)}
+                                    >
+                                        {category?.categoryid}
+                                    </MenuItem>
+                                    ))}
+                                </Menu>
+                                <Divider flexItem sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}/>
+                            </S.PostSelectedCategoryBox>
                             <S.PostStack spacing={2}>
                                 {postjson?.posts?.filter((post) => {
                                     if(selectCategoryBarName === "" || selectCategoryBarName === post.categoryid)
