@@ -50,6 +50,14 @@ export const SectionBanner = styled.div`
     background-color: #f5f5f5;
     background-image: url("studio.jpg");
     object-fit: cover;
+    
+    @media screen and (max-width:1023px) {
+        height: 400px;
+    }
+
+    @media screen and (max-width:767px) {
+        height: 400px;
+    }
 `
 
 export const AdvancedSearchContainer = styled(Container)`
@@ -75,8 +83,17 @@ export const AdvancedSearchWrapper = styled(Box)`
 
 export const AdvancedSearchPaper = styled(Paper)`
     display: flex;
+    flex-direction: row;
     width: 100%;
     height: 100%;
+
+    @media screen and (max-width:1023px) {
+        flex-direction: column;
+    }
+
+    @media screen and (max-width:767px) {
+        flex-direction: column;
+    }
 `;
 
 export const AdvancedSearchOptionWrapper = styled(Box)`
@@ -115,6 +132,14 @@ export const PostPaper = styled(Paper)`
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    @media screen and (max-width:1023px) {
+        flex-direction: column;
+    }
+
+    @media screen and (max-width:767px) {
+        flex-direction: column;
+    }
 `;
 
 export const PostImageBox = styled(Box)`
@@ -122,6 +147,16 @@ export const PostImageBox = styled(Box)`
     min-width: 300px;
     height: 200px;
     padding: 5px;
+
+    @media screen and (max-width:1023px) {
+        width: 100%;
+        min-width: inherit;
+    }
+
+    @media screen and (max-width:767px) {
+        width: 100%;
+        min-width: inherit;
+    }
 `;
 
 export const PostImage = styled.img`
@@ -134,6 +169,16 @@ export const PostInfoBox = styled(Box)`
     display: flex;
     flex-grow: 1;
     flex-direction: column;
+
+    @media screen and (max-width:1023px) {
+        padding: 5px;
+        width: calc(100% - 5px);
+    }
+
+    @media screen and (max-width:767px) {
+        padding: 5px;
+        width: calc(100% - 5px);
+    }
 `;
 
 export const PostStack = styled(Stack)`

@@ -263,7 +263,7 @@ function Blog()
                                         </FormControl>
                                         <FormControl>
                                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
-                                                <DemoContainer components={['DatePicker']}>
+                                                <DemoContainer components={['DatePicker']} sx={{padding: 1}}>
                                                     <DatePicker
                                                         value={datevalue}
                                                         format={"YYYY-MM-DD"}
@@ -352,7 +352,7 @@ function Blog()
                                                         </S.PostInfoTypography>
                                                     </S.PostInfoTitleBox>
                                                     <S.PostInfoContentBox>
-                                                        <S.PostInfoContentTypography variant='subtitle1'>
+                                                        <S.PostInfoContentTypography variant='subtitle2'>
                                                             {post.content}
                                                         </S.PostInfoContentTypography>
                                                     </S.PostInfoContentBox>
