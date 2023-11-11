@@ -66,9 +66,6 @@ function Navigation()
         } else if (path === "/portfolio") {
             setValue(3);
             setPathicon(<DynamicFeed/>);
-        } else if (path === "/about") {
-            setValue(4);
-            setPathicon(<Face/>);
         }
     }, [path]);
 
@@ -98,7 +95,6 @@ function Navigation()
                             <Tab icon={<Assignment/>} value={1} label="Blog" component={Link} to="/post" />
                             <Tab icon={<Category/>} value={2} label="Categorize" component={Link} to="/categorize" />
                             <Tab icon={<DynamicFeed/>} value={3} label="Portfolio" component={Link} to="/portfolio" />
-                            <Tab icon={<Face/>} value={4} label="About" component={Link} to="/about" />
                         </Tabs>
                         <Box>
                             <TextField

@@ -40,7 +40,7 @@ function Categorize()
                         <S.CategoriesGridBox>
                             <S.CategoriesGridContainer container spacing={1}>
                                 {category.categories?.map((item, index) => (
-                                    <S.CategoriesGrid item key={index} xs={2.4}>
+                                    <S.CategoriesGrid item key={index} xs={12} sm={6} md={2.4}>
                                         <Paper>
                                             <Link to={`/search?c=${item.categoryid}`} style={{ textDecoration: 'none', color: 'black' }}>
                                                 <S.CategoryBox>
@@ -48,7 +48,7 @@ function Categorize()
                                                         <Typography variant='h5'>{item.categoryid}</Typography>
                                                     </S.CategoryTitleBox>
                                                     <S.CategorySubTitleBox>
-                                                        <Typography variant='subtitle1'>{item.categorydescription === null || item.categorydescription === "" ? item.categoryid : item.categorydescription}</Typography>
+                                                        <S.CategorySubTitleTypography variant='subtitle1'>{item.categorydescription === null || item.categorydescription === "" ? item.categoryid : item.categorydescription}</S.CategorySubTitleTypography>
                                                     </S.CategorySubTitleBox>
                                                 </S.CategoryBox>
                                             </Link>

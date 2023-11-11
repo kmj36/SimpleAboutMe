@@ -116,18 +116,43 @@ export const SearchPostPaper = styled(Paper)`
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    @media screen and (max-width:1023px) {
+    /* 타블렛 */
+        flex-direction: column;
+    }
+
+    @media screen and (max-width:767px) {
+    /* 모바일 */
+        flex-direction: column;
+    }
 `;
 
 export const SearchPostImage = styled.img`
+    max-width: 300px;
     width: 300px;
-    min-width: 300px;
     height: 200px;
     padding: 5px;
     object-fit: cover;
+
+    @media screen and (max-width:1023px) {
+    /* 타블렛 */
+        flex-direction: column;
+        max-width: inherit;
+        width: calc( 100% - 5px );
+    }
+
+    @media screen and (max-width:767px) {
+    /* 모바일 */
+        flex-direction: column;
+        max-width: inherit;
+        width: calc( 100% - 5px );
+    }
 `;
 
 export const SearchPostMainBox = styled(Box)`
     display: flex;
+    width: calc( 100% - 5px );
     flex-direction: column;
     padding-top: 5px;
 `;

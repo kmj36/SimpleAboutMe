@@ -112,6 +112,18 @@ export const MainRightBarBox = styled(Box)`
     padding-top: 50px;
 `;
 
+export const MainRightBarWrapper = styled(Box)`
+    display: flex;
+
+    @media screen and (max-width:1023px) {
+        display: none;
+    }
+
+    @media screen and (max-width:767px) {
+        display: none;
+    }
+`;
+
 export const MainRightBarStack = styled(Stack)`
 `;
 

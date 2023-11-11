@@ -104,3 +104,13 @@ export const CategorySubTitleBox = styled(Box)`
     padding-right: 10px;
     height: 60px;
 `;
+
+export const CategorySubTitleTypography = styled(Typography)`
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+`;

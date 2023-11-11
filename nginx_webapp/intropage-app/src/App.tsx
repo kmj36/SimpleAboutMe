@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import NotFound from './routes/errors/NotFound';
 import Home from './routes/Home';
-import About from './routes/About';
 import Portfolio from './routes/Portfolio';
 import Blog from './routes/blogs/Blog';
 import Page from './routes/blogs/Page';
@@ -21,7 +20,6 @@ function App() {
         <Loading>
           <Routes>
             <Route path="/" element={<Home/>} />
-            <Route path="/about" element={<About />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/post" element={<Blog/>} />
             <Route path="/post/:pagestr" element={<Page />} />
