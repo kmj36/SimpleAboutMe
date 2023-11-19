@@ -1,4 +1,4 @@
-import { Paper, Box, Typography, Container } from '@material-ui/core';
+import { Paper, Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 
 const CopyrightBox = styled(Box)`
@@ -7,7 +7,7 @@ const CopyrightBox = styled(Box)`
     align-items: center;
     flex-direction: column;
     width: 100%;
-    height: 5rem;
+    height: 10rem;
     background-color: #f5f5f5;
 `;
 

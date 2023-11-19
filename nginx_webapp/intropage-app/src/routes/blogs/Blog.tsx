@@ -31,6 +31,7 @@ import { CallAPI, Posts_APIResponse, isPostsAPIResponse, Categories_APIResponse,
 import { useAppDispatch } from '../../redux/hooks';
 import { loading, done } from '../../redux/feature/LoadingReducer';
 import { Link, useNavigate } from 'react-router-dom';
+import Footer from '../../components/Footer';
 
 function Blog()
 {
@@ -399,6 +400,7 @@ function Blog()
                     </S.SectionPosts>
                 </Container>
             </ThemeProvider>
+            <Footer/>
         </S.BlogBox>
     );
 }

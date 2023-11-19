@@ -6,6 +6,7 @@ import * as S from '../../styles/Categorize_Style';
 import { CallAPI, Categories_APIResponse, isCategoriesAPIResponse } from '../../funcs/CallAPI';
 import { useAppDispatch } from '../../redux/hooks';
 import { loading, done } from '../../redux/feature/LoadingReducer';
+import Footer from '../../components/Footer';
 
 function Categorize()
 {
@@ -60,6 +61,7 @@ function Categorize()
                     </Container>
                 </S.SectionCategoryGrid>
             </ThemeProvider>
+            <Footer/>
         </S.CategoryBlock>
     );
 }
