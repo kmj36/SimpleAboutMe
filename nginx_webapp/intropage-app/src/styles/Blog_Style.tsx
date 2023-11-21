@@ -48,7 +48,7 @@ export const BlogBox = styled.div`
 export const SectionBanner = styled.div`
     height: 300px;
     background-color: #f5f5f5;
-    background-image: url("studio.jpg");
+    background-image: url("/studio.jpg");
     object-fit: cover;
     
     @media screen and (max-width:1023px) {

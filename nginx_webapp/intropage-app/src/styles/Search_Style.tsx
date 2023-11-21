@@ -53,7 +53,7 @@ export const SectionBanner = styled(Box)`
     align-items: center;
     height: 20rem;
     background-color: #f5f5f5;
-    background-image: url("search.jpg");
+    background-image: url("/search.jpg");
     background-size: cover;
 `;
 

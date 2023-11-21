@@ -56,7 +56,7 @@ export const SectionBanner = styled(Box)`
     flex-direction: column;
     width: 100%;
     height: 20rem;
-    background-image: url("startup.jpg");
+    background-image: url("/startup.jpg");
     color: white;
 `;
 

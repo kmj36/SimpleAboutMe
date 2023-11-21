@@ -66,7 +66,7 @@ export const CategoryBlock = styled(Box)`
 
 export const SectionBanner = styled(Box)`
     height: 18rem;
-    background-image: url('categories.jpg');
+    background-image: url("/categories.jpg");
     background-size: cover;
 `;
 

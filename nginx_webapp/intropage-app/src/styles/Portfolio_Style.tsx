@@ -42,7 +42,7 @@ export const ProjectImageBox = styled(Box)`
     display: flex;
     position: relative;
     height: 20rem;
-    width: 40rem;
+    width: 28rem;
     border-radius: 10px;
 `;
 

@@ -7,7 +7,7 @@ const CopyrightBox = styled(Box)`
     align-items: center;
     flex-direction: column;
     width: 100%;
-    height: 10rem;
+    height: 5rem;
     background-color: #f5f5f5;
 `;
 
