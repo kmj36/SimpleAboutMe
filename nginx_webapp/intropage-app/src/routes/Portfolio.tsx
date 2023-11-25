@@ -1,15 +1,15 @@
 import * as S from '../styles/Portfolio_Style'
 import Footer from '../components/Footer'
-import { Slide, Grow, Container, Grid, TextField } from '@mui/material';
+import { Slide, Grow, Container, Grid, Button, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
+import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../redux/hooks';
 import { loading, done } from '../redux/feature/LoadingReducer';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from '../funcs/CallAPI';
 
 function Portfolio()
 {
-    const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [postdata, setPostdata] = useState({} as Posts_APIResponse);
 
@@ -19,6 +19,32 @@ function Portfolio()
     const handleImageError = (e : any) => {
         e.target.src = "/No_Image.jpg"
     }
+
+    const form = useRef<HTMLFormElement>(null);
+            
+    const sendEmail = (event : React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if(form.current)
+        {
+            alert(1);
+            if(typeof process.env.REACT_APP_EMAILJS_SERVICE_ID === 'string' &&
+            typeof process.env.REACT_APP_EMAILJS_TEMPLATE_ID === 'string' &&
+            typeof process.env.REACT_APP_EMAILJS_PUBLIC_KEY === 'string')
+            {
+                alert(2);
+                emailjs.sendForm(process.env.REACT_APP_EMAILJS_SERVICE_ID, process.env.REACT_APP_EMAILJS_TEMPLATE_ID, form.current, process.env.REACT_APP_EMAILJS_PUBLIC_KEY).then(
+                    result => {
+                        alert("성공적으로 이메일이 전송되었습니다.");
+                        form.current?.reset();
+                    },
+                    error => {
+                        console.log(error.text);
+                        alert("이메일이 전송이 실패되었습니다.");
+                    },
+                );
+            }
+        }
+    };
 
     useEffect(() =>  {
         (async () => {
@@ -106,28 +132,32 @@ function Portfolio()
             <S.SectionContact>
                 <S.ContactBox>
                     <S.ContactTitle>
-                        <S.ContactTypography variant="h4">
+                        <Typography variant="h4">
                             Contact Me
-                        </S.ContactTypography>
+                        </Typography>
                     </S.ContactTitle>
-                    <S.ContactFormBox>
-                        <S.ContactContainer maxWidth="sm">
+                    <S.ContactContainer maxWidth="md">
+                        <S.ContactForm ref={form} onSubmit={sendEmail}>
                             <S.ContactEmailBox>
-                                <TextField id="standard-basic" label="Email" variant="outlined" sx={{ width: 'calc( 100% - 20px )' }} inputProps={{ maxLength: 65536 }}/>
+                                <S.ContactTextField type="email" name="contact_useremail" placeholder="example@email.com" required />
                             </S.ContactEmailBox>
-                            <S.ContactNameBox>
-                                <TextField id="standard-basic" label="Name" variant="outlined" sx={{ width: 'calc( 100% - 20px )' }} inputProps={{ maxLength: 200 }}/>
-                            </S.ContactNameBox>
+                            <S.ContactTitleBox>
+                                <S.ContactTextField
+                                    type="text"
+                                    name="contact_title"
+                                    placeholder="Type Email Title. (Max 30)"
+                                    inputProps={{ maxLength: 30 }}
+                                    required
+                                />
+                            </S.ContactTitleBox>
                             <S.ContactMessageBox>
-                                <TextField id="standard-basic" label="Message" variant="standard" multiline sx={{ width: '100%' }} inputProps={{ maxLength: 2000 }}/>
+                                <S.ContactTextField name="contact_message" inputProps={{ maxLength: 2000 }} placeholder="Type Contents. (Max 2000)" required multiline/>
                             </S.ContactMessageBox>
                             <S.ContactSubmitBox>
-                                <S.ContactSubmitButton variant="contained">
-                                    Submit
-                                </S.ContactSubmitButton>
+                                <Button variant="contained" type="submit">Contact</Button>
                             </S.ContactSubmitBox>
-                        </S.ContactContainer>
-                    </S.ContactFormBox>
+                        </S.ContactForm>
+                    </S.ContactContainer>
                 </S.ContactBox>
             </S.SectionContact>
             <Footer/>

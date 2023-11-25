@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Box, Typography, Button, Grid, Container } from "@mui/material";
+import { Box, Typography, Button, Grid, Container, TextField } from "@mui/material";
 
 export const PortfolioBox = styled(Box)`
 `;
@@ -112,10 +112,11 @@ export const ContactTitle = styled(Box)`
     padding-bottom: 30px;
 `;
 
-export const ContactTypography = styled(Typography)`
+export const ContactTextField = styled(TextField)`
+    width: 100%;
 `;
 
-export const ContactFormBox = styled(Box)`
+export const ContactForm = styled.form`
 `;
 
 export const ContactEmailBox = styled(Box)`
@@ -124,7 +125,7 @@ export const ContactEmailBox = styled(Box)`
     padding-bottom: 20px;
 `;
 
-export const ContactNameBox = styled(Box)`
+export const ContactTitleBox = styled(Box)`
     display: flex;
     justify-content: center;
     padding-bottom: 20px;
