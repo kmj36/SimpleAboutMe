@@ -139,10 +139,10 @@ function Portfolio()
                     <S.ContactContainer maxWidth="md">
                         <S.ContactForm ref={form} onSubmit={sendEmail}>
                             <S.ContactEmailBox>
-                                <S.ContactTextField type="email" name="contact_useremail" placeholder="example@email.com" required />
+                                <S.ContactEmailTextField type="email" name="contact_useremail" placeholder="example@email.com" required />
                             </S.ContactEmailBox>
                             <S.ContactTitleBox>
-                                <S.ContactTextField
+                                <S.ContactTitleTextField
                                     type="text"
                                     name="contact_title"
                                     placeholder="Type Email Title. (Max 30)"

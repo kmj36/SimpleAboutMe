@@ -112,6 +112,14 @@ export const ContactTitle = styled(Box)`
     padding-bottom: 30px;
 `;
 
+export const ContactEmailTextField = styled(TextField)`
+    width: calc( 100% - 20px );
+`;
+
+export const ContactTitleTextField = styled(TextField)`
+    width: calc( 100% - 20px );
+`;
+
 export const ContactTextField = styled(TextField)`
     width: 100%;
 `;
