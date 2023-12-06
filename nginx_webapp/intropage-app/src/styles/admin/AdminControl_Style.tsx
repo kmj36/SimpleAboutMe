@@ -35,3 +35,7 @@ export const TopTitleTypography = styled(Typography)`
     height: 100%;
     align-items: center;
 `;
+
+export const BoardDiv = styled.div`
+
+`;
