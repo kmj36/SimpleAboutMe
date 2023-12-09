@@ -18,6 +18,8 @@ export const BarWrapper = styled(Box)`
 `;
 
 export const BoardBox = styled(Box)`
+    display: flex;
+    flex-direction: column;
     width: calc( 100% - 20rem );
 `;
 
@@ -37,5 +39,8 @@ export const TopTitleTypography = styled(Typography)`
 `;
 
 export const BoardDiv = styled.div`
-
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
 `;

@@ -3,7 +3,7 @@ import { useAppDispatch } from '../../redux/hooks';
 import { loading, done } from '../../redux/feature/LoadingReducer';
 import { Divider, Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
 import { Dashboard, SupervisorAccount, Report, Settings, Class, Create } from '@mui/icons-material';
-import {DashBoard} from './DashBoard';
+import DashBoard from './DashBoard';
 import {Visitors} from './Visitors';
 import {Reports} from './Reports';
 import {Write} from './Write'; 

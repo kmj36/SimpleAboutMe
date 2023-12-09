@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 AUTH_USER_MODEL = 'API.User'
 
 AUTHENTICATION_BACKENDS = (
@@ -121,6 +123,15 @@ CORS_ORIGIN_WHITELIST = [
     #'api'+os.environ.get('DJANGO_PORT'), # [DJANGO]
     #'localhost:'+os.environ.get('DJANGO_PORT'), # [DJANGO]
 ]
+
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
 
 ROOT_URLCONF = 'django_app.urls'
 

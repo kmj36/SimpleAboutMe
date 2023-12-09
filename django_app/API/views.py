@@ -1239,7 +1239,8 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
                 "message" : literals.NOTFOUND_RESPONSE,
                 "detail" : "`{0}` Post ID is not exist.".format(postid),
             }).get(), status=status.HTTP_404_NOT_FOUND)
-            
+        
+        is_prevent = False
         if not post.is_published:
             if not request.user.is_authenticated or request.user.userid != post.userid.userid and request.user.is_admin == False:
                 post.title = "[비공개글]"
@@ -1252,8 +1253,15 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
                 post.categoryid = None
                 post.tagid.set([])
                 post.secret_password = ""
+                is_prevent = True
         if post.is_secret:
             post.content = "[비밀글]"
+            is_prevent = True
+
+        if not is_prevent:
+            if int(request.COOKIES.get('postid')) != int(postid):
+                post.views += 1
+                post.save()
             
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
 
@@ -1269,7 +1277,7 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
         ip = '.'.join(ip)
         
         serializer = PostSerializer(instance=post)
-        return Response(PrivateJSON({
+        res = Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
             "status" : literals.SUCCESS,
@@ -1278,6 +1286,8 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
             "requestor" : ip,
             "post" : serializer.data
         }).get(), status=status.HTTP_200_OK)
+        res.set_cookie('postid', postid)
+        return res
     def put(self, request, postid, format=None): # 포스트 정보 수정하기
         try:
             post = Post.objects.get(postid=postid)

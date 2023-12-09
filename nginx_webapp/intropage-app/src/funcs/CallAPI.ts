@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import { Cookies } from 'react-cookie'
 
 interface Token {
     refresh: string;
@@ -210,9 +211,14 @@ export async function CallAPI({
     try {
         const config = {
             method: Method, // Use the specified HTTP method
-            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': new Cookies().get('csrftoken'),
+                Cookie: `postid=${new Cookies().get('postid')};`,
+            },
+            withCredentials: true,
             url: `${baseURL_v1}${apiEndpoints[APIType]}`,
-            data: Body ? Body : {}
+            data: Body ? Body : {},
         };
     
         const response: AxiosResponse = await axios(config);
