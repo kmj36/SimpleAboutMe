@@ -8,7 +8,7 @@ export const ControlBox = styled(Box)`
 
 export const LeftBarBox = styled(Box)`
     width: 20rem;
-    height: calc( 100vh - 132px );
+    min-height: calc( 100vh - 132px );
     border: 5px;
     background-color: rgba(0, 0, 0, 0.08);
 `;
@@ -20,7 +20,7 @@ export const BarWrapper = styled(Box)`
 export const BoardBox = styled(Box)`
     display: flex;
     flex-direction: column;
-    width: calc( 100% - 20rem );
+    flex-grow: 1;
 `;
 
 export const TopTitleBar = styled(Box)`
@@ -34,13 +34,11 @@ export const TopTitleBar = styled(Box)`
 
 export const TopTitleTypography = styled(Typography)`
     display: flex;
-    height: 100%;
     align-items: center;
 `;
 
-export const BoardDiv = styled.div`
+export const BoardMainBox = styled(Box)`
     display: flex;
     flex-direction: column;
-    width: 100%;
-    height: 100%;
+    flex-grow: 1;
 `;

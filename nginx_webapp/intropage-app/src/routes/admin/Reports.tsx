@@ -1,1 +1,1 @@
-export const Reports = () => {return("d")};
+export const Reports = () => {return(<div></div>)};

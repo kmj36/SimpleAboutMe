@@ -1,10 +1,12 @@
-from django.urls import path
+from django.urls import path, include
 
 from API.views import *
 from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenVerifyView
 
 urlpatterns = [
     path('', APIRoot.as_view()),
+    path('serverinfo/', ServerInfoAPI.as_view()),
+    path('health/', include('health_check.urls')),
     path('control/history/', ControlHistroyAPI.as_view()),
     path('auth/', TokenVerifyView.as_view()),
     path('auth/register/', RegisterAPI.as_view()),

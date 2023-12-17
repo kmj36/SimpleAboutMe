@@ -1,1 +1,1 @@
-export const Write = () => {return("c")};
+export const Write = () => {return(<div></div>)};

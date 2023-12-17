@@ -1,1 +1,1 @@
-export const SettingsPage = () => {return("a")};
+export const SettingsPage = () => {return(<div></div>)};

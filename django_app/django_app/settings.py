@@ -47,7 +47,18 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'API',
     'corsheaders',
+    'health_check',                             # required
+    'health_check.db',                          # stock Django health checkers
+    'health_check.cache',
+    'health_check.storage',
+    'health_check.contrib.migrations',
+    'health_check.contrib.psutil',              # disk and memory utilization; requires psutil
 ]
+
+HEALTH_CHECK = {
+    'DISK_USAGE_MAX': 90,  # percent
+    'MEMORY_MIN': 100,    # in MB
+}
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 

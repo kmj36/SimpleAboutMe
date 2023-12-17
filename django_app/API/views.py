@@ -12,9 +12,23 @@ from django.conf import settings
 from .privatejson import PrivateJSON
 from .literals import literals
 from urllib import parse
+import psutil
+import time
 
 # json count default: 10
+def net_usage(inf = "eth0"):
+    net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inf]
+    net_in_1 = net_stat.bytes_recv
+    net_out_1 = net_stat.bytes_sent
+    time.sleep(1)
+    net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inf]
+    net_in_2 = net_stat.bytes_recv
+    net_out_2 = net_stat.bytes_sent
 
+    net_in = round((net_in_2 - net_in_1) / 1024 / 1024, 3)
+    net_out = round((net_out_2 - net_out_1) / 1024 / 1024, 3)
+
+    return [net_in, net_out]
 class APIRoot(APIView): # API Root
     permission_classes = [AllowAny]
     def get(self, request, format=None): # API Root
@@ -129,6 +143,23 @@ class APIRoot(APIView): # API Root
                     ],
                     "url": "/api/v1/comment/<int:commentid>/"
                 }
+            }
+        }).get(), status=status.HTTP_200_OK)
+
+class ServerInfoAPI(APIView): # 서버 정보 API
+    permission_classes = [AllowAny]
+    def get(self, request, format=None): # 서버 정보 가져오기
+        return Response(PrivateJSON({
+            "code": status.HTTP_200_OK,
+            "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+            "status" : literals.SUCCESS,
+            "message": "서버 정보입니다.",
+            "detail" : "Server Info",
+            "server": {
+                "cpu": psutil.cpu_percent(interval=1, percpu=True),
+                "memory": [psutil.virtual_memory().percent, psutil.swap_memory().percent],
+                "disk": psutil.disk_usage('/').percent,
+                "network": net_usage(),
             }
         }).get(), status=status.HTTP_200_OK)
 
@@ -1259,9 +1290,12 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
             is_prevent = True
 
         if not is_prevent:
-            if int(request.COOKIES.get('postid')) != int(postid):
+            try:
+                if int(request.COOKIES.get('postid')) != int(postid):
+                    post.views += 1
+            except:
                 post.views += 1
-                post.save()
+        post.save()
             
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
 

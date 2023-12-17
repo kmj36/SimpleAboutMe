@@ -14,13 +14,13 @@ import * as S from '../../styles/admin/AdminControl_Style';
 function Control()
 {
     const [menuNumber, setMenuNumber] = useState<number>(0);
-    const Menus : any[] = [
-        DashBoard,
-        Visitors,
-        Reports,
-        Write,
-        Classfication,
-        SettingsPage
+    const Menus : JSX.Element[] = [
+        <DashBoard />,
+        <Visitors />,
+        <Reports />,
+        <Write />,
+        <Classfication />,
+        <SettingsPage />
     ];
     const MenuTitles : String[] = [
         "DashBoard",
@@ -98,9 +98,9 @@ function Control()
                         {MenuTitles[menuNumber]}
                     </S.TopTitleTypography>
                 </S.TopTitleBar>
-                <S.BoardDiv>
-                    {Menus[menuNumber]()}
-                </S.BoardDiv>
+                <S.BoardMainBox>
+                    {Menus[menuNumber]}
+                </S.BoardMainBox>
             </S.BoardBox>
         </S.ControlBox>
     );

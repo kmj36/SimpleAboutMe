@@ -85,6 +85,29 @@ interface Comment {
     userid: string;
 }
 
+export interface Healthcheck_APIResponse {
+    "Cache backend: default": string,
+    DatabaseBackend: string,
+    DefaultFileStorageHealthCheck: string,
+    DiskUsage: string,
+    MemoryUsage: string,
+    MigrationsHealthCheck: string,
+}
+
+export const isHealthcheckAPIResponse = (obj : any): obj is Healthcheck_APIResponse => "DefaultFileStorageHealthCheck" in obj;
+
+interface StatusInfo {
+    cpu: number[];
+    memory: number[];
+    disk: number;
+    network: number[];
+}
+export interface StatusInfo_APIResponse extends APIResponse {
+    server: StatusInfo;
+}
+
+export const isStatusInfoAPIResponse = (obj : any): obj is StatusInfo_APIResponse => "server" in obj;
+
 export interface Auth_APIResponse extends APIResponse {
     token?: string[];
 }
@@ -178,14 +201,16 @@ export async function CallAPI({
     Body,
     Name,
 }: {
-    APIType: "Auth" | "Register" | "Login" | "Logout" | "Refresh" | "UserList" | "TagList" | "CategoryList" | "PostList" | "CommentList" | "UserDetail" | "TagDetail" | "CategoryDetail" | "PostDetail" | "CommentDetail";
+    APIType: "Auth" | "Register" | "Login" | "Logout" | "Refresh" | "UserList" | "TagList" | "CategoryList" | "PostList" | "CommentList" | "UserDetail" | "TagDetail" | "CategoryDetail" | "PostDetail" | "CommentDetail" | "Healthcheck" | "StatusInfo";
     Method: "GET" | "POST" | "DELETE" | "PUT";
     Query?: string;
     Body?: object;
     Name?: string;
-}): Promise<Auth_APIResponse | Register_APIResponse | Login_APIResponse | Logout_APIResponse | Refresh_APIResponse | Users_APIResponse | User_APIResponse | Tags_APIResponse | Tag_APIResponse | Categories_APIResponse | Category_APIResponse | Posts_APIResponse | Post_APIResponse | Comments_APIResponse | Comment_APIResponse>
+}): Promise<Auth_APIResponse | Register_APIResponse | Login_APIResponse | Logout_APIResponse | Refresh_APIResponse | Users_APIResponse | User_APIResponse | Tags_APIResponse | Tag_APIResponse | Categories_APIResponse | Category_APIResponse | Posts_APIResponse | Post_APIResponse | Comments_APIResponse | Comment_APIResponse | Healthcheck_APIResponse | StatusInfo_APIResponse>
 {
     const apiEndpoints: Record<string, string> = {
+        Healthcheck: '/health/',
+        StatusInfo: '/serverinfo/',
         Auth: '/auth/',
         Register: '/auth/register/',
         Login: '/auth/login/',
@@ -226,6 +251,10 @@ export async function CallAPI({
         // Axios 반환 데이터 처리
         switch (APIType) {
             // API타입 추가시 아래에 추가
+            case 'StatusInfo':
+                return response.data as StatusInfo_APIResponse;
+            case 'Healthcheck':
+                return response.data as Healthcheck_APIResponse;
             case 'Auth':
                 return response.data as Auth_APIResponse;
             case 'Register':
