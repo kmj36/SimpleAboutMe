@@ -1,5 +1,5 @@
-import { Editor } from '@toast-ui/react-editor';
-import { useEffect, useState } from 'react';
+import { Editor as ToastEditor } from '@toast-ui/react-editor';
+import { useEffect, useState, useRef } from 'react';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import * as S from '../../styles/admin/Write_Style';
 import { Button, Select, MenuItem, SelectChangeEvent, Typography, FormControlLabel, Checkbox } from '@mui/material';
@@ -16,16 +16,41 @@ function Write()
     const dispatch = useDispatch();
     const [categoryList, setCategoryList] = useState({} as Categories_APIResponse);
     const [tagList, setTagList] = useState({} as Tags_APIResponse);
-    const [tagSelected, settagSelected] = useState<string[]>([]);
     const [pulish, setPublish] = useState<boolean>(true);
     const [secret, setSecret] = useState<boolean>(false);
-    const [open, setOpen] = useState(false);
+    const [passworddialogopen, setPassworddialogopen] = useState(false);
     const [thumbnaildialogopen, setThumbnailDialogOpen] = useState(false);
 
+    const [titlevalue, setTitleValue] = useState<string>("");
+    const [contentvalue, setContentValue] = useState<string | undefined>("");
+    const [categoryvalue, setCategoryValue] = useState<string>("None");
+    const [tagSelected, settagSelected] = useState<string[]>([]);
+    const editorRef = useRef<ToastEditor>(null);
+    const [secretpassword, setSecretpassword] = useState<string[]>(["", ""]);
+    const [thumbnail, setThumbnail] = useState<string>("");
+
     const handleClose = () => {
-        setOpen(false);
+        setPassworddialogopen(false);
         setThumbnailDialogOpen(false);
     };
+
+    const handleEnterPassword = () => {
+        if(secretpassword[0] !== secretpassword[1])
+        {
+            alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+        setPassworddialogopen(false);
+    }
+
+    const handleThumbnailEnter = () => { // 이미지 파일 확장자 검사 추가
+        if(!thumbnail.match(/(.*?)\.(jpg|jpeg|png|gif|bmp|tif|tiff)$/))
+        {
+            alert("이미지 파일이 아닙니다.");
+            return;
+        }
+        setThumbnailDialogOpen(false);
+    }
 
     const handleChange = (event: SelectChangeEvent<typeof tagSelected>) => {
         const {
@@ -70,15 +95,17 @@ function Write()
         <S.WriteBox>
             <S.TitleBox>
                 <Image style={{ marginLeft: 5 }} onClick={() => setThumbnailDialogOpen(true)}/>
-                <S.InputTitle placeholder='Title'></S.InputTitle>
+                <S.InputTitle placeholder='Title' value={titlevalue} onChange={(e : React.ChangeEvent<HTMLInputElement>) => setTitleValue(e.currentTarget.value)}></S.InputTitle>
             </S.TitleBox>
-            <Editor
+            <ToastEditor
                 initialValue=" "
                 previewStyle="vertical"
                 height="600px"
                 initialEditType="wysiwyg"
                 useCommandShortcut={false}
                 placeholder='Content'
+                ref={editorRef}
+                onChange={() => setContentValue(editorRef.current?.getInstance().getHTML())}
             />
             <S.EnterBox>
                 <S.SpecificBox>
@@ -88,8 +115,10 @@ function Write()
                         displayEmpty
                         sx={{ minWidth: 200, marginLeft: 2, marginRight: 3 }}
                         MenuProps={MenuProps}
+                        value={categoryvalue}
+                        onChange={(e : SelectChangeEvent<string>) => setCategoryValue(e.target.value as string)}
                     >
-                        <MenuItem value="">
+                        <MenuItem value="None">
                             <em>None</em>
                         </MenuItem>
                         {categoryList?.categories?.map((category, index) => (
@@ -114,11 +143,34 @@ function Write()
                     <Button variant="outlined" onClick={handleClearClick} color="error" startIcon={<DeleteIcon />}>Clear</Button>
                 </S.SpecificBox>
                 <FormControlLabel control={<Checkbox defaultChecked value={pulish} color="success" onChange={() => setPublish(!pulish)}/>} label="Publish" sx={{ marginLeft: 1 }}/>
-                <FormControlLabel control={<Checkbox value={secret} onChange={() => setSecret(!secret)}/>} label="Secret"/>
-                {secret ? <Button variant="outlined" onClick={() => setOpen(true)}>Set Password</Button>: <></>}
+                <FormControlLabel disabled={secretpassword[1] !== ""} control={<Checkbox value={secret} onChange={() => setSecret(!secret)}/>} label="Secret"/>
+                {secret ? secretpassword[1] === "" ? <Button variant="outlined" onClick={() => setPassworddialogopen(true)}>Set Password</Button> : <Button variant="contained" onClick={() => setPassworddialogopen(true)}>Change Password</Button> : <></>}
                 <Button variant="contained" sx={{ marginLeft:'auto' }} endIcon={<SendIcon />}>Send</Button>
             </S.EnterBox>
-            <Dialog open={open} onClose={handleClose}>
+            <Dialog open={thumbnaildialogopen} onClose={handleClose}>
+                <DialogTitle>Thumbnail</DialogTitle>
+                    <DialogContent>
+                    <DialogContentText>
+                        게시물 썸네일 설정을 위해 이미지 경로를 입력해주세요.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="thumbnail"
+                        label="Location"
+                        type="text"
+                        fullWidth
+                        value={thumbnail}
+                        onChange={(e : React.ChangeEvent<HTMLInputElement>) => setThumbnail(e.currentTarget.value)}
+                        variant="standard"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>취소</Button>
+                    <Button onClick={handleThumbnailEnter}>확인</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={passworddialogopen} onClose={handleClose}>
                 <DialogTitle>Set Post Password</DialogTitle>
                     <DialogContent>
                     <DialogContentText>
@@ -132,6 +184,8 @@ function Write()
                         type="password"
                         fullWidth
                         variant="standard"
+                        value={secretpassword[0]}
+                        onChange={(e : React.ChangeEvent<HTMLInputElement>) => setSecretpassword([e.currentTarget.value, secretpassword[1]])}
                     />
                     <TextField
                         margin="dense"
@@ -140,32 +194,13 @@ function Write()
                         type="password"
                         fullWidth
                         variant="standard"
+                        value={secretpassword[1]}
+                        onChange={(e : React.ChangeEvent<HTMLInputElement>) => setSecretpassword([secretpassword[0], e.currentTarget.value])}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>취소</Button>
-                    <Button onClick={handleClose}>확인</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={thumbnaildialogopen} onClose={handleClose}>
-                <DialogTitle>Thumbnail URL</DialogTitle>
-                    <DialogContent>
-                    <DialogContentText>
-                        게시물 썸네일 설정을 위해 URL을 입력해주세요.
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="thumbnailURL"
-                        label="URL"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>취소</Button>
-                    <Button onClick={handleClose}>확인</Button>
+                    <Button onClick={handleEnterPassword}>확인</Button>
                 </DialogActions>
             </Dialog>
         </S.WriteBox>
