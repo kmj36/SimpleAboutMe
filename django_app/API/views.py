@@ -15,6 +15,31 @@ from urllib import parse
 import psutil
 import time
 
+class ImageUploadAPI(APIView): # 이미지 업로드 API
+    permission_classes = [AllowAny]
+    def post(self, request, **kwargs):
+        serializer = ImageUploadSerializer(data=request.data)
+        if serializer.is_valid() == False:
+            return Response(PrivateJSON({
+                "code": status.HTTP_400_BAD_REQUEST,
+                "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+                "status" : literals.ERROR,
+                "message" : literals.INVALID_REQUEST,
+                "detail" : serializer.errors
+            }).get(), status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response(PrivateJSON({
+            "code": status.HTTP_201_CREATED,
+            "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
+            "status" : literals.SUCCESS,
+            "message": literals.CREATE_SUCCESS,
+            "detail" : "Image Upload Success",
+            "image" : {
+                "url" : serializer.data.get("image"),
+            }
+        }).get(), status=status.HTTP_201_CREATED)
+
 # json count default: 10
 def net_usage(inf = "eth0"):
     net_stat = psutil.net_io_counters(pernic=True, nowrap=True)[inf]

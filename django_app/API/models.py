@@ -6,6 +6,9 @@ import os
 
 load_dotenv(verbose=True)
 
+class ImageUpload(models.Model): # 이미지 업로드 테이블 정의, 1:N 관계
+    image = models.ImageField(blank=True, upload_to = 'images/%Y/%m/%d/')
+
 class UserManager(BaseUserManager):
     use_in_migrations = True
 

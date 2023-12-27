@@ -192,6 +192,13 @@ export interface Comment_APIResponse extends APIResponse {
 }
 export const isCommentAPIResponse = (obj : any): obj is Comment_APIResponse => "comment" in obj;
 
+export interface ImageUpload_APIResponse extends APIResponse {
+    image: {
+        url: string;
+    };
+}
+export const isImageUploadAPIResponse = (obj : any): obj is ImageUpload_APIResponse => "url" in obj;
+
 const baseURL_v1 = 'http://127.0.0.1:8000/api/v1';
 
 export async function CallAPI({
@@ -201,12 +208,12 @@ export async function CallAPI({
     Body,
     Name,
 }: {
-    APIType: "Auth" | "Register" | "Login" | "Logout" | "Refresh" | "UserList" | "TagList" | "CategoryList" | "PostList" | "CommentList" | "UserDetail" | "TagDetail" | "CategoryDetail" | "PostDetail" | "CommentDetail" | "Healthcheck" | "StatusInfo";
+    APIType: "Auth" | "Register" | "Login" | "Logout" | "Refresh" | "UserList" | "TagList" | "CategoryList" | "PostList" | "CommentList" | "UserDetail" | "TagDetail" | "CategoryDetail" | "PostDetail" | "CommentDetail" | "Healthcheck" | "StatusInfo" | "ImageUpload";
     Method: "GET" | "POST" | "DELETE" | "PUT";
     Query?: string;
     Body?: object;
     Name?: string;
-}): Promise<Auth_APIResponse | Register_APIResponse | Login_APIResponse | Logout_APIResponse | Refresh_APIResponse | Users_APIResponse | User_APIResponse | Tags_APIResponse | Tag_APIResponse | Categories_APIResponse | Category_APIResponse | Posts_APIResponse | Post_APIResponse | Comments_APIResponse | Comment_APIResponse | Healthcheck_APIResponse | StatusInfo_APIResponse>
+}): Promise<Auth_APIResponse | Register_APIResponse | Login_APIResponse | Logout_APIResponse | Refresh_APIResponse | Users_APIResponse | User_APIResponse | Tags_APIResponse | Tag_APIResponse | Categories_APIResponse | Category_APIResponse | Posts_APIResponse | Post_APIResponse | Comments_APIResponse | Comment_APIResponse | Healthcheck_APIResponse | StatusInfo_APIResponse | ImageUpload_APIResponse >
 {
     const apiEndpoints: Record<string, string> = {
         Healthcheck: '/health/',
@@ -216,6 +223,7 @@ export async function CallAPI({
         Login: '/auth/login/',
         Logout: '/auth/logout/',
         Refresh: '/auth/refresh/',
+        ImageUpload: '/image/',
 
         UserList: Query ? `/user/?${Query}` : '/user/',
         UserDetail: Name ? `/user/${Name}/` : '/user/',
@@ -251,6 +259,8 @@ export async function CallAPI({
         // Axios 반환 데이터 처리
         switch (APIType) {
             // API타입 추가시 아래에 추가
+            case 'ImageUpload':
+                return response.data as ImageUpload_APIResponse;
             case 'StatusInfo':
                 return response.data as StatusInfo_APIResponse;
             case 'Healthcheck':

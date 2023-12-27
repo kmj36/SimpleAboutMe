@@ -2,9 +2,12 @@ from django.urls import path, include
 
 from API.views import *
 from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenVerifyView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', APIRoot.as_view()),
+    path('image/', ImageUploadAPI.as_view()),
     path('serverinfo/', ServerInfoAPI.as_view()),
     path('health/', include('health_check.urls')),
     path('control/history/', ControlHistroyAPI.as_view()),
@@ -24,3 +27,5 @@ urlpatterns = [
     path('comment/', CommentListAPI.as_view()),
     path('comment/<int:commentid>', CommentDetailAPI.as_view()),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

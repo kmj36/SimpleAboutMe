@@ -8,6 +8,11 @@ from django.utils import timezone
 
 User = get_user_model()
 
+class ImageUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageUpload
+        fields = '__all__'
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

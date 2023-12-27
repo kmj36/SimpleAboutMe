@@ -7,7 +7,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, Dialo
 import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Image } from '@material-ui/icons';
-import { CallAPI, isCategoriesAPIResponse, Categories_APIResponse, isTagsAPIResponse, Tags_APIResponse } from '../../funcs/CallAPI';
+import { CallAPI, isCategoriesAPIResponse, Categories_APIResponse, isTagsAPIResponse, Tags_APIResponse, ImageUpload_APIResponse } from '../../funcs/CallAPI';
 import { useDispatch } from 'react-redux';
 import { loading, done } from '../../redux/feature/LoadingReducer';
 
@@ -106,6 +106,15 @@ function Write()
                 placeholder='Content'
                 ref={editorRef}
                 onChange={() => setContentValue(editorRef.current?.getInstance().getHTML())}
+                hooks={{
+                    addImageBlobHook: async (blob, callback) => {
+                        const formData = new FormData();
+                        formData.append('image', blob);
+                        const imageurl = await CallAPI({APIType:"ImageUpload", Method:"POST", Body: formData}) as ImageUpload_APIResponse;
+                        callback('http://127.0.0.1:8000/api/v1'+imageurl.image.url);
+                        return false;
+                    },
+                }}
             />
             <S.EnterBox>
                 <S.SpecificBox>
