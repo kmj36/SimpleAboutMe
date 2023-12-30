@@ -207,8 +207,8 @@ class RegisterAPI(APIView): # 회원가입 API
         returnserializer = UserSerializer(instance=user)
    
         token = TokenObtainPairSerializer().get_token(user) # 토큰 발급
-        refresh_token = str(token)
-        access_token = str(token.access_token)
+        refreshToken = str(token)
+        accessToken = str(token.access_token)
         res = Response(PrivateJSON({
             "code" : status.HTTP_201_CREATED,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -225,12 +225,12 @@ class RegisterAPI(APIView): # 회원가입 API
                 "is_admin" : returnserializer.data.get("is_admin"),
             },
             "token": {
-                "refresh": refresh_token,
-                "access": access_token,
+                "refreshToken": refreshToken,
+                "accessToken": accessToken,
             }
         }).get(), status=status.HTTP_201_CREATED)
-        res.set_cookie('access_token', access_token, httponly=True)
-        res.set_cookie('refresh_token', refresh_token, httponly=True)
+        res.set_cookie('accessToken', accessToken, httponly=False)
+        res.set_cookie('refreshToken', refreshToken, httponly=False)
         return res
 
 class LoginAPI(APIView): # 로그인 API
@@ -275,8 +275,8 @@ class LoginAPI(APIView): # 로그인 API
         serializer = UserSerializer(instance=user)
         
         token = TokenObtainPairSerializer().get_token(user) # 토큰 발급
-        refresh_token = str(token)
-        access_token = str(token.access_token)
+        refreshToken = str(token)
+        accessToken = str(token.access_token)
         res = Response(PrivateJSON({
             "code" : status.HTTP_200_OK,
             "request_time" : timezone.now().strftime('%Y-%m-%dT%H:%M:%S.%f'),
@@ -294,12 +294,12 @@ class LoginAPI(APIView): # 로그인 API
                 "is_admin" : serializer.data.get("is_admin"),
             },
             "token": {
-                "refresh": refresh_token,
-                "access": access_token,
+                "refreshToken": refreshToken,
+                "accessToken": accessToken,
             }
         }).get(), status=status.HTTP_200_OK)
-        res.set_cookie('access_token', access_token, httponly=True)
-        res.set_cookie('refresh_token', refresh_token, httponly=True)
+        res.set_cookie('accessToken', accessToken, httponly=False)
+        res.set_cookie('refreshToken', refreshToken, httponly=False)
         return res
 
 class ControlHistroyAPI(APIView): # [관리자] 컨트롤 히스토리 API
@@ -1345,7 +1345,7 @@ class PostDetailAPI(APIView): # 포스트 디테일 API, 자신이 생성한 포
             "requestor" : ip,
             "post" : serializer.data
         }).get(), status=status.HTTP_200_OK)
-        res.set_cookie('postid', postid)
+        res.set_cookie('postid', postid, httponly=False)
         return res
     def put(self, request, postid, format=None): # 포스트 정보 수정하기
         try:

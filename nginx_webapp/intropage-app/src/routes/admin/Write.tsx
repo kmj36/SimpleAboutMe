@@ -32,6 +32,8 @@ function Write()
     const handleClose = () => {
         setPassworddialogopen(false);
         setThumbnailDialogOpen(false);
+        if(secretpassword[0] !== secretpassword[1])
+            setSecretpassword(["", ""])
     };
 
     const handleEnterPassword = () => {
@@ -65,6 +67,37 @@ function Write()
     const handleClearClick = () => {
         if(window.confirm("선택한 태그를 모두 지우시겠습니까?"))
             settagSelected([]);
+    }
+
+    const handleSend = () => {
+        if(!window.confirm("게시물을 전송하시겠습니까?"))
+            return;
+
+        if(titlevalue === "")
+        {
+            alert("제목을 입력해주세요.");
+            return;
+        }
+        if(contentvalue === "")
+        {
+            alert("내용을 입력해주세요.");
+            return;
+        }
+        if(secret && secretpassword[1] === "")
+        {
+            alert("비밀번호를 입력해주세요.");
+            return;
+        }
+        const body = {
+            title: titlevalue,
+            content: contentvalue,
+            category: categoryvalue,
+            tags: tagSelected,
+            secret: secret,
+            password: secretpassword[1],
+            thumbnail: thumbnail,
+        }
+        console.log(body);
     }
 
     const ITEM_HEIGHT = 48;
@@ -154,7 +187,7 @@ function Write()
                 <FormControlLabel control={<Checkbox defaultChecked value={pulish} color="success" onChange={() => setPublish(!pulish)}/>} label="Publish" sx={{ marginLeft: 1 }}/>
                 <FormControlLabel disabled={secretpassword[1] !== ""} control={<Checkbox value={secret} onChange={() => setSecret(!secret)}/>} label="Secret"/>
                 {secret ? secretpassword[1] === "" ? <Button variant="outlined" onClick={() => setPassworddialogopen(true)}>Set Password</Button> : <Button variant="contained" onClick={() => setPassworddialogopen(true)}>Change Password</Button> : <></>}
-                <Button variant="contained" sx={{ marginLeft:'auto' }} endIcon={<SendIcon />}>Send</Button>
+                <Button variant="contained" disabled={secret && secretpassword[1] === ""} sx={{ marginLeft:'auto' }} endIcon={<SendIcon />} onClick={handleSend}>Send</Button>
             </S.EnterBox>
             <Dialog open={thumbnaildialogopen} onClose={handleClose}>
                 <DialogTitle>Thumbnail</DialogTitle>
@@ -208,6 +241,7 @@ function Write()
                     />
                 </DialogContent>
                 <DialogActions>
+                    <Button variant="contained" onClick={() => setSecretpassword(["", ""])}>Clear</Button>
                     <Button onClick={handleClose}>취소</Button>
                     <Button onClick={handleEnterPassword}>확인</Button>
                 </DialogActions>

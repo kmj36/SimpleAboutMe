@@ -194,7 +194,7 @@ function Home()
                                 </S.BlogBoxTypography>
                                 <S.BlogBoxGrid container spacing={3}>
                                 {
-                                    postdata?.posts?.slice().sort( (a,b) => (b.created_at.replace(/[-T:.]/g, '').localeCompare(a.created_at.replace(/[-T:.]/g, ''))) ).slice( 0,6 ).map( (value, index) => (
+                                    postdata?.posts?.slice().sort((a,b) => (new Date(b.created_at).getTime() - new Date(a.created_at).getTime())).slice( 0,6 ).map( (value, index) => (
                                         <Grid key={index} item xs={12} sm={4} md={4}>
                                             <S.BlogBoxGridPaper elevation={1}>
                                                 <Link to={'/post/'+ value.postid} style={{ textDecoration: 'none', color: 'black' }}>

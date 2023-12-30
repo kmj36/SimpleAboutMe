@@ -109,7 +109,10 @@ export interface StatusInfo_APIResponse extends APIResponse {
 export const isStatusInfoAPIResponse = (obj : any): obj is StatusInfo_APIResponse => "server" in obj;
 
 export interface Auth_APIResponse extends APIResponse {
-    token?: string[];
+    token?: {} | {
+        detail: string;
+        code: string;
+    };
 }
 export const isAuthAPIResponse = (obj : any): obj is Auth_APIResponse => "token" in obj;
 
@@ -215,6 +218,7 @@ export async function CallAPI({
     Name?: string;
 }): Promise<Auth_APIResponse | Register_APIResponse | Login_APIResponse | Logout_APIResponse | Refresh_APIResponse | Users_APIResponse | User_APIResponse | Tags_APIResponse | Tag_APIResponse | Categories_APIResponse | Category_APIResponse | Posts_APIResponse | Post_APIResponse | Comments_APIResponse | Comment_APIResponse | Healthcheck_APIResponse | StatusInfo_APIResponse | ImageUpload_APIResponse >
 {
+    const cookie = new Cookies();
     const apiEndpoints: Record<string, string> = {
         Healthcheck: '/health/',
         StatusInfo: '/serverinfo/',
@@ -239,20 +243,32 @@ export async function CallAPI({
 
         CommentList: Query ? `/comment/?${Query}` : '/comment/',
         CommentDetail: Name ? `/comment/${Name}/` : '/comment/',
-      };
+    };
+
+    let config = {
+        method: Method, // Use the specified HTTP method
+        withCredentials: true,
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': cookie.get('csrftoken'),
+        },
+        url: `${baseURL_v1}${apiEndpoints[APIType]}`,
+        data: Body ? Body : {},
+    };
 
     try {
-        const config = {
-            method: Method, // Use the specified HTTP method
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': new Cookies().get('csrftoken'),
-                Cookie: `postid=${new Cookies().get('postid')};`,
-            },
-            withCredentials: true,
-            url: `${baseURL_v1}${apiEndpoints[APIType]}`,
-            data: Body ? Body : {},
-        };
+        if(APIType === 'UserList' || APIType === 'UserDetail' || APIType === 'Auth' || APIType === 'TagList' || APIType === 'TagDetail' || APIType === 'CategoryList' || APIType === 'CategoryDetail' || APIType === 'PostList' || APIType === 'PostDetail' || APIType === 'CommentDetail')
+        {
+            const access = cookie.get('accessToken');
+
+            if(access)
+            {
+                config.headers = Object.assign(config.headers, { 'Authorization': `Bearer ${access}` });
+                config.data = Object.assign(config.data, { 'token': access });
+            }
+            else
+                config.data = Object.assign(config.data, { 'token': 'None' });
+        }
     
         const response: AxiosResponse = await axios(config);
 
@@ -301,6 +317,33 @@ export async function CallAPI({
                 throw new Error(`Unsupported APIType: ${APIType}`);
         }
     } catch (error : any) {
+        if(error.response.status === 401)
+        {
+            cookie.remove('accessToken');
+            const refresh = cookie.get('refreshToken');
+            if(refresh)
+            {
+                const Refreshrequestconfig = {
+                    method: "POST", // Use the specified HTTP method
+                    withCredentials: true,
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': cookie.get('csrftoken'),
+                    },
+                    url: `${baseURL_v1}${apiEndpoints['Refresh']}`,
+                    data: {
+                        'refresh': refresh,
+                    },
+                };
+                const Refreshresponse: AxiosResponse = await axios(Refreshrequestconfig);
+                if(Refreshresponse.status === 200)
+                {
+                    cookie.set('accessToken', Refreshresponse.data.access, { path: '/', maxAge: 60 * 60 * 2 });
+                    window.location.reload();
+                }
+            }else
+                return { code: 401, status: 'Unauthorized', detail: '인증 정보가 올바르지 않습니다.' };
+        }   
         throw new Error(`API request failed: ${error.message}`);
     }
 }
