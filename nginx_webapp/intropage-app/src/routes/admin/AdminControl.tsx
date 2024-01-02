@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from '../../redux/hooks';
 import { loading, done } from '../../redux/feature/LoadingReducer';
-import { Divider, Paper, MenuList, MenuItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import { Divider, Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, TextField } from '@material-ui/core';
+import { Button } from '@mui/material';
 import { Dashboard, Settings, Class, Create } from '@mui/icons-material';
 import DashBoard from './DashBoard';
 import Write from './Write'; 
 import {Classfication} from './Classfication';
 import {SettingsPage} from './SettingsPage';
 import * as S from '../../styles/admin/AdminControl_Style';
-import { CallAPI, Auth_APIResponse, isAuthAPIResponse } from '../../funcs/CallAPI';
+import { CallAPI } from '../../funcs/CallAPI';
 
 function Control()
 {
@@ -52,7 +53,23 @@ function Control()
         })();
     }, []);
 
-    if(isAuth)
+    if(!isAuth)
+    {
+        return (
+            <S.LoginBox>
+                <S.BackgroundCover>
+                    <S.Panel>
+                        <S.PanelWrapper>
+                            <Typography variant="h4">Login</Typography>
+                            <TextField id="outlined-ID" label="ID" variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
+                            <TextField id="outlined-Password" label="Password" type="password" variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
+                            <Button variant="contained" style={{marginTop: '10px'}}><Typography>Enter</Typography></Button>
+                        </S.PanelWrapper>
+                    </S.Panel>
+                </S.BackgroundCover>
+            </S.LoginBox>
+        );
+    }else
     {
         return (
             <S.ControlBox>
@@ -101,9 +118,6 @@ function Control()
                 </S.BoardBox>
             </S.ControlBox>
         );
-    }else
-    {
-        return (<></>);
     }
 }
 
