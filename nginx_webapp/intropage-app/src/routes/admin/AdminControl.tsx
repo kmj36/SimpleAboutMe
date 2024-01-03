@@ -9,12 +9,15 @@ import Write from './Write';
 import {Classfication} from './Classfication';
 import {SettingsPage} from './SettingsPage';
 import * as S from '../../styles/admin/AdminControl_Style';
-import { CallAPI } from '../../funcs/CallAPI';
+import { CallAPI, Login_APIResponse } from '../../funcs/CallAPI';
 
 function Control()
 {
     const [menuNumber, setMenuNumber] = useState<number>(0);
     const [isAuth, setIsAuth] = useState<boolean>(false);
+    const [ID, setID] = useState<string>("");
+    const [Password, setPassword] = useState<string>("");
+    
     const Menus : JSX.Element[] = [
         <DashBoard />,
         <Write />,
@@ -33,6 +36,18 @@ function Control()
         if(num>=0)
             setMenuNumber(num);
     };
+    const handleLogin = () => {
+        (async () => {
+            const login = await CallAPI({APIType:"Login", Method:"POST", Body:{
+                'userid' : ID,
+                'password' : Password
+            }}) as Login_APIResponse;
+            if(login.token !== undefined)
+                window.location.reload();
+            else
+                alert("관리자 로그인에 실패하였습니다. 다시 시도해주세요.");
+        })();
+    }
 
     const dispatch = useAppDispatch() as any;
     useEffect(() =>  {
@@ -42,7 +57,7 @@ function Control()
             const auth = await CallAPI({APIType:"Auth", Method:"POST"});
             if(Object.keys(auth).length !== 0)
             {
-                alert("로그인이 필요합니다.");
+                alert("관리자 로그인이 필요합니다.");
                 dispatch(done());
                 return;
             }
@@ -61,9 +76,9 @@ function Control()
                     <S.Panel>
                         <S.PanelWrapper>
                             <Typography variant="h4">Login</Typography>
-                            <TextField id="outlined-ID" label="ID" variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
-                            <TextField id="outlined-Password" label="Password" type="password" variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
-                            <Button variant="contained" style={{marginTop: '10px'}}><Typography>Enter</Typography></Button>
+                            <TextField id="IDBox" value={ID} label="ID" onChange={(e : React.ChangeEvent<HTMLTextAreaElement>)=>setID(e.currentTarget.value)} variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
+                            <TextField id="PasswordBox" value={Password} onChange={(e : React.ChangeEvent<HTMLTextAreaElement>)=>setPassword(e.currentTarget.value)} label="Password" type="password" variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
+                            <Button variant="contained" onClick={handleLogin} style={{marginTop: '10px'}}><Typography>Enter</Typography></Button>
                         </S.PanelWrapper>
                     </S.Panel>
                 </S.BackgroundCover>
