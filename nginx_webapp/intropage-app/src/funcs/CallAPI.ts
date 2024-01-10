@@ -269,7 +269,7 @@ export async function CallAPI({
             else
                 config.data = Object.assign(config.data, { 'token': 'None' });
         }
-    
+        
         const response: AxiosResponse = await axios(config);
 
         // Axios 반환 데이터 처리
@@ -304,9 +304,14 @@ export async function CallAPI({
             case 'CategoryDetail':
                 return response.data as Category_APIResponse;
             case 'PostList':
-                var unpublicremoving = response.data as Posts_APIResponse;
-                unpublicremoving.posts = unpublicremoving.posts.filter((post) => (post.is_published));
-                return unpublicremoving;
+                if(Method === 'GET')
+                {
+                    var unpublicremoving = response.data as Posts_APIResponse;
+                    unpublicremoving.posts = unpublicremoving.posts.filter((post) => (post.is_published));
+                    return unpublicremoving;
+                }
+                else
+                    return response.data as Posts_APIResponse;
             case 'PostDetail':
                 return response.data as Post_APIResponse;
             case 'CommentList':

@@ -7,7 +7,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, TextField, Dialo
 import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Image } from '@material-ui/icons';
-import { CallAPI, isCategoriesAPIResponse, Categories_APIResponse, isTagsAPIResponse, Tags_APIResponse, ImageUpload_APIResponse } from '../../funcs/CallAPI';
+import { CallAPI, isCategoriesAPIResponse, Categories_APIResponse, isTagsAPIResponse, Tags_APIResponse, ImageUpload_APIResponse, Posts_APIResponse } from '../../funcs/CallAPI';
 import { useDispatch } from 'react-redux';
 import { loading, done } from '../../redux/feature/LoadingReducer';
 
@@ -59,7 +59,7 @@ function Write()
           target: { value },
         } = event;
         settagSelected(
-          // On autofill we get a stringified value.
+          // On autofill we get a the stringified value.
           typeof value === 'string' ? value.split(',') : value,
         );
     };
@@ -78,7 +78,7 @@ function Write()
             alert("제목을 입력해주세요.");
             return;
         }
-        if(contentvalue === "")
+        if(contentvalue === "" || contentvalue === undefined)
         {
             alert("내용을 입력해주세요.");
             return;
@@ -89,15 +89,27 @@ function Write()
             return;
         }
         const body = {
-            title: titlevalue,
-            content: contentvalue,
-            category: categoryvalue,
-            tags: tagSelected,
-            secret: secret,
-            password: secretpassword[1],
-            thumbnail: thumbnail,
-        }
-        console.log(body);
+            "thumbnailurl": thumbnail,
+            "title": titlevalue,
+            "content": contentvalue,
+            "is_published": pulish,
+            "is_secret": secret,
+            "secret_password": secretpassword[1],
+            "categoryid": categoryvalue === "None" ? "" : categoryvalue,
+            "tagid": tagSelected,
+        };
+        (async () => {
+            dispatch(loading());
+            const response = await CallAPI({APIType:"PostList", Method:"POST", Body: body}) as Posts_APIResponse;
+            if(response.status === "Success")
+            {
+                alert("게시물을 성공적으로 작성하였습니다.");
+                window.location.href = "/";
+            }
+            else
+                alert("게시물 작성에 실패하였습니다.");
+            dispatch(done());
+        })();
     }
 
     const ITEM_HEIGHT = 48;
@@ -138,7 +150,7 @@ function Write()
                 useCommandShortcut={false}
                 placeholder='Content'
                 ref={editorRef}
-                onChange={() => setContentValue(editorRef.current?.getInstance().getHTML())}
+                onChange={() => setContentValue(editorRef.current?.getInstance().getMarkdown())}
                 hooks={{
                     addImageBlobHook: async (blob, callback) => {
                         const formData = new FormData();
