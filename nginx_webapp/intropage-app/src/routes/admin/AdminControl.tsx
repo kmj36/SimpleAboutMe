@@ -10,6 +10,7 @@ import {Classfication} from './Classfication';
 import {SettingsPage} from './SettingsPage';
 import * as S from '../../styles/admin/AdminControl_Style';
 import { CallAPI, Login_APIResponse } from '../../funcs/CallAPI';
+import {SHA256} from "crypto-js";
 
 function Control()
 {
@@ -36,11 +37,13 @@ function Control()
         if(num>=0)
             setMenuNumber(num);
     };
-    const handleLogin = () => {
+    const handleLogin = (e : any) => {
+        if(e.key !== undefined && e.key !== "Enter")
+            return;
         (async () => {
             const login = await CallAPI({APIType:"Login", Method:"POST", Body:{
                 'userid' : ID,
-                'password' : Password
+                'password' : SHA256(Password).toString()
             }}) as Login_APIResponse;
             if(login.token !== undefined)
                 window.location.reload();
@@ -71,7 +74,7 @@ function Control()
     if(!isAuth)
     {
         return (
-            <S.LoginBox>
+            <S.LoginBox onKeyDown={handleLogin}>
                 <S.BackgroundCover>
                     <S.Panel>
                         <S.PanelWrapper>

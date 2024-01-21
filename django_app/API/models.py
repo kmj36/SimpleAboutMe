@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from dotenv import load_dotenv
 import os
+import hashlib
 # Create your models here.
 
 load_dotenv(verbose=True)
@@ -24,6 +25,8 @@ class UserManager(BaseUserManager):
         
         if not email:
             raise ValueError('Users must have an email')
+        
+        password = hashlib.sha256(password.encode()).hexdigest()
         
         user = self.model(
             userid=userid,
