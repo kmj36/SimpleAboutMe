@@ -66,10 +66,7 @@ function Blog()
 
     const handleCategory = (e: any) => {
         if(e.target.value === "None")
-        {
-            setselectCategoryName("");
             return;
-        }
         setselectCategoryName(e.target.value);
     }
 
@@ -235,11 +232,12 @@ function Blog()
                                             renderValue={(selected) => (selected)}
                                             MenuProps={MenuProps}
                                             >
-                                            {categoriesjson?.categories?.map((category, index) => (
+                                            {categoriesjson?.categories?.length > 0 ?
+                                            categoriesjson.categories.map((category, index) => (
                                                 <MenuItem key={index} value={category.categoryid}>
                                                     <ListItemText primary={category.categoryid} />
                                                 </MenuItem>
-                                            ))}
+                                            )) : <MenuItem value="None"><em>None</em></MenuItem>}
                                             </Select>
                                         </FormControl>
                                         <FormControl variant="filled" sx={{ m: 1, minWidth: 140 }}>
@@ -329,7 +327,8 @@ function Blog()
                                 <Divider flexItem sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}/>
                             </S.PostSelectedCategoryBox>
                             <S.PostStack spacing={2}>
-                                {postjson?.posts?.filter((post) => {
+                                {postjson?.posts?.length > 0 ?
+                                postjson.posts.filter((post) => {
                                     if(selectCategoryBarName === "" || selectCategoryBarName === post.categoryid)
                                         return true;
                                     else
@@ -341,7 +340,7 @@ function Blog()
                                         <Link key={index} to={"/post/" + post.postid} style={{ textDecoration: 'none', color: 'black' }}>
                                             <S.PostPaper>
                                                 <S.PostImageBox>
-                                                    <S.PostImage src={typeof post.thumbnailurl == 'string' && regex.test(post.thumbnailurl) ? post.thumbnailurl : "No_image.jpg"} onError={handleImageError} />
+                                                    <S.PostImage src={typeof post.thumbnailurl == 'string' && regex.test(post.thumbnailurl) ? post.thumbnailurl : "/No_Image.jpg"} onError={handleImageError} />
                                                 </S.PostImageBox>
                                                 <S.PostInfoBox>
                                                     <S.PostInfoCategoryBox>
@@ -359,7 +358,7 @@ function Blog()
                                                     </S.PostInfoContentBox>
                                                     <S.PostInfoTagsBox>
                                                         <S.PostInfoTagsTypography variant='subtitle1' color="gray">
-                                                            {post.tagid.length > 0 ? post.tagid?.map((tag) => ("#" + tag + " ")) : "#NoTag"}
+                                                            {post.tagid.length > 0 ? post.tagid?.map((tag) => (`#${tag} `)) : "#NoTag"}
                                                         </S.PostInfoTagsTypography>
                                                     </S.PostInfoTagsBox>
                                                     <S.PostInfoDateBox>
@@ -376,19 +375,56 @@ function Blog()
                                             </S.PostPaper>
                                         </Link>
                                     </Grow>
-                                ))}
+                                )) :
+                                <S.PostPaper>
+                                    <S.PostImageBox>
+                                        <S.PostImage src="/No_Image.jpg"/>
+                                    </S.PostImageBox>
+                                    <S.PostInfoBox>
+                                        <S.PostInfoCategoryBox>
+                                            <Chip label="No Set"/>
+                                        </S.PostInfoCategoryBox>
+                                        <S.PostInfoTitleBox>
+                                            <S.PostInfoTypography variant='h5'>
+                                                Empty Post
+                                            </S.PostInfoTypography>
+                                        </S.PostInfoTitleBox>
+                                        <S.PostInfoContentBox>
+                                            <S.PostInfoContentTypography variant='subtitle2'>
+                                                Empty Content
+                                            </S.PostInfoContentTypography>
+                                        </S.PostInfoContentBox>
+                                        <S.PostInfoTagsBox>
+                                            <S.PostInfoTagsTypography variant='subtitle1' color="gray">
+                                                #NoTag
+                                            </S.PostInfoTagsTypography>
+                                        </S.PostInfoTagsBox>
+                                        <S.PostInfoDateBox>
+                                            <S.PostInfoDateTypography variant='subtitle2'>
+                                                Empty Date
+                                            </S.PostInfoDateTypography>
+                                        </S.PostInfoDateBox>
+                                        <S.PostInfoAuthorBox>
+                                            <S.PostInfoAuthorTypography variant='subtitle2'>
+                                                Author: Empty Author
+                                            </S.PostInfoAuthorTypography>
+                                        </S.PostInfoAuthorBox>
+                                    </S.PostInfoBox>
+                                </S.PostPaper>
+                            }
                             </S.PostStack>
                             <S.PostClassifyBox>
                                 <Divider orientation="vertical" flexItem sx={{ marginLeft: 1, marginRight: 1}}/>
                                 <S.PostClassifyWrapper>
                                     <S.PostCategorySelectStack>
                                         <Chip label="Categories"/>
-                                        {categoriesjson?.categories?.map((category, index) => (
+                                        {categoriesjson?.categories?.length > 0 ?
+                                        categoriesjson.categories.map((category, index) => (
                                             <MenuItem key={index} value={category.categoryid} divider={true} onClick={() => handleSelectCategory(category.categoryid)}>
                                                 <Checkbox checked={category.categoryid===selectCategoryBarName}/>
                                                 <ListItemText primary={category.categoryid} />
                                             </MenuItem>
-                                        ))}
+                                        )) : <MenuItem value="None"><em>None</em></MenuItem>}
                                     </S.PostCategorySelectStack>
                                 </S.PostClassifyWrapper>
                                 <Divider orientation="vertical" flexItem sx={{ marginLeft: 1, marginRight: 1}}/>
@@ -400,7 +436,6 @@ function Blog()
                     </S.SectionPosts>
                 </Container>
             </ThemeProvider>
-            <Footer/>
         </S.BlogBox>
     );
 }

@@ -17,7 +17,7 @@ function Footer()
         <Paper style={{ width: '100%',
         bottom: 0,
         borderTop: '1px solid #eaeaea',
-        marginTop: 64
+        marginTop: '2rem'
         }} component="footer" square>
             <CopyrightBox>
                 <Typography variant="subtitle1" color="textSecondary">

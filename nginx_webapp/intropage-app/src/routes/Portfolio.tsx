@@ -62,7 +62,7 @@ function Portfolio()
                 <Slide in={true}>
                     <S.BannerBox>
                         <S.BannerTypography variant="h4">
-                            Hello, My Name is Kim MinJe.
+                            Hello, My Name is Minje Kim.
                         </S.BannerTypography>
                         <S.BannerTypographySubTitle variant="h6" color="gray">
                             My Job is Cybersecurity Specialist.
@@ -81,48 +81,26 @@ function Portfolio()
                             </S.FeaturedTitleBox>
                             <S.FeaturedProjectsBox>
                                 <Grid container spacing={3} sx={{paddingTop: '20px', paddingBottom: '40px'}}>
-                                    <S.FeaturedGrid item xs={12} sm={12} md={4}>
-                                        <Link to={'/post/' + postdata?.posts?.at(0)?.postid}>
-                                            <S.ProjectImageBox>
-                                                <S.ProjectImage src={postdata?.posts && regex.test(postdata.posts[0]?.thumbnailurl) ? postdata.posts[0]?.thumbnailurl : "No_Image.jpg"} onError={handleImageError}/>
-                                                <S.ImageOverlayGradient />
-                                                <S.ProjectDetailBox>
-                                                    <S.ProjectDetail>
-                                                        <S.ProjectDetailTitleTypography variant='h5'>Project. {postdata?.posts?.at(0)?.title}</S.ProjectDetailTitleTypography>
-                                                        <S.ProjectDetailContentTypography variant='body1'>{postdata?.posts?.at(0)?.content}</S.ProjectDetailContentTypography>
-                                                    </S.ProjectDetail>
-                                                </S.ProjectDetailBox>
-                                            </S.ProjectImageBox>
-                                        </Link>
-                                    </S.FeaturedGrid>
-                                    <S.FeaturedGrid item xs={12} sm={12} md={4}>
-                                        <Link to={'/post/' + postdata?.posts?.at(1)?.postid}>
-                                            <S.ProjectImageBox>
-                                                <S.ProjectImage src={postdata?.posts && regex.test(postdata.posts[1]?.thumbnailurl) ? postdata.posts[1]?.thumbnailurl : "No_Image.jpg"} onError={handleImageError}/>
-                                                <S.ImageOverlayGradient />
-                                                <S.ProjectDetailBox>
-                                                    <S.ProjectDetail>
-                                                        <S.ProjectDetailTitleTypography variant='h5'>Project. {postdata?.posts?.at(1)?.title}</S.ProjectDetailTitleTypography>
-                                                        <S.ProjectDetailContentTypography variant='body1'>{postdata?.posts?.at(1)?.content}</S.ProjectDetailContentTypography>
-                                                    </S.ProjectDetail>
-                                                </S.ProjectDetailBox>
-                                            </S.ProjectImageBox>
-                                        </Link>
-                                    </S.FeaturedGrid>
-                                    <S.FeaturedGrid item xs={12} sm={12} md={4}>
-                                        <Link to={'/post/' + postdata?.posts?.at(2)?.postid}>
-                                            <S.ProjectImageBox>
-                                                <S.ProjectImage src={postdata?.posts && regex.test(postdata.posts[2]?.thumbnailurl) ? postdata.posts[2]?.thumbnailurl : "No_Image.jpg"} onError={handleImageError}/>
-                                                <S.ImageOverlayGradient />
-                                                <S.ProjectDetailBox>
-                                                    <S.ProjectDetail>
-                                                        <S.ProjectDetailTitleTypography variant='h5'>Project. {postdata?.posts?.at(2)?.title}</S.ProjectDetailTitleTypography>
-                                                        <S.ProjectDetailContentTypography variant='body1'>{postdata?.posts?.at(2)?.content}</S.ProjectDetailContentTypography>
-                                                    </S.ProjectDetail>
-                                                </S.ProjectDetailBox>
-                                            </S.ProjectImageBox>
-                                        </Link>
-                                    </S.FeaturedGrid>
+                                    {
+                                        [0,1,2].map((value) => {
+                                            return (
+                                                <S.FeaturedGrid item xs={12} sm={12} md={4}>
+                                                    <Link to={postdata?.posts?.at(value) ? '/post/' + postdata.posts[value].postid : '/portfolio'}>
+                                                        <S.ProjectImageBox>
+                                                            <S.ProjectImage src={postdata?.posts?.at(value) && regex.test(postdata.posts[value].thumbnailurl) ? postdata.posts[value].thumbnailurl : "/No_Image.jpg"} onError={handleImageError}/>
+                                                            <S.ImageOverlayGradient />
+                                                            <S.ProjectDetailBox>
+                                                                <S.ProjectDetail>
+                                                                    <S.ProjectDetailTitleTypography variant='h5'>{postdata?.posts?.at(value) ? "Project." + postdata.posts[value].title : "Empty Project"}</S.ProjectDetailTitleTypography>
+                                                                    <S.ProjectDetailContentTypography variant='body1'>{postdata?.posts?.at(value) ? postdata.posts[value].content : "Empty Content"}</S.ProjectDetailContentTypography>
+                                                                </S.ProjectDetail>
+                                                            </S.ProjectDetailBox>
+                                                        </S.ProjectImageBox>
+                                                    </Link>
+                                                </S.FeaturedGrid>
+                                            );
+                                        })
+                                    }
                                 </Grid>
                             </S.FeaturedProjectsBox>
                         </S.FeaturedBox>
@@ -160,7 +138,6 @@ function Portfolio()
                     </S.ContactContainer>
                 </S.ContactBox>
             </S.SectionContact>
-            <Footer/>
         </S.PortfolioBox>
     );
 }

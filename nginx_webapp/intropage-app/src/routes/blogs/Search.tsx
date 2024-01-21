@@ -100,7 +100,8 @@ function Search()
                 <S.SectionSearchResult>
                     <S.SearchPostsContainer>
                         <S.SearchPostStack spacing={1}>
-                            {searchjson?.posts?.slice(0+(pagemax*paginationIndex),pagemax+(pagemax*paginationIndex)).map((item, index) => (
+                            {searchjson?.posts?.length > 0 ?
+                            searchjson.posts.slice(0+(pagemax*paginationIndex),pagemax+(pagemax*paginationIndex)).map((item, index) => (
                                 <Link key={index} to={"/post/" + item.postid} style={{ textDecoration: 'none', color: 'black' }}>
                                     <S.SearchPostPaper>
                                         <S.SearchPostImage src={typeof item.thumbnailurl == 'string' && regex.test(item.thumbnailurl) ? item.thumbnailurl : "No_image.jpg"} onError={handleImageError}/>
@@ -113,7 +114,7 @@ function Search()
                                                 {item.content}
                                             </S.SearchPostContentTypography>
                                             <S.SearchPostTagTypography variant="subtitle2" color="gray">
-                                                { item.tagid.length > 0 ? item.tagid.map((tag) => ("#" + tag + " ")) : "#NoTag"}
+                                                { item.tagid.length > 0 ? item.tagid.map((tag) => (`#${tag} `)) : "#NoTag"}
                                             </S.SearchPostTagTypography>
                                             <S.SearchPostDateBox>
                                                 <S.SearchPostDateIcon/>
@@ -129,14 +130,40 @@ function Search()
                                         </S.SearchPostMainBox>
                                     </S.SearchPostPaper>
                                 </Link>
-                            ))}
+                            )) :
+                            <S.SearchPostPaper>
+                                <S.SearchPostImage src="/No_Image.jpg"/>
+                                <S.SearchPostMainBox>
+                                    <Chip label="No Set" style={{ width: 'min-content' }}/>
+                                    <S.SearchPostTitleTypography variant="h5">
+                                        Empty Title
+                                    </S.SearchPostTitleTypography>
+                                    <S.SearchPostContentTypography>
+                                        Empty Content
+                                    </S.SearchPostContentTypography>
+                                    <S.SearchPostTagTypography variant="subtitle2" color="gray">
+                                        #NoTag
+                                    </S.SearchPostTagTypography>
+                                    <S.SearchPostDateBox>
+                                        <S.SearchPostDateIcon/>
+                                        <S.SearchPostDateTypography>
+                                            Empty Date
+                                        </S.SearchPostDateTypography>
+                                    </S.SearchPostDateBox>
+                                    <S.SearchPostAuthorBox>
+                                        <S.SearchPostAuthorTypography variant='subtitle2'>
+                                            Author: Empty Author
+                                        </S.SearchPostAuthorTypography>
+                                    </S.SearchPostAuthorBox>
+                                </S.SearchPostMainBox>
+                            </S.SearchPostPaper>
+                            }
                         </S.SearchPostStack>
                         <S.PostPaginationBox>
                             <Pagination onChange={handlePagination} count={Math.ceil(searchjson?.posts?.length / 5)} variant="outlined" color="primary" size="large" sx = {{ width: "auto"}}/>
                         </S.PostPaginationBox>
                     </S.SearchPostsContainer>
                 </S.SectionSearchResult>
-                <Footer />
             </ThemeProvider>
         </S.SearchBox>
     );

@@ -11,6 +11,7 @@ import Controls from './routes/admin/AdminControl'
 
 import Navigation from './components/Navigation';
 import Loading from './components/Loading';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           </Routes>
         </Loading>
       </BrowserRouter>
+      <Footer/>
     </div>
   );
 }

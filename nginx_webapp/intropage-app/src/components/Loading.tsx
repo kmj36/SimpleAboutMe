@@ -16,16 +16,20 @@ const LoadingBox = styled.div`
     z-index: 10000;
 `;
 
+const MainContentWrapper = styled.div`
+    min-height: calc( 100vh - 132px );
+`;
+
 function Loading(props: any) {
     const loading = useAppSelector((state) => state.loading.value)
 
     return (
-        <div>
+        <MainContentWrapper>
             <Fade in={loading} timeout={500}>
                 <LoadingBox />
             </Fade>
             {props.children}
-        </div>
+        </MainContentWrapper>
     );
 };
 
