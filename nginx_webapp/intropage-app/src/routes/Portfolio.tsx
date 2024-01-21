@@ -26,12 +26,10 @@ function Portfolio()
         event.preventDefault();
         if(form.current)
         {
-            alert(1);
             if(typeof process.env.REACT_APP_EMAILJS_SERVICE_ID === 'string' &&
             typeof process.env.REACT_APP_EMAILJS_TEMPLATE_ID === 'string' &&
             typeof process.env.REACT_APP_EMAILJS_PUBLIC_KEY === 'string')
             {
-                alert(2);
                 emailjs.sendForm(process.env.REACT_APP_EMAILJS_SERVICE_ID, process.env.REACT_APP_EMAILJS_TEMPLATE_ID, form.current, process.env.REACT_APP_EMAILJS_PUBLIC_KEY).then(
                     result => {
                         alert("성공적으로 이메일이 전송되었습니다.");
