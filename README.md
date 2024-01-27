@@ -1,6 +1,10 @@
 # SimpleAboutMe
 
+<<<<<<< HEAD
 자기소개 블로그 컨테이너 생성 패키지 제작 프로젝트입니다.
+=======
+소개 페이지 생성 패키지 개발 프로젝트입니다.
+>>>>>>> develop
 
 ## 개요
 
@@ -31,15 +35,18 @@ Django를 이용하여 API를 구축하고, MySQL을 데이터베이스로 사�
 2. .env 파일을 생성해 아래와 같은 환경변수에 값을 입력합니다.
    ```env
    CONTAINER_NAME=[컨테이너명]
-   DBNAME=[DB명]
-   DBUSER=[ROOT유저명]
-   DBPASSWORD=[ROOT비밀번호]
-   DBHOST=[IP]
-   DBPORT=[PORT]
-   ADMINERPORT=[PORT]
-   DJANGOADMINID=[관리자페이지초기ID]
-   DJANGOADMINEMAIL=[관리자페이지초기EMAIL]
-   DJANGOADMINPASSWORD=[관리자페이지초기PASSWORD]
+   MYSQL_DATABASE=[사용할 메인 데이터베이스명]
+   MYSQL_ROOT_USER=[사용할 데이터베이스의 루트 유저명]
+   MYSQL_ROOT_PASSWORD=[데이터베이스의 루트 유저의 비밀번호]
+   NGINX_PORT=[웹서버의 포트]
+   DJANGO_PORT=[API의 포트]
+   MYSQL_EXTERNAL_PORT=[데이터베이스의 외부 접속 포트]
+   DJANGO_ADMIN_ID=[API의 관리자 아이디]
+   DJANGO_ADMIN_NICKNAME=[API의 관리자닉네임]
+   DJANGO_ADMIN_EMAIL=[API의 관리자 이메일]
+   DJANGO_ADMIN_PASSWORD=[API의 관리자 비밀번호]
+   DJANGO_PRIVATE_API_MODE=[API Body 암호화 모드 여부(Boolean)]
+   PRIVATE_API_AES_ENCRYPTION_KEY=[API Body 암호화 키]
 
 
 3. build.sh 를 실행하면 자동으로 설치를 시작합나다.

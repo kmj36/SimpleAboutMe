@@ -1,32 +1,33 @@
-source .env
+DOWNLOAD_DOCKERCOMPOSEVERSION=v2.20.2
+CURRENT_DOCKERCOMPOSEVERSION=$(sudo docker-compose -v | awk '{print $4}')
 
-echo "[Starting introPage build script...]"
+echo "[Update docker...]"
+sudo apt-get update -y
+sudo apt-get install -y docker
 
-echo "[packages install...]"
-sudo apt-get update
-sudo apt-get install docker docker-compose python3 python3-pip libmysqlclient-dev -y
-pip3 install django
-pip3 install python-dotenv
-pip3 install mysqlclient
-pip3 install djangorestframework
-pip3 install markdown
-pip3 install django-filter
-pip3 install djangorestframework-jwt
-echo "[packages install is done.]"
+echo "[Update docker-compose...]"
+if [ "$DOWNLOAD_DOCKERCOMPOSEVERSION" != "$CURRENT_DOCKERCOMPOSEVERSION" ]
+then
+    sudo curl -L https://github.com/docker/compose/releases/download/$DOCKERVERSION/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+else
+    echo "[docker-compose is up to date]"
+fi
 
-echo "[Docker-compose build...]"
+echo "[React App build...]"
+cd nginx_webapp/intropage-app
+sudo npm install
+sudo npm run build
+cd ../..
+
+echo "[Move to built React App...]"
+sudo rm -rf nginx_webapp/webfolder/*
+sudo cp -r nginx_webapp/intropage-app/build/* nginx_webapp/webfolder/
+
+echo "[Build docker-compose...]"
 sudo docker-compose up -d
-echo "[Docker-compose build is done.]"
-echo "[Waiting for introPageDB to initialize...]"
-sleep 1m
 
-echo "[django_app build...]"
-cd django_app
-python3 manage.py makemigrations
-python3 manage.py migrate
-echo "[Please create superuser.]"
-python3 manage.py createsuperuser2 --noinput --username $DJANGOADMINID --email $DJANGOADMINEMAIL --password $DJANGOADMINPASSWORD
-echo "[django_app build is done.]"
-python3 manage.py runserver
+echo "[nginx permission change...]"
+sudo chown -R 1000:1000 nginx_webapp/webfolder/
 
-echo "[introPage build script is done.]"
+echo "[Restart Intropage Service Done.]"

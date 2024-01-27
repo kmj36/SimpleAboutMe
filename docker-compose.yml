@@ -1,24 +1,65 @@
-version: '3.1'
+version: '3.8'
+
 services:
   db:
     image: mysql:latest
     restart: always
-    container_name: ${CONTAINER_NAME}
+    container_name: ${CONTAINER_NAME}_mysql_db
     ports:
-      - ${DBPORT}:3306 # HOST:CONTAINER
+      - ${MYSQL_EXTERNAL_PORT}:3306 # HOST:CONTAINER
     environment:
-      MYSQL_DATABASE: ${DBNAME}
-      MYSQL_ROOT_USER: ${DBUSER}
-      MYSQL_ROOT_PASSWORD: ${DBPASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
-      - ./intropageDB/initdb.d:/docker-entrypoint-initdb.d/
-  adminer:
-    image: adminer
-    restart: "no"
-    container_name: ${CONTAINER_NAME}_adminer
+      - ./mysql_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${MYSQL_ROOT_USER} --password=${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 2s
+      retries: 100
+    networks:
+      - intropageNet
+      
+  api:
+    build: ./django_app
+    restart: always
+    command: bash -c "sleep 1m ; python manage.py makemigrations ; python manage.py migrate ; python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} ; python manage.py runserver 0.0.0.0:${DJANGO_PORT}"
+    container_name: ${CONTAINER_NAME}_django_api
     ports:
-      - ${ADMINERPORT}:8080 # HOST:CONTAINER
+      - ${DJANGO_PORT}:${DJANGO_PORT} # HOST:CONTAINER
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db:db
+    environment:
+      DJANGO_ADMIN_ID: ${DJANGO_ADMIN_ID}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DJANGO_PRIVATE_API_MODE: ${DJANGO_PRIVATE_API_MODE}
+      PRIVATE_API_AES_ENCRYPTION_KEY: ${PRIVATE_API_AES_ENCRYPTION_KEY}
+    networks:
+      - intropageNet
+
+  web:
+    image: nginx:latest
+    restart: always
+    container_name: ${CONTAINER_NAME}_nginx_web
+    ports:
+      - ${NGINX_PORT}:80 # HOST:CONTAINER
+    volumes:
+      - ./nginx_webapp/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx_webapp/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx_webapp/webfolder:/usr/share/nginx/html/
+    networks:
+      - intropageNet
+
+networks:
+  intropageNet:
+    driver: bridge

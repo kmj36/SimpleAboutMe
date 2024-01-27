@@ -1,0 +1,13 @@
+Django==4.2.3
+djangorestframework==3.14.0
+djangorestframework_simplejwt==5.2.2
+django-cors-headers==4.2.0
+python-dotenv==1.0.0
+mysqlclient==2.2.0
+pycryptodome==3.18.0
+django-health-check==3.17.0
+psutil==5.9.6
+pillow==10.0.0
+dj-rest-auth==5.0.2
+django-allauth==0.59.0
+```
