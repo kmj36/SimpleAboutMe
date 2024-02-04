@@ -1,10 +1,6 @@
 # SimpleAboutMe
 
-<<<<<<< HEAD
-자기소개 블로그 컨테이너 생성 패키지 제작 프로젝트입니다.
-=======
 소개 페이지 생성 패키지 개발 프로젝트입니다.
->>>>>>> develop
 
 ## 개요
 
@@ -34,23 +30,36 @@ Django를 이용하여 API를 구축하고, MySQL을 데이터베이스로 사�
 
 2. .env 파일을 생성해 아래와 같은 환경변수에 값을 입력합니다.
    ```env
-   CONTAINER_NAME=[컨테이너명]
-   MYSQL_DATABASE=[사용할 메인 데이터베이스명]
-   MYSQL_ROOT_USER=[사용할 데이터베이스의 루트 유저명]
-   MYSQL_ROOT_PASSWORD=[데이터베이스의 루트 유저의 비밀번호]
-   NGINX_PORT=[웹서버의 포트]
-   DJANGO_PORT=[API의 포트]
-   MYSQL_EXTERNAL_PORT=[데이터베이스의 외부 접속 포트]
-   DJANGO_ADMIN_ID=[API의 관리자 아이디]
-   DJANGO_ADMIN_NICKNAME=[API의 관리자닉네임]
-   DJANGO_ADMIN_EMAIL=[API의 관리자 이메일]
-   DJANGO_ADMIN_PASSWORD=[API의 관리자 비밀번호]
-   DJANGO_PRIVATE_API_MODE=[API Body 암호화 모드 여부(Boolean)]
-   PRIVATE_API_AES_ENCRYPTION_KEY=[API Body 암호화 키]
+   CONTAINER_NAME=[생성 컨테이너명]
+   MYSQL_DATABASE=[초기화 데이터베이스명]
+   MYSQL_ROOT_USER=[초기화 루트 사용자명]
+   MYSQL_ROOT_PASSWORD=[초기화 루트 사용자 비밀번호]
+   DJANGO_DEBUG_MODE=[django 디버그 모드 여부]
+   DJANGO_ALLOWED_HOST=[django 허용 호스트]
+   DJANGO_DATABASES_HOST=[django 데이터베이스 호스트]
+   DJANGO_DATABASES_PORT=[django 데이터베이스 포트]
+   DJANGO_PORT=[django 포트]
+   DJANGO_ADMIN_ID=[초기 django 관리자 아이디]
+   DJANGO_ADMIN_NICKNAME=[초기 django 관리자 닉네임]
+   DJANGO_ADMIN_EMAIL=[초기 django 관리자 이메일]
+   DJANGO_ADMIN_PASSWORD=[초기 django 관리자 비밀번호]
+   DJANGO_PRIVATE_API_MODE=[django aes 암호화 api 모드 여부]
+   PRIVATE_API_AES_ENCRYPTION_KEY=[django aes 암호화 api 키]
+   
+   release 폴더 Environments 내부에 .env 파일 각각 두개 생성해 아래와 같은 환경변수에 값을 입력합니다.
+
+   ```env
+   REACT_APP_EMAILJS_SERVICE_ID=[react emailjs 서비스 아이디]
+   REACT_APP_EMAILJS_PUBLIC_KEY=[react emailjs 공개키]
+   REACT_APP_EMAILJS_TEMPLATE_ID=[react emailjs 템플릿 아이디]
+   REACT_APP_API_HOST=[react django api 호스트]
+   REACT_APP_API_PORT=[react django api 포트]
 
 
-3. build.sh 를 실행하면 자동으로 설치를 시작합나다.
+3. build.sh 를 실행하면 자동으로 빌드를 시작합나다.
    ```shell
    ./build.sh
 
-3. ... 추가 예정
+4. 원하는 폴더 위치에서 docker-compose up 명령어를 실행합니다.
+   ```shell
+   docker-compose up
