@@ -37,7 +37,7 @@ services:
       python manage.py makemigrations &&
       python manage.py migrate &&
       python manage.py collectstatic --noinput &&
-      python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} &&
+      python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} ;
       gunicorn --certfile=/etc/letsencrypt/live/kmj36.duckdns.org/fullchain.pem --keyfile=/etc/letsencrypt/live/kmj36.duckdns.org/privkey.pem --bind 0.0.0.0:${DJANGO_PORT} django_app.wsgi:application"
     container_name: ${CONTAINER_NAME}_django_api
     ports:
