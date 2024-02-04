@@ -15,9 +15,10 @@ else
 fi
 
 echo "[React App build...]"
+cat .env_debug_app > nginx_webapp/intropage-app/.env
 cd nginx_webapp/intropage-app
-sudo npm install
-sudo npm run build
+sudo npm install --legacy-peer-deps
+sudo npm run build --prod
 cd ../..
 
 echo "[Move to built React App...]"

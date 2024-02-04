@@ -202,7 +202,7 @@ export interface ImageUpload_APIResponse extends APIResponse {
 }
 export const isImageUploadAPIResponse = (obj : any): obj is ImageUpload_APIResponse => "url" in obj;
 
-const baseURL_v1 = 'http://127.0.0.1:8000/api/v1';
+const baseURL_v1 = process.env.REACT_APP_API_HOST + ":" + process.env.REACT_APP_API_PORT + '/api/v1';
 
 export async function CallAPI({
     APIType,

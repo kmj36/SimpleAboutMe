@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
-
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%^pd$z4f5ha1+b5y)_2lvcdta)e-wste)@j(4uudgi+(b41qv@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG_MODE') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ.get('DJANGO_ALLOWED_HOST')]
 
 
 # Application definition
@@ -124,19 +124,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000", "http://localhost:3000"]
+CSRF_TRUSTED_ORIGINS = ["https://"+os.environ.get('DJANGO_ALLOWED_HOST'), "http://"+os.environ.get('DJANGO_ALLOWED_HOST')]
 
 ##CORS
 #CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000'
-    #'api:'+os.environ.get('NGINX_PORT'), # [NGINX]
-    #'localhost:'+os.environ.get('NGINX_PORT'), # [NGINX]
-    #'api'+os.environ.get('DJANGO_PORT'), # [DJANGO]
-    #'localhost:'+os.environ.get('DJANGO_PORT'), # [DJANGO]
+    "https://"+os.environ.get('DJANGO_ALLOWED_HOST'),
+    "http://"+os.environ.get('DJANGO_ALLOWED_HOST')
 ]
 
 CORS_ALLOW_HEADERS = (
@@ -171,19 +167,28 @@ WSGI_APPLICATION = 'django_app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-load_dotenv()
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE'),
-        'USER': os.environ.get('MYSQL_ROOT_USER'),
-        'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-        #'HOST': 'db',
-        #'PORT': '3306',
-        'HOST': '127.0.0.1', # [LOCAL]
-        'PORT': '50002', # [LOCAL]
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE'),
+            'USER': os.environ.get('MYSQL_ROOT_USER'),
+            'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+            'HOST': os.environ.get('DJANGO_DATABASES_HOST'),
+            'PORT': os.environ.get('DJANGO_DATABASES_PORT'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE'),
+            'USER': os.environ.get('MYSQL_ROOT_USER'),
+            'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
+            'HOST': 'db',
+            'PORT': os.environ.get('DJANGO_DATABASES_PORT'),
+        }
+    }
 
 
 # Password validation
@@ -197,7 +202,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'OPTIONS' : {
             'min_length' : 8,
-        },
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -225,8 +230,10 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static/'
+STATICFILES_DIRS = []
+    
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

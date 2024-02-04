@@ -6,7 +6,7 @@ services:
     restart: always
     container_name: ${CONTAINER_NAME}_mysql_db
     ports:
-      - ${MYSQL_EXTERNAL_PORT}:3306 # HOST:CONTAINER
+      - 3306:3306 # HOST:CONTAINER
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
@@ -23,20 +23,30 @@ services:
       timeout: 2s
       retries: 100
     networks:
-      - intropageNet
-      
+      - intropageBackendNet
+  
   api:
-    build: ./django_app
+    build:
+      context: ./API
+      dockerfile: Dockerfile
     restart: always
-    command: bash -c "sleep 1m ; python manage.py makemigrations ; python manage.py migrate ; python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} ; python manage.py runserver 0.0.0.0:${DJANGO_PORT}"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    command: bash -c "
+      sleep 1m &&
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} &&
+      gunicorn --certfile=/etc/letsencrypt/live/kmj36.duckdns.org/fullchain.pem --keyfile=/etc/letsencrypt/live/kmj36.duckdns.org/privkey.pem --bind 0.0.0.0:${DJANGO_PORT} django_app.wsgi:application"
     container_name: ${CONTAINER_NAME}_django_api
     ports:
       - ${DJANGO_PORT}:${DJANGO_PORT} # HOST:CONTAINER
+    links:
+      - db:db
     depends_on:
       db:
         condition: service_healthy
-    links:
-      - db:db
     environment:
       DJANGO_DEBUG_MODE: ${DJANGO_DEBUG_MODE}
       DJANGO_ALLOWED_HOST: ${DJANGO_ALLOWED_HOST}
@@ -52,21 +62,29 @@ services:
       DJANGO_PRIVATE_API_MODE: ${DJANGO_PRIVATE_API_MODE}
       PRIVATE_API_AES_ENCRYPTION_KEY: ${PRIVATE_API_AES_ENCRYPTION_KEY}
     networks:
-      - intropageNet
+      - intropageBackendNet
 
   web:
     image: nginx:latest
     restart: always
     container_name: ${CONTAINER_NAME}_nginx_web
     ports:
-      - ${NGINX_PORT}:80 # HOST:CONTAINER
+      - 443:443 # HOST:CONTAINER
+      - 80:80 # HOST:CONTAINER
     volumes:
-      - ./nginx_webapp/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx_webapp/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx_webapp/webfolder:/usr/share/nginx/html/
-    networks:
-      - intropageNet
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./App:/usr/share/nginx/html/
+      - /etc/letsencrypt:/etc/letsencrypt
+    links:
+      - api:api
+    environment:
+      REACT_APP_TITLE: ${REACT_APP_TITLE}
+      REACT_APP_EMAILJS_SERVICE_ID: ${REACT_APP_EMAILJS_SERVICE_ID}
+      REACT_APP_EMAILJS_PUBLIC_KEY: ${REACT_APP_EMAILJS_PUBLIC_KEY}
+      REACT_APP_EMAILJS_TEMPLATE_ID: ${REACT_APP_EMAILJS_TEMPLATE_ID}
+      REACT_APP_API_HOST: ${REACT_APP_API_HOST}
+      REACT_APP_API_PORT: ${REACT_APP_API_PORT}
 
 networks:
-  intropageNet:
+  intropageBackendNet:
     driver: bridge

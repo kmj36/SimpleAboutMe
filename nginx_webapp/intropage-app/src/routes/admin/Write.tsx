@@ -156,7 +156,7 @@ function Write()
                         const formData = new FormData();
                         formData.append('image', blob);
                         const imageurl = await CallAPI({APIType:"ImageUpload", Method:"POST", Body: formData}) as ImageUpload_APIResponse;
-                        callback('http://127.0.0.1:8000/api/v1'+imageurl.image.url);
+                        callback(process.env.REACT_APP_API_HOST+'/api/v1'+imageurl.image.url);
                         return false;
                     },
                 }}

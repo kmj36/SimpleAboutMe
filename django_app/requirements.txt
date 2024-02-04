@@ -10,4 +10,4 @@ psutil==5.9.6
 pillow==10.0.0
 dj-rest-auth==5.0.2
 django-allauth==0.59.0
-```
+gunicorn==21.2.0
