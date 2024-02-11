@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 import { Search, Send, DateRange, Facebook, Instagram, Twitter, GitHub, RssFeed, YouTube } from '@material-ui/icons';
 import * as S from '../styles/Home_Style';
-import Footer from '../components/Footer';
 import { useAppDispatch } from '../redux/hooks';
 import { loading, done } from '../redux/feature/LoadingReducer';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from '../funcs/CallAPI';
@@ -33,7 +32,7 @@ function Home()
     const timeout : number = 600;
     const [postdata, setPostdata] = useState({} as Posts_APIResponse);
 
-    const expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+    const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
     const regex = new RegExp(expression);
 
     const handleImageError = (e : any) => {
@@ -63,7 +62,7 @@ function Home()
                 setPostdata(posts); 
             dispatch(done());
         })();
-    }, []);
+    }, [dispatch]);
 
     return (
         <Box ref={containerRef}>

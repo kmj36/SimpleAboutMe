@@ -135,7 +135,7 @@ function Write()
                 setTagList(tags);
             dispatch(done());
         })();
-    }, []);
+    }, [dispatch]);
     return (
         <S.WriteBox>
             <S.TitleBox>

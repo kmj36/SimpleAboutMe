@@ -1242,11 +1242,14 @@ class PostListAPI(APIView): # 포스트 리스트 API
             "posts" : serializer.data
         }).get(), status=status.HTTP_200_OK)
     def post(self, request, format=None): # 포스트 생성하기
-        tags = request.data.getlist('tagid[]')
-        copydata = request.data.dict()
-        del copydata['tagid[]']
-        copydata['tagid'] = tags
-        serializer = PostSerializer(data=copydata)
+        if(request.data.getlist('tagid[]')):
+            tags = request.data.getlist('tagid[]')
+            copydata = request.data.dict()
+            del copydata['tagid[]']
+            copydata['tagid'] = tags
+            serializer = PostSerializer(data=copydata)
+        else:
+            serializer = PostSerializer(data=request.data)
         if serializer.is_valid() == False:
             return Response(PrivateJSON({
                 "code" : status.HTTP_400_BAD_REQUEST,

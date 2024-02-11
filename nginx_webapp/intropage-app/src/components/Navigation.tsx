@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AppBar, Tabs, Tab, Toolbar, Box, TextField, InputAdornment, Fade } from '@material-ui/core';
-import { Search, Home, Assignment, Category, Face, DynamicFeed, Contacts } from '@material-ui/icons';
-import { useEffect, useState, useRef } from 'react';
+import { Search, Home, Assignment, Category, DynamicFeed } from '@material-ui/icons';
+import { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 const AppbarBanner = styled(Box)`
@@ -15,14 +15,6 @@ const AppbarBanner = styled(Box)`
     color: white;
 `;
 
-const SiteIcon = styled(Box)`
-    display: flex;
-    width: 30px;
-    height: 50px;
-    justify-content: center;
-    align-items: center;
-`;
-
 const SiteTitle = styled(Box)`
     display: flex;
     font-size: 20px;
@@ -34,8 +26,6 @@ function Navigation()
 {
     const SearchRef = useRef<HTMLInputElement | null>(null);
     const [value, setValue] = useState(0);
-    const [pathicon, setPathicon] = useState(<Home/>);
-    const [path, setPath] = useState(window.location.pathname);
 
     const Changehandle = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
@@ -53,31 +43,12 @@ function Navigation()
         }
     }
 
-    useEffect(() => {
-        if (path === "/") {
-            setValue(0);
-            setPathicon(<Home/>);
-        } else if (path.startsWith("/post")) {
-            setValue(1);
-            setPathicon(<Assignment/>);
-        } else if (path === "/categorize") {
-            setValue(2);
-            setPathicon(<Category/>);
-        } else if (path === "/portfolio") {
-            setValue(3);
-            setPathicon(<DynamicFeed/>);
-        }
-    }, [path]);
-
     return (
         <Fade in={true}>
             <AppBar position="relative" style={{ background: '#333D51', color: 'white' }}>
                 <Box sx={{ display: "flex", flexDirection: "comuln"}}>
                     <AppbarBanner>
                         <Link to='/' style={{ textDecoration: 'none', color: 'white', display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                            <SiteIcon>
-                                {pathicon}
-                            </SiteIcon>
                             <SiteTitle>
                                 PortLog
                             </SiteTitle>

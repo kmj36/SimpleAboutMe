@@ -1,5 +1,4 @@
 import * as S from '../styles/Portfolio_Style'
-import Footer from '../components/Footer'
 import { Slide, Grow, Container, Grid, Button, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
@@ -13,7 +12,7 @@ function Portfolio()
     const dispatch = useAppDispatch();
     const [postdata, setPostdata] = useState({} as Posts_APIResponse);
 
-    const expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+    const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
     const regex = new RegExp(expression);
 
     const handleImageError = (e : any) => {
@@ -52,7 +51,7 @@ function Portfolio()
                 setPostdata(posts); 
             dispatch(done());
         })();
-    }, []);
+    }, [dispatch]);
 
     return (
         <S.PortfolioBox>

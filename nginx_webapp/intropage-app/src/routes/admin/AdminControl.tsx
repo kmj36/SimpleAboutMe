@@ -69,7 +69,7 @@ function Control()
 
             dispatch(done());
         })();
-    }, []);
+    }, [dispatch]);
 
     if(!isAuth)
     {

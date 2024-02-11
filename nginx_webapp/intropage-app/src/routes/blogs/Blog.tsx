@@ -31,7 +31,6 @@ import { CallAPI, Posts_APIResponse, isPostsAPIResponse, Categories_APIResponse,
 import { useAppDispatch } from '../../redux/hooks';
 import { loading, done } from '../../redux/feature/LoadingReducer';
 import { Link, useNavigate } from 'react-router-dom';
-import Footer from '../../components/Footer';
 
 function Blog()
 {
@@ -89,7 +88,7 @@ function Blog()
         }).length);
     }
 
-    const expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+    const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
     const regex = new RegExp(expression);
 
     const pagemax = 4;
@@ -184,7 +183,7 @@ function Blog()
                 setTagsjson(tagslist);
             dispatch(done());
         })();
-    }, []);
+    }, [dispatch]);
 
     return (
         <S.BlogBox ref={BlogRef}>
