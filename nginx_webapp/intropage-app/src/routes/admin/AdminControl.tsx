@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useAppDispatch } from '../../redux/hooks';
-import { loading, done } from '../../redux/feature/LoadingReducer';
+import { useEffect, useState, useCallback } from 'react';
 import { Divider, Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, TextField } from '@material-ui/core';
 import { Button } from '@mui/material';
 import { Dashboard, Settings, Class, Create } from '@mui/icons-material';
@@ -31,13 +29,22 @@ function Control()
         "Classification",
         "Settings"
     ];
-    const ChangeMenu = (num : number) => {
+
+    const handleInputID = useCallback((e : React.ChangeEvent<HTMLTextAreaElement>) => {
+        setID(e.currentTarget.value);
+    }, []);
+
+    const handleInputPassword = useCallback((e : React.ChangeEvent<HTMLTextAreaElement>) => {
+        setPassword(e.currentTarget.value);
+    }, []);
+
+    const ChangeMenu = useCallback((num : number) => {
         if(menuNumber === num)
             return;
         if(num>=0)
             setMenuNumber(num);
-    };
-    const handleLogin = (e : any) => {
+    }, [menuNumber]);
+    const handleLogin = useCallback((e : any) => {
         if(e.key !== undefined && e.key !== "Enter")
             return;
         (async () => {
@@ -50,26 +57,19 @@ function Control()
             else
                 alert("관리자 로그인에 실패하였습니다. 다시 시도해주세요.");
         })();
-    }
+    }, [ID, Password]);
 
-    const dispatch = useAppDispatch() as any;
     useEffect(() =>  {
         (async () => {
-            dispatch(loading());
-
             const auth = await CallAPI({APIType:"Auth", Method:"POST"});
             if(Object.keys(auth).length !== 0)
             {
                 alert("관리자 로그인이 필요합니다.");
-                dispatch(done());
                 return;
             }
-            
             setIsAuth(true);
-
-            dispatch(done());
         })();
-    }, [dispatch]);
+    }, []);
 
     if(!isAuth)
     {
@@ -79,8 +79,8 @@ function Control()
                     <S.Panel>
                         <S.PanelWrapper>
                             <Typography variant="h4">Login</Typography>
-                            <TextField id="IDBox" value={ID} label="ID" onChange={(e : React.ChangeEvent<HTMLTextAreaElement>)=>setID(e.currentTarget.value)} variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
-                            <TextField id="PasswordBox" value={Password} onChange={(e : React.ChangeEvent<HTMLTextAreaElement>)=>setPassword(e.currentTarget.value)} label="Password" type="password" variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
+                            <TextField id="IDBox" value={ID} label="ID" onChange={handleInputID} variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
+                            <TextField id="PasswordBox" value={Password} onChange={handleInputPassword} label="Password" type="password" variant="outlined" style={{width: '100%', marginTop: '20px'}}/>
                             <Button variant="contained" onClick={handleLogin} style={{marginTop: '10px'}}><Typography>Enter</Typography></Button>
                         </S.PanelWrapper>
                     </S.Panel>

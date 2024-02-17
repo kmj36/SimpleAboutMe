@@ -10,10 +10,9 @@ cp ./nginx.conf ../build/
 cp ./start.sh ../build/
 
 echo "[App build...]"
-cat ./Environments/App/.env > ../nginx_webapp/intropage-app/.env
 cd ../nginx_webapp/intropage-app
-sudo npm install --legacy-peer-deps
-sudo npm run build --omit=dev
+sudo yarn install
+sudo yarn build
 cp -r ./build/* ../../build/App/
 echo "[App build done.]"
 

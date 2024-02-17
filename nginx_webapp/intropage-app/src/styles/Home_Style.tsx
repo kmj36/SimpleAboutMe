@@ -5,49 +5,7 @@ import {
     Grid,
     Stack
 } from '@mui/material';
-import { createTheme } from '@mui/material/styles';
-
 import styled from 'styled-components';
-
-export const theme = createTheme();
-
-theme.typography.h4 = {
-    fontSize: '2.5rem',
-    '@media (max-width:1023px)': {
-    /* 타블렛 */
-        fontSize: '2.1rem',
-    },
-    '@media (max-width:767px)': {
-    /* 모바일 */
-        fontSize: '1.9rem',
-    }
-};
-
-theme.typography.h5 = {
-    fontSize: '1.6rem',
-    fontWeight: 600,
-    '@media (max-width:1023px)': {
-    /* 타블렛 */
-        fontSize: '1.3rem',
-    },
-    '@media (max-width:767px)': {
-    /* 모바일 */
-        fontSize: '1.3rem',
-    }
-};
-
-theme.typography.h6 = {
-    fontSize: '1.2rem',
-    fontWeight: 600,
-    '@media (max-width:1023px)': {
-    /* 타블렛 */
-        fontSize: '1rem',
-    },
-    '@media (max-width:767px)': {
-    /* 모바일 */
-        fontSize: '0.8rem',
-    }
-};
 
 export const SectionBanner = styled(Box)`
     display: flex;

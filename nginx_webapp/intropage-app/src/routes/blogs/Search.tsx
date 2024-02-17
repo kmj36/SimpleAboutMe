@@ -1,14 +1,12 @@
 import { ThemeProvider } from '@mui/material/styles';
 import { useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useAppDispatch } from '../../redux/hooks';
-import { loading, done } from '../../redux/feature/LoadingReducer';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from "../../funcs/CallAPI";
 import { Link } from 'react-router-dom';
 import { Chip, Pagination } from "@mui/material";
 import { SearchRounded } from '@material-ui/icons';
 import * as S from '../../styles/Search_Style';
-import Footer from '../../components/Footer';
+
 function Search()
 {
     const [searchjson, setSearchjson] = useState({} as Posts_APIResponse)
@@ -19,7 +17,6 @@ function Search()
     const categoryid = searchParams.get('c');
     const tagid = searchParams.get('ag');
     const datevalue = searchParams.get('d');
-    const dispatch = useAppDispatch();
 
     const handleImageError = (e : any) => {
         e.target.src = "/No_Image.jpg"
@@ -36,7 +33,6 @@ function Search()
 
     useEffect(() =>  {
         (async () => {
-            dispatch(loading());
             var query = "";
             if(titlevalue && typeof titlevalue == 'string')
                 query += `title=${encodeURIComponent(titlevalue)}&`;
@@ -56,7 +52,6 @@ function Search()
             const posts = await CallAPI({APIType:"PostList", Method:"GET", Query:query});
             if(isPostsAPIResponse(posts))
                 setSearchjson(posts);
-            dispatch(done());
         })();
     }, [])
     

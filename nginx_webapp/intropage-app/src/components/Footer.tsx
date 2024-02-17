@@ -1,4 +1,5 @@
 import { Paper, Box, Typography } from '@material-ui/core';
+import { useMemo } from 'react';
 import styled from 'styled-components';
 
 const CopyrightBox = styled(Box)`
@@ -14,11 +15,11 @@ const CopyrightBox = styled(Box)`
 function Footer()
 {
     return (
-        <Paper style={{ width: '100%',
+        <Paper style={useMemo(() => ({ width: '100%',
         bottom: 0,
         borderTop: '1px solid #eaeaea',
         marginTop: '2rem'
-        }} component="footer" square>
+        }), [])} component="footer" square>
             <CopyrightBox>
                 <Typography variant="subtitle1" color="textSecondary">
                     Copyright 2023 © kmj36 | All rights reserved

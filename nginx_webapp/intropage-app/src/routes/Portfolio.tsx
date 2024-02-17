@@ -1,27 +1,24 @@
 import * as S from '../styles/Portfolio_Style'
 import { Slide, Grow, Container, Grid, Button, Typography } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import emailjs from '@emailjs/browser';
 import { Link } from 'react-router-dom';
-import { useAppDispatch } from '../redux/hooks';
-import { loading, done } from '../redux/feature/LoadingReducer';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from '../funcs/CallAPI';
 
 function Portfolio()
 {
-    const dispatch = useAppDispatch();
     const [postdata, setPostdata] = useState({} as Posts_APIResponse);
 
     const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
     const regex = new RegExp(expression);
 
-    const handleImageError = (e : any) => {
-        e.target.src = "/No_Image.jpg"
-    }
+    const handleImageError : React.ReactEventHandler<HTMLImageElement> = useCallback((event : React.SyntheticEvent<HTMLImageElement, Event>) => {
+        event.currentTarget.src = "/No_Image.jpg"
+    }, []);
 
     const form = useRef<HTMLFormElement>(null);
             
-    const sendEmail = (event : React.FormEvent<HTMLFormElement>) => {
+    const sendEmail = useCallback((event : React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if(form.current)
         {
@@ -41,17 +38,15 @@ function Portfolio()
                 );
             }
         }
-    };
+    }, []);
 
     useEffect(() =>  {
         (async () => {
-            dispatch(loading());
             const posts = await CallAPI({APIType:"PostList", Method:"GET", Query:"categoryid=[Project]&order=review"});
             if(isPostsAPIResponse(posts))
                 setPostdata(posts); 
-            dispatch(done());
         })();
-    }, [dispatch]);
+    }, []);
 
     return (
         <S.PortfolioBox>
@@ -69,7 +64,7 @@ function Portfolio()
             </S.SectionBanner>
             <S.SectionFeatured>
                 <Grow in={true} timeout={1600}>
-                    <Container maxWidth="xl" sx={{ height: '100%' }}>
+                    <Container maxWidth="xl" sx={useMemo(() =>({ height: '100%' }), [])}>
                         <S.FeaturedBox>
                             <S.FeaturedTitleBox>
                                 <S.FeaturedTitleTypography variant="h4">
@@ -77,7 +72,7 @@ function Portfolio()
                                 </S.FeaturedTitleTypography>
                             </S.FeaturedTitleBox>
                             <S.FeaturedProjectsBox>
-                                <Grid container spacing={3} sx={{paddingTop: '20px', paddingBottom: '40px'}}>
+                                <Grid container spacing={3} sx={useMemo(() =>({paddingTop: '20px', paddingBottom: '40px'}), [])}>
                                     {
                                         [0,1,2].map((value) => {
                                             return (
@@ -121,12 +116,12 @@ function Portfolio()
                                     type="text"
                                     name="contact_title"
                                     placeholder="Type Email Title. (Max 30)"
-                                    inputProps={{ maxLength: 30 }}
+                                    inputProps={useMemo(() =>({ maxLength: 30 }), [])}
                                     required
                                 />
                             </S.ContactTitleBox>
                             <S.ContactMessageBox>
-                                <S.ContactTextField name="contact_message" inputProps={{ maxLength: 2000 }} placeholder="Type Contents. (Max 2000)" required multiline/>
+                                <S.ContactTextField name="contact_message" inputProps={useMemo(() =>({ maxLength: 2000 }), [])} placeholder="Type Contents. (Max 2000)" required multiline/>
                             </S.ContactMessageBox>
                             <S.ContactSubmitBox>
                                 <Button variant="contained" type="submit">Contact</Button>

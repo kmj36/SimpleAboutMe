@@ -1,20 +1,9 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button } from '@mui/material';
-import { useAppDispatch } from '../../redux/hooks';
-import { loading, done } from '../../redux/feature/LoadingReducer';
 
 function NotFound()
 {
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
-    useEffect(() =>  {
-        (async () => {
-            dispatch(loading());
-            dispatch(done());
-        })();
-    }, []);
 
     return (
         <Box id="NotFound" sx={{ display: 'flex', width: '100%', height: '85vh', alignItems: 'center', justifyContent: 'center' }}>

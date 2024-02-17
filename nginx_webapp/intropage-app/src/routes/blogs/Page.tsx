@@ -3,15 +3,12 @@ import { CallAPI, Comments_APIResponse, isCommentsAPIResponse, Post_APIResponse,
 import { Send } from '@material-ui/icons';
 import { Divider, TextField, Button, CircularProgress, Tabs, Tab, Chip } from '@mui/material';
 import { useState, useEffect, useRef } from "react";
-import { useAppDispatch } from '../../redux/hooks';
-import { loading, done } from '../../redux/feature/LoadingReducer';
 import { ThemeProvider } from 'styled-components';
 import Markdown from 'react-markdown'
 import * as S from '../../styles/Page_Style';
 
 function Page()
 {
-    const dispatch = useAppDispatch();
     const { pagestr } = useParams();
     const [postjson, setPostjson] = useState({} as Post_APIResponse);
     const [commentjson, setCommentjson] = useState({} as Comments_APIResponse);
@@ -57,7 +54,6 @@ function Page()
 
     useEffect(() => {
         (async () => {
-            dispatch(loading());
             window.scrollTo(0,0);
             const posts = await CallAPI({APIType:"PostDetail", Method:"GET", Query:"order=review", Name:`${pagestr}`});
             const comments = await CallAPI({APIType:"CommentList", Method:"GET", Query:`postid=${pagestr}`});
@@ -72,7 +68,6 @@ function Page()
                     setMarkdownIDList(prev => [...prev, value.id]);
                 });
             }
-            dispatch(done());
         })();
     }, []);
     return (

@@ -25,23 +25,23 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Dayjs } from 'dayjs';
 import 'dayjs/locale/ko';
 import { Search, Send } from '@material-ui/icons';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import * as S from '../../styles/Blog_Style';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse, Categories_APIResponse, isCategoriesAPIResponse, Tags_APIResponse, isTagsAPIResponse } from '../../funcs/CallAPI';
-import { useAppDispatch } from '../../redux/hooks';
-import { loading, done } from '../../redux/feature/LoadingReducer';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Blog()
 {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
     const [postjson, setPostjson] = useState({} as Posts_APIResponse);
     const [categoriesjson, setCategoriesjson] = useState({} as Categories_APIResponse);
     const [tagsjson, setTagsjson] = useState({} as Tags_APIResponse);
 
     const [paginationIndex, setPaginationIndex] = useState<number>(0);
     const [pagesize, setPagesize] = useState<number>(0);
+
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
 
     const [inputuserid, setInputuserid] = useState<string>("");
     const [selectCategoryBarName, setselectCategoryBarName] = useState<string>("");
@@ -54,6 +54,9 @@ function Blog()
 
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
+    const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
+    const regex = new RegExp(expression);
+    const pagemax = 4;
     const MenuProps = {
     PaperProps: {
         style: {
@@ -63,18 +66,18 @@ function Blog()
     },
     };
 
-    const handleCategory = (e: any) => {
+    const handleCategory = useCallback((e: any) => { 
         if(e.target.value === "None")
             return;
         setselectCategoryName(e.target.value);
-    }
+    }, []);
 
-    const handleSelectTag = (e : any) => {
+    const handleSelectTag = useCallback((e : any) => {
         const { target: { value } } = e;
         setSelectTagName(typeof value === 'string' ? value.split(',') : value);
-    }
+    }, []);
 
-    const handleSelectCategory = (target: string) => {
+    const handleSelectCategory = useCallback((target: string) => {
         setPaginationIndex(0);
         if(target===selectCategoryBarName)
             setselectCategoryBarName("");
@@ -86,23 +89,18 @@ function Blog()
             else
                 return false;
         }).length);
-    }
+    }, [postjson?.posts, selectCategoryBarName]);
 
-    const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
-    const regex = new RegExp(expression);
+    const handleImageError : React.ReactEventHandler<HTMLImageElement> = useCallback((event : React.SyntheticEvent<HTMLImageElement, Event>) => {
+        event.currentTarget.src = "/No_Image.jpg"
+    }, []);
 
-    const pagemax = 4;
-
-    const handleImageError = (e : any) => {
-        e.target.src = "/No_Image.jpg"
-    }
-
-    const handlePagination = (event: React.ChangeEvent<unknown>, page: number) => {
+    const handlePagination = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
         setPaginationIndex(page-1);
-    }
+    }, []);
 
-    const handleOnSearchEnter = (e : any) => {
-        if(e.keyCode===13)
+    const handleOnSearchEnter : React.KeyboardEventHandler<HTMLDivElement> = useCallback((event : React.KeyboardEvent<HTMLDivElement>) => {
+        if(event.key === 'Enter')
         {
             var query = "";
             const inputtitle = SearchRef?.current?.value;
@@ -126,9 +124,9 @@ function Blog()
 
             navigate(`/search?${query}`);
         }
-    }
+    }, [datevalue, inputuserid, navigate, selectCategoryName, selectTagName]);
 
-    const handleOnSearchButton = (e : any) => {
+    const handleOnSearchButton : React.MouseEventHandler<HTMLButtonElement> = useCallback((e : React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         var query = "";
         const inputtitle = SearchRef?.current?.value;
         if (typeof inputtitle == 'string')
@@ -150,25 +148,22 @@ function Blog()
         }
 
         navigate(`/search?${query}`);
-    }
+    }, [datevalue, inputuserid, navigate, selectCategoryName, selectTagName]);
 
-    const handleOnUseridInput = (e : any) => {
-        setInputuserid(e.target.value);
-    }
+    const handleOnUseridInput : React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement> = useCallback((event : React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setInputuserid(event.currentTarget.value);
+    }, []); 
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-    const handleClickListItem = (event: React.MouseEvent<HTMLElement>) => {
+    const handleClickListItem : React.MouseEventHandler<HTMLDivElement> = useCallback((event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
-    };
+    }, []);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setAnchorEl(null);
-    };
+    }, []);
 
     useEffect(() =>  {
         (async () => {
-            dispatch(loading());
             const postlist = await CallAPI({APIType: "PostList", Query:"order=recent", Method: "GET"});
             const categorieslist = await CallAPI({APIType: "CategoryList", Method: "GET"});
             const tagslist = await CallAPI({APIType: "TagList", Method: "GET"});
@@ -181,9 +176,8 @@ function Blog()
                 setCategoriesjson(categorieslist);
             if(isTagsAPIResponse(tagslist))
                 setTagsjson(tagslist);
-            dispatch(done());
         })();
-    }, [dispatch]);
+    }, []);
 
     return (
         <S.BlogBox ref={BlogRef}>
@@ -206,21 +200,21 @@ function Blog()
                                                 </InputAdornment>
                                             ),
                                             }}
-                                            style={{ width: "100%" }}
+                                            style={useMemo(()=>({ width: "100%" }), [])}
                                             color="primary"
                                             variant="standard"
                                         />
                                     </S.AdvancedSearchPaper>
-                                    <S.AdvancedSearchInputButton variant="contained" endIcon={<Send />} sx={{ marginLeft: 1 }} onClick={handleOnSearchButton}>
+                                    <S.AdvancedSearchInputButton variant="contained" endIcon={<Send />} sx={useMemo(()=>({ marginLeft: 1 }), [])} onClick={handleOnSearchButton}>
                                         Search
                                     </S.AdvancedSearchInputButton>
                                 </S.AdvancedSearchWrapper>
                                 <S.AdvancedSearchOptionWrapper>
                                     <S.AdvancedSearchPaper>
-                                        <FormControl variant="filled" sx={{ m: 1 }}>
+                                        <FormControl variant="filled" sx={useMemo(()=>({ m: 1 }), [])}>
                                             <TextField id="outlined-basic" value={inputuserid} onChange={handleOnUseridInput} label="UserID" variant="outlined" />
                                         </FormControl>
-                                        <FormControl variant="filled" sx={{ m: 1, minWidth: 160 }}>
+                                        <FormControl variant="filled" sx={useMemo(()=>({ m: 1, minWidth: 160 }), [])}>
                                             <InputLabel id="select-Category-label">Categories</InputLabel>
                                             <Select
                                             labelId="select-Category-label"
@@ -234,12 +228,12 @@ function Blog()
                                             {categoriesjson?.categories?.length > 0 ?
                                             categoriesjson.categories.map((category, index) => (
                                                 <MenuItem key={index} value={category.categoryid}>
-                                                    <ListItemText primary={category.categoryid} />
+                                                    <ListItemText primary={"• "+category.categoryid} />
                                                 </MenuItem>
-                                            )) : <MenuItem value="None"><em>None</em></MenuItem>}
+                                            )) : <MenuItem value="None">{"• None"}</MenuItem>}
                                             </Select>
                                         </FormControl>
-                                        <FormControl variant="filled" sx={{ m: 1, minWidth: 140 }}>
+                                        <FormControl variant="filled" sx={useMemo(()=>({ m: 1, minWidth: 140 }), [])}>
                                             <InputLabel id="select-Tags-label">Tags (OR)</InputLabel>
                                             <Select
                                             labelId="select-Tags-label"
@@ -282,11 +276,11 @@ function Blog()
                     <S.SectionPosts>
                         <S.PostSearchBox>
                             <S.PostSelectedCategoryBox>
-                                <Divider flexItem sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}/>
+                                <Divider flexItem sx={useMemo(()=>({ width: '100%', marginTop: 1, marginBottom: 1 }), [])}/>
                                 <List
                                     component="nav"
                                     aria-label="Selected category"
-                                    sx={{ bgcolor: 'background.paper' }}
+                                    sx={useMemo(()=>({ bgcolor: 'background.paper' }), [])}
                                 >
                                     <ListItem
                                     button
@@ -323,7 +317,7 @@ function Blog()
                                     </MenuItem>
                                     ))}
                                 </Menu>
-                                <Divider flexItem sx={{ width: '100%', marginTop: 1, marginBottom: 1 }}/>
+                                <Divider flexItem sx={useMemo(()=>({ width: '100%', marginTop: 1, marginBottom: 1 }), [])}/>
                             </S.PostSelectedCategoryBox>
                             <S.PostStack spacing={2}>
                                 {postjson?.posts?.length > 0 ?
@@ -413,7 +407,7 @@ function Blog()
                             }
                             </S.PostStack>
                             <S.PostClassifyBox>
-                                <Divider orientation="vertical" flexItem sx={{ marginLeft: 1, marginRight: 1}}/>
+                                <Divider orientation="vertical" flexItem sx={useMemo(()=>({ marginLeft: 1, marginRight: 1}), [])}/>
                                 <S.PostClassifyWrapper>
                                     <S.PostCategorySelectStack>
                                         <Chip label="Categories"/>
@@ -421,16 +415,16 @@ function Blog()
                                         categoriesjson.categories.map((category, index) => (
                                             <MenuItem key={index} value={category.categoryid} divider={true} onClick={() => handleSelectCategory(category.categoryid)}>
                                                 <Checkbox checked={category.categoryid===selectCategoryBarName}/>
-                                                <ListItemText primary={category.categoryid} />
+                                                <ListItemText primary={"• "+category.categoryid} />
                                             </MenuItem>
-                                        )) : <MenuItem value="None"><em>None</em></MenuItem>}
+                                        )) : <MenuItem value="None">{"• None"}</MenuItem>}
                                     </S.PostCategorySelectStack>
                                 </S.PostClassifyWrapper>
-                                <Divider orientation="vertical" flexItem sx={{ marginLeft: 1, marginRight: 1}}/>
+                                <Divider orientation="vertical" flexItem sx={useMemo(()=>({ marginLeft: 1, marginRight: 1}), [])}/>
                             </S.PostClassifyBox>
                         </S.PostSearchBox>
                         <S.PostPaginationBox>
-                            <Pagination page={paginationIndex+1} onChange={handlePagination} count={Math.ceil(pagesize / 4)} variant="outlined" color="primary" size="large" sx = {{ width: "auto"}}/>
+                            <Pagination page={paginationIndex+1} onChange={handlePagination} count={Math.ceil(pagesize / 4)} variant="outlined" color="primary" size="large" sx={useMemo(()=>({ width: "auto"}), [])}/>
                         </S.PostPaginationBox>
                     </S.SectionPosts>
                 </Container>

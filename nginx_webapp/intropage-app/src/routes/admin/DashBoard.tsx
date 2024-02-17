@@ -1,5 +1,5 @@
-import {Box, Grid, Paper, Typography} from '@material-ui/core';
-import { useEffect, useState } from 'react';
+import { Box, Grid, Paper, Typography } from '@material-ui/core';
+import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse, Healthcheck_APIResponse, isHealthcheckAPIResponse, StatusInfo_APIResponse, isStatusInfoAPIResponse } from '../../funcs/CallAPI';
@@ -73,6 +73,11 @@ function DashBoard()
     const [postdata, setPostdata] = useState({} as Posts_APIResponse);
     const [healthdata, setHealthdata] = useState({} as Healthcheck_APIResponse);
     const [statusdata, setStatusdata] = useState({} as StatusInfo_APIResponse);
+
+    const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
+    const regex = new RegExp(expression);
+
+
     useEffect(() => {
         (async () => {
             const posts = await CallAPI({APIType:"PostList", Method:"GET", Query:"order=review"});
@@ -95,10 +100,10 @@ function DashBoard()
                         <Wrapper>
                             <Item>
                                 <Header variant='h5'>인기글</Header>
-                                <Image src={postdata?.posts?.at(0)?.thumbnailurl}/>
+                                <Image src={postdata?.posts?.at(0) && regex.test(postdata.posts[0].thumbnailurl) ? postdata.posts[0].thumbnailurl : "No_Image.jpg"}/>
                                 <Typography variant='subtitle1'>조회수: {postdata?.posts?.at(0)?.views}</Typography>
                                 <Typography variant='h5'>
-                                    <Link to={`/post/${postdata?.posts?.at(0)?.postid}`}>
+                                    <Link to={`/post/${postdata?.posts?.at(0)?.postid}`} style={useMemo(()=>({ textDecoration: 'none', color: 'black' }), [])}>
                                         {postdata?.posts?.at(0)?.title}
                                     </Link>
                                 </Typography>
@@ -143,7 +148,7 @@ function DashBoard()
                     <ItemBox>
                         <Wrapper>
                             <Item>
-                                <Header variant='h5'>컨트롤 기록</Header>
+                                <Header variant='h5'>컨트롤 기록 (예정)</Header>
                             </Item>
                         </Wrapper>
                     </ItemBox>

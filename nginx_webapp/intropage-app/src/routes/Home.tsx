@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -17,15 +17,50 @@ import {
 } from '@mui/material';
 import { Search, Send, DateRange, Facebook, Instagram, Twitter, GitHub, RssFeed, YouTube } from '@material-ui/icons';
 import * as S from '../styles/Home_Style';
-import { useAppDispatch } from '../redux/hooks';
-import { loading, done } from '../redux/feature/LoadingReducer';
 import { CallAPI, Posts_APIResponse, isPostsAPIResponse } from '../funcs/CallAPI';
+import { createTheme } from '@mui/material/styles';
+
+export const theme = createTheme();
+theme.typography.h4 = {
+    fontSize: '2.5rem',
+    '@media (max-width:1023px)': {
+    /* 타블렛 */
+        fontSize: '2.1rem',
+    },
+    '@media (max-width:767px)': {
+    /* 모바일 */
+        fontSize: '1.9rem',
+    }
+};
+theme.typography.h5 = {
+    fontSize: '1.6rem',
+    fontWeight: 600,
+    '@media (max-width:1023px)': {
+    /* 타블렛 */
+        fontSize: '1.3rem',
+    },
+    '@media (max-width:767px)': {
+    /* 모바일 */
+        fontSize: '1.3rem',
+    }
+};
+theme.typography.h6 = {
+    fontSize: '1.2rem',
+    fontWeight: 600,
+    '@media (max-width:1023px)': {
+    /* 타블렛 */
+        fontSize: '1rem',
+    },
+    '@media (max-width:767px)': {
+    /* 모바일 */
+        fontSize: '0.8rem',
+    }
+};
 
 function Home()
 {
     const githuburl = "https://github.com/kmj36";
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
     const containerRef = useRef(null);
     const featuredRef = useRef(null);
     const SearchRef = useRef<HTMLInputElement | null>(null);
@@ -35,38 +70,36 @@ function Home()
     const expression = /[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)?/gi;
     const regex = new RegExp(expression);
 
-    const handleImageError = (e : any) => {
-        e.target.src = "/No_Image.jpg"
-    }
+    const handleImageError : React.ReactEventHandler<HTMLImageElement> = useCallback((e : React.SyntheticEvent<HTMLImageElement, Event>) => {
+        e.currentTarget.src = "/No_Image.jpg"
+    }, []);
 
-    const handleOnSearchEnter = (e : any) => {
-        if(e.keyCode===13)
+    const handleOnSearchEnter : React.KeyboardEventHandler<HTMLDivElement> = useCallback((e : React.KeyboardEvent<HTMLDivElement>) => {
+        if(e.key==='Enter')
         {
             const searchValue = SearchRef?.current?.value;
             if (searchValue !== null && typeof searchValue == 'string')
                 navigate(`/search?t=${encodeURIComponent(searchValue)}`);
         }
-    }
+    }, [navigate]);
 
-    const handleOnSearchButton = (e : any) => {
+    const handleOnSearchButton : React.MouseEventHandler<HTMLButtonElement> = useCallback((e : React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         const searchValue = SearchRef?.current?.value;
         if (searchValue !== null && typeof searchValue == 'string')
             navigate(`/search?t=${encodeURIComponent(searchValue)}`);
-    }
+    }, [navigate]);
 
     useEffect(() =>  {
         (async () => {
-            dispatch(loading());
             const posts = await CallAPI({APIType:"PostList", Method:"GET", Query:"order=review"});
             if(isPostsAPIResponse(posts))
                 setPostdata(posts); 
-            dispatch(done());
         })();
-    }, [dispatch]);
+    }, []);
 
     return (
         <Box ref={containerRef}>
-            <ThemeProvider theme={S.theme}>
+            <ThemeProvider theme={theme}>
                 <S.SectionBanner>
                     <Slide in={true} container={containerRef.current} timeout={timeout}>
                         <Container>
@@ -79,7 +112,7 @@ function Home()
                                 </S.HomeTitleBox>
                                 <S.HomeBannerSearchBox>
                                     <Paper>
-                                        <Box sx={{ display: "flex", height: "100%"}}>
+                                        <Box sx={useMemo(() => ({ display: "flex", height: "100%"}), [])}>
                                             <TextField
                                                 id="input-with-icon-textfield"
                                                 placeholder="게시물 검색"
@@ -92,7 +125,7 @@ function Home()
                                                     </InputAdornment>
                                                 ),
                                                 }}
-                                                sx={{ width: "100%" }}
+                                                sx={useMemo(() => ({ width: "100%" }), [])}
                                                 color="primary"
                                                 variant="standard"
                                             />
@@ -111,18 +144,18 @@ function Home()
                         <Container>
                             <S.HomeTopBox>
                                 <S.HomeTopImageBox>
-                                    <Link to={postdata.posts?.at(0) ? "/post/" + postdata.posts[0].postid : "/"} style={{ textDecoration: 'none', color: 'black' }}>
+                                    <Link to={postdata.posts?.at(0) ? "/post/" + postdata.posts[0].postid : "/"} style={useMemo(() => ({ textDecoration: 'none', color: 'black' }), [])}>
                                         <S.HomeTopImage src={postdata?.posts?.at(0) && regex.test(postdata.posts[0].thumbnailurl) ? postdata.posts[0].thumbnailurl : "No_Image.jpg"} onError={handleImageError}/>
                                         <S.ImageOverlayGradient />
                                         <S.HomeTopImageTitleWrapper>
                                             <S.HomeTopImageTitleBox>
-                                                <Chip label={postdata.posts?.at(0)?.categoryid != null ? postdata.posts[0].categoryid : "No Set"} sx={{ color: 'white' }}/>
+                                                <Chip label={postdata.posts?.at(0)?.categoryid != null ? postdata.posts[0].categoryid : "No Set"} sx={useMemo(() => ({ color: 'white' }), [])}/>
                                                 <S.HomeTopImageTitleTypography variant='h4' color="white">
                                                     {postdata?.posts?.at(0) ? postdata.posts[0].title : "Empty Placeholder."}
                                                 </S.HomeTopImageTitleTypography>
                                                 <S.HomeTopImageTitleDate>
                                                     <Typography variant='h5' color="white">
-                                                        <DateRange style={{width: "27px", height: "27px", paddingRight: 5}} />
+                                                        <DateRange style={useMemo(() => ({width: "27px", height: "27px", paddingRight: 5}), [])} />
                                                         {postdata.posts?.at(0)?.created_at ? postdata.posts[0].created_at.substring(0, 10) + ' / ' + postdata.posts[0].created_at.substring(11, 19) : "Empty Date."}
                                                     </Typography>
                                                 </S.HomeTopImageTitleDate>
@@ -301,7 +334,7 @@ function Home()
                                 <Facebook color="disabled"/>
                                 <Instagram color="disabled"/>
                                 <Twitter color="disabled"/>
-                                <Link to={githuburl} style={{ textDecoration: 'none', color: 'black' }}><GitHub/></Link>
+                                <Link to={githuburl} style={useMemo(() => ({ textDecoration: 'none', color: 'black' }), [])}><GitHub/></Link>
                                 <RssFeed color="disabled"/>
                                 <YouTube color="disabled"/>
                             </S.SNSBox>
