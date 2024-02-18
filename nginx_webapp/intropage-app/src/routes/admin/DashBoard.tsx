@@ -60,6 +60,18 @@ const TypographyRanks = styled(Typography)`
     -webkit-box-orient: vertical;
 `;
 
+const PopularTitle = styled(Typography)`
+    textdecoration: none;
+    color: black;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+`
+
 ChartJS.register(ArcElement);
 ChartJS.register(Title);
 ChartJS.register(Tooltip);
@@ -95,24 +107,24 @@ function DashBoard()
     return(
         <DashBoardBox>
             <Grid container>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>
                                 <Header variant='h5'>인기글</Header>
                                 <Image src={postdata?.posts?.at(0) && regex.test(postdata.posts[0].thumbnailurl) ? postdata.posts[0].thumbnailurl : "No_Image.jpg"}/>
                                 <Typography variant='subtitle1'>조회수: {postdata?.posts?.at(0)?.views}</Typography>
-                                <Typography variant='h5'>
+                                <PopularTitle variant='h5'>
                                     <Link to={`/post/${postdata?.posts?.at(0)?.postid}`} style={useMemo(()=>({ textDecoration: 'none', color: 'black' }), [])}>
                                         {postdata?.posts?.at(0)?.title}
                                     </Link>
-                                </Typography>
+                                </PopularTitle>
                                 <TypographyContent variant='subtitle1'>{postdata?.posts?.at(0)?.content}</TypographyContent>
                             </Item>
                         </Wrapper>
                     </ItemBox>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>
@@ -131,7 +143,7 @@ function DashBoard()
                         </Wrapper>
                     </ItemBox>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>
@@ -144,7 +156,7 @@ function DashBoard()
                         </Wrapper>
                     </ItemBox>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>
@@ -153,7 +165,7 @@ function DashBoard()
                         </Wrapper>
                     </ItemBox>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>
@@ -192,7 +204,7 @@ function DashBoard()
                         </Wrapper>
                     </ItemBox>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>
@@ -252,7 +264,7 @@ function DashBoard()
                         </Wrapper>
                     </ItemBox>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>
@@ -288,7 +300,7 @@ function DashBoard()
                         </Wrapper>
                     </ItemBox>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3} style={{ paddingBottom: '10px' }}>
                     <ItemBox>
                         <Wrapper>
                             <Item>

@@ -69,7 +69,7 @@ function Page()
                 });
             }
         })();
-    }, []);
+    }, [pagestr]);
     return (
         <S.PageBox>
             <ThemeProvider theme={S.theme}>

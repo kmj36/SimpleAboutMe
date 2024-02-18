@@ -54,7 +54,7 @@ function Portfolio()
                 <Slide in={true}>
                     <S.BannerBox>
                         <S.BannerTypography variant="h4">
-                            Hello, My Name is Minje Kim.
+                            My Portfolio
                         </S.BannerTypography>
                         <S.BannerTypographySubTitle variant="h6" color="gray">
                             My Job is Cybersecurity Specialist.
@@ -68,7 +68,7 @@ function Portfolio()
                         <S.FeaturedBox>
                             <S.FeaturedTitleBox>
                                 <S.FeaturedTitleTypography variant="h4">
-                                    My Projects
+                                    Projects
                                 </S.FeaturedTitleTypography>
                             </S.FeaturedTitleBox>
                             <S.FeaturedProjectsBox>
