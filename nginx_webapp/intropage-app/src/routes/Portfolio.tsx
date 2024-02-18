@@ -77,8 +77,8 @@ function Portfolio()
                                         [0,1,2].map((value) => {
                                             return (
                                                 <S.FeaturedGrid item xs={12} sm={12} md={4}>
-                                                    <Link to={postdata?.posts?.at(value) ? '/post/' + postdata.posts[value].postid : '/portfolio'}>
-                                                        <S.ProjectImageBox>
+                                                    <S.ProjectImageBox>
+                                                        <Link to={postdata?.posts?.at(value) ? '/post/' + postdata.posts[value].postid : '/portfolio'}>
                                                             <S.ProjectImage src={postdata?.posts?.at(value) && regex.test(postdata.posts[value].thumbnailurl) ? postdata.posts[value].thumbnailurl : "/No_Image.jpg"} onError={handleImageError}/>
                                                             <S.ImageOverlayGradient />
                                                             <S.ProjectDetailBox>
@@ -87,8 +87,8 @@ function Portfolio()
                                                                     <S.ProjectDetailContentTypography variant='body1'>{postdata?.posts?.at(value) ? postdata.posts[value].content : "Empty Content"}</S.ProjectDetailContentTypography>
                                                                 </S.ProjectDetail>
                                                             </S.ProjectDetailBox>
-                                                        </S.ProjectImageBox>
-                                                    </Link>
+                                                        </Link>
+                                                    </S.ProjectImageBox>
                                                 </S.FeaturedGrid>
                                             );
                                         })

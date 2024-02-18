@@ -4,6 +4,14 @@ import { Box, Typography } from '@material-ui/core';
 export const ControlBox = styled(Box)`
     display: flex;
     flex-direction: row;
+
+    @media screen and (max-width:1405px) {
+        flex-direction: column;
+    }
+
+    @media screen and (max-width:767px) {
+        flex-direction: column;
+    }
 `;
 
 export const LeftBarBox = styled(Box)`
@@ -11,6 +19,16 @@ export const LeftBarBox = styled(Box)`
     min-height: calc( 100vh - 132px );
     border: 5px;
     background-color: rgba(0, 0, 0, 0.08);
+
+    @media screen and (max-width:1405px) {
+        width: 100%;
+        min-height: auto;
+    }
+
+    @media screen and (max-width:767px) {
+        width: 100%;
+        min-height: auto;
+    }
 `;
 
 export const BarWrapper = styled(Box)`

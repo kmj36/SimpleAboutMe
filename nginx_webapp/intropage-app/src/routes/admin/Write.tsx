@@ -199,7 +199,7 @@ function Write()
                 }}
             />
             <S.EnterBox>
-                <S.SpecificBox>
+                <S.SpecificBox style={useMemo(()=>({ paddingBottom: 5 }), [])}>
                     <Typography variant="h6" sx={useMemo(() => ({ marginLeft: 1 }), [])}>Categories</Typography>
                     <Select
                         id="Categories_Box"
@@ -217,14 +217,14 @@ function Write()
                         ))}
                     </Select>
                 </S.SpecificBox>
-                <S.SpecificBox>
-                    <Typography variant="h6">Tags</Typography>
+                <S.SpecificBox style={useMemo(()=>({ paddingBottom: 5 }), [])}>
+                    <Typography variant="h6" sx={useMemo(() => ({ marginLeft: 1 }), [])}>Tags</Typography>
                     <Select
                         id="Tags_Box"
                         multiple
                         value={tagSelected}
                         onChange={handleChangeTag}
-                        sx={useMemo(()=>({ width: 300, marginLeft: 2, marginRight: 3}), [])}
+                        sx={useMemo(()=>({ minWidth: 200, marginLeft: 2, marginRight: 3}), [])}
                         MenuProps={MenuProps}
                     >
                         {tagList?.tags?.map((tag, index) => (
@@ -234,7 +234,7 @@ function Write()
                     <Button variant="outlined" onClick={handleClearClick} color="error" startIcon={<DeleteIcon />}>Clear</Button>
                 </S.SpecificBox>
                 <FormControlLabel control={<Checkbox defaultChecked value={publish} color="success" onChange={handleSetPublish}/>} label="Publish" sx={useMemo(()=>({ marginLeft: 1 }), [])}/>
-                <FormControlLabel disabled={secretpassword[1] !== ""} control={<Checkbox value={secret} onChange={handleSetSecret}/>} label="Secret"/>
+                <FormControlLabel disabled={secretpassword[1] !== ""} control={<Checkbox value={secret} onChange={handleSetSecret}/>} label="Secret" sx={useMemo(()=>({ marginLeft: 1 }), [])}/>
                 {secret ? secretpassword[1] === "" ? <Button variant="outlined" onClick={handleSetPasswordDialogOpen}>Set Password</Button> : <Button variant="contained" onClick={handleSetPasswordDialogOpen}>Set Password</Button> : <></>}
                 <Button variant="contained" disabled={secret && secretpassword[1] === ""} sx={useMemo(()=>({ marginLeft:'auto' }), [])} endIcon={<SendIcon />} onClick={handleSend}>Send</Button>
             </S.EnterBox>

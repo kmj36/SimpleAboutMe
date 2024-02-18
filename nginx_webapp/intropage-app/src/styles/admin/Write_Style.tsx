@@ -22,6 +22,18 @@ export const EnterBox = styled(Box)`
     align-items: center;
     margin-top: 10px;
     margin-right: 20px;
+
+    @media screen and (max-width:1405px) {
+        align-items: flex-start;
+        flex-direction: column;
+        padding-left: 10px;
+    }
+
+    @media screen and (max-width:767px) {
+        align-items: flex-start;
+        flex-direction: column;
+        padding-left: 10px;
+    }
 `;
 
 export const TitleBox = styled(Box)`

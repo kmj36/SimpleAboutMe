@@ -52,14 +52,17 @@ export const PageBox = styled(Box)`
 `;
 
 export const SectionBanner = styled(Box)`
-    height: 300px;
+    display: flex;
+    min-height: 300px;
     background-color: #f5f5f5;
     background-size: cover;
     background-position: center; 
 `;
 
 export const ImageOverlayGradient = styled.div`
-    height: 300px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    width: 100%;
     background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
 `;
 
@@ -108,13 +111,16 @@ export const MainBox = styled(Box)`
 `;
 
 export const MainRightBarBox = styled(Box)`
-    min-width: 250px;
+    display: flex;
+    flex-direction: column;
     padding-top: 50px;
+    padding-left: 20px;
 `;
 
 export const MainRightBarWrapper = styled(Box)`
     display: flex;
-
+    min-width: 250px;
+    
     @media screen and (max-width:1023px) {
         display: none;
     }

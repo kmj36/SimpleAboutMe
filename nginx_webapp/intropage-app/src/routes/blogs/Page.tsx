@@ -108,21 +108,21 @@ function Page()
                                 </Markdown>
                             </S.MainContentBox>
                             <S.MainRightBarWrapper>
-                                <Divider orientation="vertical" flexItem style={{marginLeft: 25, marginRight: 25}}/>
                                 <S.MainRightBarBox>
-                                    <Chip label="페이지 이동" sx={{ marginBottom: 2 }}/>
-                                    <S.MainRightBarStack spacing={1}>
-                                        {markdownIDList.map((id, index) => (
-                                            <S.MainRightBarIDBox key={index}>
-                                                <S.MainRightBarIDAhref href={id} onClick={(e : any) => handleIDMove(e, id)}>
-                                                    {id}
-                                                </S.MainRightBarIDAhref>
-                                            </S.MainRightBarIDBox>
-                                        ))}
-                                    </S.MainRightBarStack>
-                                    <Divider flexItem style={{marginTop: 25}}/>
+                                    <div style={{position: "sticky", top: "30px"}}>
+                                        <Chip label="페이지 이동" sx={{ marginBottom: 2 }}/>
+                                        <Divider flexItem style={{marginBottom: 25}}/>
+                                        <S.MainRightBarStack spacing={1}>
+                                            {markdownIDList.map((id, index) => (
+                                                <S.MainRightBarIDBox key={index}>
+                                                    <S.MainRightBarIDAhref href={id} onClick={(e : any) => handleIDMove(e, id)}>
+                                                        {id}
+                                                    </S.MainRightBarIDAhref>
+                                                </S.MainRightBarIDBox>
+                                            ))}
+                                        </S.MainRightBarStack>
+                                    </div>
                                 </S.MainRightBarBox>
-                                <Divider orientation="vertical" flexItem style={{marginLeft: 25}}/>
                             </S.MainRightBarWrapper>
                         </S.MainBox>
                         <S.MainTagBox>
