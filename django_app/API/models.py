@@ -90,7 +90,7 @@ class UserReportDetail(models.Model): # 유저신고 테이블 정의, 1:N 관�
     reportid = models.AutoField(verbose_name='Report ID', primary_key=True)
     userid = models.ForeignKey(User, verbose_name='User ID', on_delete=models.SET_NULL, null=True, blank=True, related_name='reporter')
     targetid = models.ForeignKey(User, verbose_name='Reporter ID', on_delete=models.CASCADE, null=True, blank=True)
-    reportreason = models.CharField(verbose_name='Report Reason', max_length=128)
+    reportreason = models.TextField(verbose_name='Report Reason', null=True, blank=True)
     reportat = models.DateTimeField(auto_now_add=True)
     evidence_type = models.CharField(verbose_name='Evidence Type', max_length=32, null=True, blank=True)
     evidence_targetid = models.IntegerField(verbose_name='Evidence Target ID')
@@ -102,7 +102,7 @@ class UserBanDetail(models.Model): # 유저 밴 테이블 정의, 1:N 관계
     banid = models.AutoField(verbose_name='Ban ID', primary_key=True)
     userid = models.ForeignKey(User, verbose_name='User ID', on_delete=models.CASCADE, null=True, blank=True, related_name='banneduser')
     bannedby = models.ForeignKey(User, verbose_name='Blocker ID', on_delete=models.SET_NULL, null=True, blank=True)
-    bannedreason = models.CharField(verbose_name='Block Reason', max_length=128)
+    bannedreason = models.TextField(verbose_name='Block Reason', null=True, blank=True)
     bannedat = models.DateTimeField(auto_now_add=True)
     banneduntil = models.DateTimeField(null=True, blank=True)
     
@@ -115,7 +115,7 @@ class ForcedControl(models.Model): # 강제 콘텐츠 제어 테이블 정의, 1
     targetid = models.ForeignKey(User, verbose_name='Target ID', on_delete=models.SET_NULL, null=True, blank=True, related_name='target')
     contenttype = models.CharField(verbose_name='Content Type', max_length=32)
     contentid = models.CharField(verbose_name='Content ID', max_length=32)
-    reason = models.CharField(verbose_name='Reason', max_length=128)
+    reason = models.TextField(verbose_name='Reason', null=True, blank=True)
     modified_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
     def __str__(self):

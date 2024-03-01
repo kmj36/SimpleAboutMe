@@ -126,7 +126,7 @@ MIDDLEWARE = [
 ]
 
 if DEBUG:
-    CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000", "http://localhost:3000"]
+    CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000", "http://localhost:3000", "http://127.0.0.1:3001", "http://localhost:3001"]
 else:
     CSRF_TRUSTED_ORIGINS = ["https://"+os.environ.get('DJANGO_ALLOWED_HOST'), "http://"+os.environ.get('DJANGO_ALLOWED_HOST')]
 
@@ -137,7 +137,9 @@ CORS_ALLOW_CREDENTIALS = True
 if DEBUG:
     CORS_ORIGIN_WHITELIST = [
         "http://127.0.0.1:3000",
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://127.0.0.1:3001",
+        "http://localhost:3001"
     ]
 else:
     CORS_ORIGIN_WHITELIST = [
