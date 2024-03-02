@@ -1,6 +1,8 @@
 echo "[Create build folder...]"
 mkdir ../build
 mkdir ../build/App
+mkdir ../build/App/Web
+mkdir ../build/App/Admin
 mkdir ../build/API
 cp Docker/docker-compose.yml ../build/
 cp Docker/Dockerfile ../build/API/
@@ -13,8 +15,16 @@ echo "[App build...]"
 cd ../nginx_webapp/intropage-app
 sudo yarn install
 sudo yarn build
-cp -r ./build/* ../../build/App/
+cp -r ./build/* ../../build/App/Web
 echo "[App build done.]"
+
+echo "[Admin Page build...]"
+cd ../cms
+sudo yarn install
+sudo yarn build
+cp -r ./build/* ../../build/App/Admin
+echo "[Admin Page build done.]"
+
 
 echo "[API build...]"
 cd ../..

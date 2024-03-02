@@ -73,7 +73,7 @@ services:
       - 80:80 # HOST:CONTAINER
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./App:/usr/share/nginx/html/
+      - ./App/Web:/usr/share/nginx/html/
       - /etc/letsencrypt:/etc/letsencrypt
     links:
       - api:api
@@ -82,6 +82,23 @@ services:
       REACT_APP_EMAILJS_SERVICE_ID: ${REACT_APP_EMAILJS_SERVICE_ID}
       REACT_APP_EMAILJS_PUBLIC_KEY: ${REACT_APP_EMAILJS_PUBLIC_KEY}
       REACT_APP_EMAILJS_TEMPLATE_ID: ${REACT_APP_EMAILJS_TEMPLATE_ID}
+      REACT_APP_API_HOST: ${REACT_APP_API_HOST}
+      REACT_APP_API_PORT: ${REACT_APP_API_PORT}
+
+  admin:
+    image: nginx:latest
+    restart: always
+    container_name: ${CONTAINER_NAME}_nginx_admin
+    ports:
+      - ${ADMIN_PORT}:80 # HOST:CONTAINER
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./App/Admin:/usr/share/nginx/html/
+      - /etc/letsencrypt:/etc/letsencrypt
+    links:
+      - api:api
+    environment:
+      REACT_APP_TITLE: ${REACT_APP_TITLE}
       REACT_APP_API_HOST: ${REACT_APP_API_HOST}
       REACT_APP_API_PORT: ${REACT_APP_API_PORT}
 
