@@ -32,6 +32,7 @@ cp -r ./django_app/API ./build/API
 cp -r ./django_app/django_app ./build/API
 cp -r ./django_app/manage.py ./build/API
 cp ./django_app/requirements.txt ./build/API
+touch ./build/API/db.sqlite3
 mkdir ./build/API/media
 mkdir ./build/API/static
 cd ./build/API/

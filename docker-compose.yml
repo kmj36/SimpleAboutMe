@@ -1,58 +1,33 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:latest
-    restart: always
-    container_name: ${CONTAINER_NAME}_mysql_db
-    ports:
-      - ${MYSQL_EXTERNAL_PORT}:3306 # HOST:CONTAINER
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      TZ: Asia/Seoul
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-    volumes:
-      - ./mysql_db:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${MYSQL_ROOT_USER} --password=${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 2s
-      retries: 100
-    networks:
-      - intropageNet
-      
-  api:
+  backend:
     build: ./django_app
     restart: always
-    command: bash -c "sleep 1m ; python manage.py makemigrations ; python manage.py migrate ; python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} ; python manage.py runserver 0.0.0.0:${DJANGO_PORT}"
-    container_name: ${CONTAINER_NAME}_django_api
+    command: bash -c "
+      sleep 1m &&
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      python manage.py createsuperuser --noinput --userid ${DJANGO_ADMIN_ID} --password ${DJANGO_ADMIN_PASSWORD} --nickname ${DJANGO_ADMIN_NICKNAME} --email ${DJANGO_ADMIN_EMAIL} ;
+      gunicorn --certfile=/etc/letsencrypt/live/kmj36.duckdns.org/fullchain.pem --keyfile=/etc/letsencrypt/live/kmj36.duckdns.org/privkey.pem --bind 0.0.0.0:${DJANGO_PORT} django_app.wsgi:application"
+    container_name: ${CONTAINER_NAME}_django_backend
+    volumes:
+      - ./db.sqlite3:/TestDjango/db.sqlite3
+      - /etc/letsencrypt:/etc/letsencrypt
     ports:
       - ${DJANGO_PORT}:${DJANGO_PORT} # HOST:CONTAINER
-    depends_on:
-      db:
-        condition: service_healthy
-    links:
-      - db:db
     environment:
       DJANGO_DEBUG_MODE: ${DJANGO_DEBUG_MODE}
       DJANGO_ALLOWED_HOST: ${DJANGO_ALLOWED_HOST}
-      DJANGO_DATABASES_HOST: ${DJANGO_DATABASES_HOST}
-      DJANGO_DATABASES_PORT: ${DJANGO_DATABASES_PORT}
       DJANGO_ADMIN_ID: ${DJANGO_ADMIN_ID}
       DJANGO_ADMIN_PASSWORD: ${DJANGO_ADMIN_PASSWORD}
       DJANGO_ADMIN_NICKNAME: ${DJANGO_ADMIN_NICKNAME}
       DJANGO_ADMIN_EMAIL: ${DJANGO_ADMIN_EMAIL}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       DJANGO_PRIVATE_API_MODE: ${DJANGO_PRIVATE_API_MODE}
       PRIVATE_API_AES_ENCRYPTION_KEY: ${PRIVATE_API_AES_ENCRYPTION_KEY}
     networks:
-      - intropageNet
+      - BackNet
 
   web:
     image: nginx:latest
@@ -63,6 +38,7 @@ services:
     volumes:
       - ./nginx_webapp/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx_webapp/intropage-app/build:/usr/share/nginx/html/
+      - /etc/letsencrypt:/etc/letsencrypt
     networks:
       - intropageNet
 
@@ -75,9 +51,12 @@ services:
     volumes:
       - ./nginx_webapp/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx_webapp/cms/build:/usr/share/nginx/html/
+      - /etc/letsencrypt:/etc/letsencrypt
     networks:
       - intropageNet
 
 networks:
   intropageNet:
+    driver: bridge
+  BackNet:
     driver: bridge

@@ -1,37 +1,14 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:latest
-    restart: always
-    container_name: ${CONTAINER_NAME}_mysql_db
-    ports:
-      - 3306:3306 # HOST:CONTAINER
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      TZ: Asia/Seoul
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-    volumes:
-      - ./mysql_db:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u ${MYSQL_ROOT_USER} --password=${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 2s
-      retries: 100
-    networks:
-      - intropageBackendNet
-  
-  api:
+  backend:
     build:
       context: ./API
       dockerfile: Dockerfile
     restart: always
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
+      - ./db.sqlite3:/django_app/db.sqlite3
     command: bash -c "
       sleep 1m &&
       python manage.py makemigrations &&
@@ -42,23 +19,13 @@ services:
     container_name: ${CONTAINER_NAME}_django_api
     ports:
       - ${DJANGO_PORT}:${DJANGO_PORT} # HOST:CONTAINER
-    links:
-      - db:db
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       DJANGO_DEBUG_MODE: ${DJANGO_DEBUG_MODE}
       DJANGO_ALLOWED_HOST: ${DJANGO_ALLOWED_HOST}
-      DJANGO_DATABASES_HOST: ${DJANGO_DATABASES_HOST}
-      DJANGO_DATABASES_PORT: ${DJANGO_DATABASES_PORT}
       DJANGO_ADMIN_ID: ${DJANGO_ADMIN_ID}
       DJANGO_ADMIN_PASSWORD: ${DJANGO_ADMIN_PASSWORD}
       DJANGO_ADMIN_NICKNAME: ${DJANGO_ADMIN_NICKNAME}
       DJANGO_ADMIN_EMAIL: ${DJANGO_ADMIN_EMAIL}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       DJANGO_PRIVATE_API_MODE: ${DJANGO_PRIVATE_API_MODE}
       PRIVATE_API_AES_ENCRYPTION_KEY: ${PRIVATE_API_AES_ENCRYPTION_KEY}
     networks:
@@ -76,7 +43,7 @@ services:
       - ./App/Web:/usr/share/nginx/html/
       - /etc/letsencrypt:/etc/letsencrypt
     links:
-      - api:api
+      - backend:backend
     environment:
       REACT_APP_TITLE: ${REACT_APP_TITLE}
       REACT_APP_EMAILJS_SERVICE_ID: ${REACT_APP_EMAILJS_SERVICE_ID}
@@ -96,7 +63,7 @@ services:
       - ./App/Admin:/usr/share/nginx/html/
       - /etc/letsencrypt:/etc/letsencrypt
     links:
-      - api:api
+      - backend:backend
     environment:
       REACT_APP_TITLE: ${REACT_APP_TITLE}
       REACT_APP_API_HOST: ${REACT_APP_API_HOST}

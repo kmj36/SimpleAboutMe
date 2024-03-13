@@ -179,28 +179,12 @@ WSGI_APPLICATION = 'django_app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('MYSQL_DATABASE'),
-            'USER': os.environ.get('MYSQL_ROOT_USER'),
-            'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-            'HOST': os.environ.get('DJANGO_DATABASES_HOST'),
-            'PORT': os.environ.get('DJANGO_DATABASES_PORT'),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('MYSQL_DATABASE'),
-            'USER': os.environ.get('MYSQL_ROOT_USER'),
-            'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD'),
-            'HOST': 'db',
-            'PORT': os.environ.get('DJANGO_DATABASES_PORT'),
-        }
-    }
+}
 
 
 # Password validation
@@ -242,8 +226,8 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+STATIC_ROOT = BASE_DIR / 'static'
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static/'
 STATICFILES_DIRS = []
     
 # Default primary key field type

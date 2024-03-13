@@ -8,9 +8,8 @@ RUN apt install -y gunicorn
 RUN apt clean
 
 WORKDIR /django_app
-COPY requirements.txt .
+COPY . .
+RUN touch db.sqlite3
 RUN python -m venv venv && . venv/bin/activate
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
-
-COPY . .
